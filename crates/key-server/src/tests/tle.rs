@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -10,21 +11,24 @@ use crypto::elgamal;
 use fastcrypto::ed25519::Ed25519KeyPair;
 use fastcrypto::traits::KeyPair;
 use rand::thread_rng;
-use mys_types::{
+use myso_types::{
     base_types::ObjectID,
     programmable_transaction_builder::ProgrammableTransactionBuilder,
-    transaction::{ObjectArg, ProgrammableTransaction},
-    Identifier, MYS_CLOCK_OBJECT_ID,
+    transaction::{ObjectArg, ProgrammableTransaction, SharedObjectMutability},
+    Identifier, MYSO_CLOCK_OBJECT_ID,
 };
 use tracing_test::traced_test;
 
 #[traced_test]
 #[tokio::test]
 async fn test_tle_policy() {
-    let mut tc = MyDataTestCluster::new(1).await;
-    tc.add_open_server().await;
+    let mut tc = MyDataTestCluster::new(1, "mydata").await;
+    let (mydata_package, _) = tc.publish("mydata").await;
+    let (package_id, _) = tc
+        .publish_with_deps("patterns", vec![("mydata", mydata_package)])
+        .await;
 
-    let (package_id, _) = tc.publish("patterns").await;
+    tc.add_open_server(mydata_package).await;
 
     {
         // old time
@@ -94,9 +98,12 @@ async fn test_tle_policy() {
 #[traced_test]
 #[tokio::test]
 async fn test_tle_certificate() {
-    let mut tc = MyDataTestCluster::new(1).await;
-    tc.add_open_server().await;
-    let (package_id, _) = tc.publish("patterns").await;
+    let mut tc = MyDataTestCluster::new(1, "mydata").await;
+    let (mydata_package, _) = tc.publish("mydata").await;
+    let (package_id, _) = tc
+        .publish_with_deps("patterns", vec![("mydata", mydata_package)])
+        .await;
+    tc.add_open_server(mydata_package).await;
 
     let ptb = tle_create_ptb(package_id, 1);
     let (_, pk, vk) = elgamal::genkey(&mut thread_rng());
@@ -210,10 +217,12 @@ async fn test_tle_certificate() {
 #[traced_test]
 #[tokio::test]
 async fn test_tle_signed_request() {
-    let mut tc = MyDataTestCluster::new(1).await;
-    tc.add_open_server().await;
-
-    let (package_id, _) = tc.publish("patterns").await;
+    let mut tc = MyDataTestCluster::new(1, "mydata").await;
+    let (mydata_package, _) = tc.publish("mydata").await;
+    let (package_id, _) = tc
+        .publish_with_deps("patterns", vec![("mydata", mydata_package)])
+        .await;
+    tc.add_open_server(mydata_package).await;
 
     let ptb = tle_create_ptb(package_id, 1);
     let (_, pk, vk) = elgamal::genkey(&mut thread_rng());
@@ -256,9 +265,9 @@ fn tle_create_ptb(package_id: ObjectID, time: u64) -> ProgrammableTransaction {
     let id_0 = builder.pure(get_tle_id(0)).unwrap(); // used to test ptb with 2 commands
     let clock = builder
         .obj(ObjectArg::SharedObject {
-            id: MYS_CLOCK_OBJECT_ID,
+            id: MYSO_CLOCK_OBJECT_ID,
             initial_shared_version: 1.into(),
-            mutable: false,
+            mutability: SharedObjectMutability::Immutable,
         })
         .unwrap();
 

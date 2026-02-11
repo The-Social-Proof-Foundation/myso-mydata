@@ -1,9 +1,10 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Transaction } from '@socialproof/mys/transactions';
+import { Transaction } from '@socialproof/myso/transactions';
 import { Button, Card, Flex } from '@radix-ui/themes';
-import { useSignAndExecuteTransaction, useMysClient } from '@socialproof/dapp-kit';
+import { useSignAndExecuteTransaction, useMySoClient } from '@socialproof/dapp-kit';
 import { useState } from 'react';
 import { useNetworkVariable } from './networkConfig';
 import { useNavigate } from 'react-router-dom';
@@ -13,11 +14,11 @@ export function CreateService() {
   const [ttl, setTtl] = useState('');
   const [name, setName] = useState('');
   const packageId = useNetworkVariable('packageId');
-  const suiClient = useMysClient();
+  const mysoClient = useMySoClient();
   const navigate = useNavigate();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction({
     execute: async ({ bytes, signature }) =>
-      await suiClient.executeTransactionBlock({
+      await mysoClient.executeTransactionBlock({
         transactionBlock: bytes,
         signature,
         options: {

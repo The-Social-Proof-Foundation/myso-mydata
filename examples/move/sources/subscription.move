@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -7,7 +8,7 @@
 module walrus::subscription;
 
 use std::string::String;
-use mys::{clock::Clock, coin::Coin, dynamic_field as df, mys::MYS};
+use myso::{clock::Clock, coin::Coin, dynamic_field as df, myso::MYSO};
 use walrus::utils::is_prefix;
 
 const EInvalidCap: u64 = 0;
@@ -62,7 +63,7 @@ entry fun create_service_entry(fee: u64, ttl: u64, name: String, ctx: &mut TxCon
 }
 
 public fun subscribe(
-    fee: Coin<MYS>,
+    fee: Coin<MYSO>,
     service: &Service,
     c: &Clock,
     ctx: &mut TxContext,
@@ -109,7 +110,7 @@ entry fun mydata_approve(id: vector<u8>, sub: &Subscription, service: &Service, 
     assert!(approve_internal(id, sub, service, c), ENoAccess);
 }
 
-/// Encapsulate a blob into a MySocial object and attach it to the Subscription
+/// Encapsulate a blob into a MySo object and attach it to the Subscription
 public fun publish(service: &mut Service, cap: &Cap, blob_id: String) {
     assert!(cap.service_id == object::id(service), EInvalidCap);
     df::add(&mut service.id, blob_id, MARKER);

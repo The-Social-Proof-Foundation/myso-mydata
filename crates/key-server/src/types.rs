@@ -1,8 +1,12 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
+pub use crate::common::Network;
+use crate::mydata_package::MyDataPackage;
+use crate::utils::decode_object_id;
 use crypto::ibe;
-use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 /// The Identity-based encryption types.
 pub type IbeMasterKey = ibe::MasterKey;
@@ -10,44 +14,30 @@ pub type IbeMasterKey = ibe::MasterKey;
 /// Proof-of-possession of a key-servers master key.
 pub type MasterKeyPOP = ibe::ProofOfPossession;
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub enum Network {
-    Devnet,
-    Testnet,
-    Mainnet,
-    Custom {
-        node_url: Option<String>,
-        use_default_mainnet_for_mvr: Option<bool>,
-    },
-    #[cfg(test)]
-    TestCluster,
+impl FromStr for Network {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_ascii_lowercase().as_str() {
+            "devnet" => Ok(Network::Devnet {
+                mydata_package: decode_object_id("MYDATA_PACKAGE")
+                    .expect("MyData package ID must be set as env var MYDATA_PACKAGE"),
+            }),
+            "testnet" => Ok(Network::Testnet),
+            "mainnet" => Ok(Network::Mainnet),
+            _ => Err(format!("Unknown network: {s}")),
+        }
+    }
 }
 
 impl Network {
-    pub fn node_url(&self) -> String {
+    pub fn mydata_package(&self) -> MyDataPackage {
         match self {
-            Network::Devnet => "https://fullnode.devnet.mys.io:443".into(),
-            Network::Testnet => "https://fullnode.testnet.mys.io:443".into(),
-            Network::Mainnet => "https://fullnode.mainnet.mys.io:443".into(),
-            Network::Custom { node_url, .. } => node_url
-                .as_ref()
-                .expect("Custom network must have node_url set")
-                .clone(),
+            Network::Devnet { mydata_package } => MyDataPackage::Custom(*mydata_package),
+            Network::Testnet => MyDataPackage::Testnet,
+            Network::Mainnet => MyDataPackage::Mainnet,
             #[cfg(test)]
-            Network::TestCluster => panic!(), // Currently not used, but can be found from cluster.rpc_url() if needed
-        }
-    }
-
-    pub fn from_str(str: &str) -> Self {
-        match str.to_ascii_lowercase().as_str() {
-            "devnet" => Network::Devnet,
-            "testnet" => Network::Testnet,
-            "mainnet" => Network::Mainnet,
-            "custom" => Network::Custom {
-                node_url: std::env::var("NODE_URL").ok(),
-                use_default_mainnet_for_mvr: None,
-            },
-            _ => panic!("Unknown network: {}", str),
+            Network::TestCluster { mydata_package } => MyDataPackage::Custom(*mydata_package),
         }
     }
 }

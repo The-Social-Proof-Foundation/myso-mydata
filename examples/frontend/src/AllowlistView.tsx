@@ -1,21 +1,22 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 import { useEffect, useState } from 'react';
-import { useSignPersonalMessage, useMysClient } from '@socialproof/dapp-kit';
+import { useSignPersonalMessage, useMySoClient } from '@socialproof/dapp-kit';
 import { useNetworkVariable } from './networkConfig';
 import { AlertDialog, Button, Card, Dialog, Flex, Grid } from '@radix-ui/themes';
-import { fromHex } from '@socialproof/mys/utils';
-import { Transaction } from '@socialproof/mys/transactions';
+import { fromHex } from '@socialproof/myso/utils';
+import { Transaction } from '@socialproof/myso/transactions';
 import {
   KeyServerConfig,
   MyDataClient,
   SessionKey,
   type ExportedSessionKey
-} from '@mysten/mydata';
+} from '@socialproof/mydata';
 import { useParams } from 'react-router-dom';
 import { downloadAndDecrypt, getObjectExplorerLink, MoveCallConstructor } from './utils';
 import { set, get } from 'idb-keyval';
-import { getFullnodeUrl, MysClient } from '@socialproof/mys/client';
+import { getFullnodeUrl, MySoClient } from '@socialproof/myso/client';
 
 const TTL_MIN = 10;
 export interface FeedData {
@@ -33,11 +34,11 @@ function constructMoveCall(packageId: string, allowlistId: string): MoveCallCons
   };
 }
 
-const Feeds: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
-  const suiClient = useMysClient();
+const Feeds: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) => {
+  const mysoClient = useMySoClient();
   const serverObjectIds = ["0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75", "0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8"];
   const client = new MyDataClient({
-    suiClient,
+    mysoClient,
     serverConfigs: serverObjectIds.map((id) => ({
       objectId: id,
       weight: 1,
@@ -67,14 +68,14 @@ const Feeds: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, [id, suiClient, packageId]); // Add all dependencies that getFeed uses
+  }, [id, mysoClient, packageId]); // Add all dependencies that getFeed uses
 
   async function getFeed() {
-    const allowlist = await suiClient.getObject({
+    const allowlist = await mysoClient.getObject({
       id: id!,
       options: { showContent: true },
     });
-    const encryptedObjects = await suiClient
+    const encryptedObjects = await mysoClient
       .getDynamicFields({
         parentId: id!,
       })
@@ -95,19 +96,19 @@ const Feeds: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
       try {
         const currentSessionKey = await SessionKey.import(
           imported,
-          new MysClient({ url: getFullnodeUrl('testnet') }),
+          new MySoClient({ url: getFullnodeUrl('testnet') }),
         );
         console.log('loaded currentSessionKey', currentSessionKey);
         if (
           currentSessionKey &&
           !currentSessionKey.isExpired() &&
-          currentSessionKey.getAddress() === suiAddress
+          currentSessionKey.getAddress() === mysoAddress
         ) {
           const moveCallConstructor = constructMoveCall(packageId, allowlistId);
           downloadAndDecrypt(
             blobIds,
             currentSessionKey,
-            suiClient,
+            mysoClient,
             client,
             moveCallConstructor,
             setError,
@@ -125,10 +126,10 @@ const Feeds: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
     set('sessionKey', null);
 
     const sessionKey = await SessionKey.create({
-      address: suiAddress,
+      address: mysoAddress,
       packageId,
       ttlMin: TTL_MIN,
-      suiClient,
+      mysoClient,
       mvrName,
     });
 
@@ -144,7 +145,7 @@ const Feeds: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
             await downloadAndDecrypt(
               blobIds,
               sessionKey,
-              suiClient,
+              mysoClient,
               client,
               moveCallConstructor,
               setError,

@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -17,7 +18,7 @@ use tower_http::{
 use tracing::Level;
 
 // MyData proxy prom registry, to avoid collisions with prometheus in some
-// shared counters from other crates, namely mys-proxy
+// shared counters from other crates, namely myso-proxy
 pub(crate) static MYDATA_PROXY_PROM_REGISTRY: Lazy<Registry> = Lazy::new(Registry::new);
 
 /// Function to access the registry

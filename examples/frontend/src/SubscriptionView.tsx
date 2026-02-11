@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 import { useEffect, useState } from 'react';
@@ -5,16 +6,16 @@ import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
   useSignPersonalMessage,
-  useMysClient,
+  useMySoClient,
 } from '@socialproof/dapp-kit';
 import { useNetworkVariable } from './networkConfig';
 import { AlertDialog, Button, Card, Dialog, Flex } from '@radix-ui/themes';
-import { coinWithBalance, Transaction } from '@socialproof/mys/transactions';
-import { fromHex, SUI_CLOCK_OBJECT_ID } from '@socialproof/mys/utils';
-import { MyDataClient, SessionKey } from '@mysten/mydata';
+import { coinWithBalance, Transaction } from '@socialproof/myso/transactions';
+import { fromHex, MYSO_CLOCK_OBJECT_ID } from '@socialproof/myso/utils';
+import { MyDataClient, SessionKey } from '@socialproof/mydata';
 import { useParams } from 'react-router-dom';
 import { downloadAndDecrypt, getObjectExplorerLink, MoveCallConstructor } from './utils';
-import { getFullnodeUrl, MysClient } from '@socialproof/mys/client';
+import { getFullnodeUrl, MySoClient } from '@socialproof/myso/client';
 
 const TTL_MIN = 10;
 export interface FeedData {
@@ -27,13 +28,13 @@ export interface FeedData {
   subscriptionId?: string;
 }
 
-const FeedsToSubscribe: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
-  const suiClient = useMysClient();
+const FeedsToSubscribe: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) => {
+  const mysoClient = useMySoClient();
   const { id } = useParams();
   const serverObjectIds = ["0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75", "0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8"];
 
   const client = new MyDataClient({
-    suiClient,
+    mysoClient,
     serverConfigs: serverObjectIds.map((id) => ({
       objectId: id,
       weight: 1,
@@ -53,7 +54,7 @@ const FeedsToSubscribe: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
 
   const { mutate: signAndExecute } = useSignAndExecuteTransaction({
     execute: async ({ bytes, signature }) =>
-      await suiClient.executeTransactionBlock({
+      await mysoClient.executeTransactionBlock({
         transactionBlock: bytes,
         signature,
         options: {
@@ -74,26 +75,26 @@ const FeedsToSubscribe: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, [id, suiAddress, packageId, suiClient]);
+  }, [id, mysoAddress, packageId, mysoClient]);
 
   async function getFeed() {
     // get all encrypted objects for the given service id
-    const encryptedObjects = await suiClient
+    const encryptedObjects = await mysoClient
       .getDynamicFields({
         parentId: id!,
       })
       .then((res) => res.data.map((obj) => obj.name.value as string));
 
     // get the current service object
-    const service = await suiClient.getObject({
+    const service = await mysoClient.getObject({
       id: id!,
       options: { showContent: true },
     });
     const service_fields = (service.data?.content as { fields: any })?.fields || {};
 
-    // get all subscriptions for the given mys address
-    const res = await suiClient.getOwnedObjects({
-      owner: suiAddress,
+    // get all subscriptions for the given myso address
+    const res = await mysoClient.getOwnedObjects({
+      owner: mysoAddress,
       options: {
         showContent: true,
         showType: true,
@@ -104,7 +105,7 @@ const FeedsToSubscribe: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
     });
 
     // get the current timestamp
-    const clock = await suiClient.getObject({
+    const clock = await mysoClient.getObject({
       id: '0x6',
       options: { showContent: true },
     });
@@ -148,7 +149,7 @@ const FeedsToSubscribe: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
           tx.pure.vector('u8', fromHex(id)),
           tx.object(subscriptionId),
           tx.object(serviceId),
-          tx.object(SUI_CLOCK_OBJECT_ID),
+          tx.object(MYSO_CLOCK_OBJECT_ID),
         ],
       });
     };
@@ -166,7 +167,7 @@ const FeedsToSubscribe: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
           balance: BigInt(fee),
         }),
         tx.object(serviceId),
-        tx.object(SUI_CLOCK_OBJECT_ID),
+        tx.object(MYSO_CLOCK_OBJECT_ID),
       ],
     });
     tx.moveCall({
@@ -200,13 +201,13 @@ const FeedsToSubscribe: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
     if (
       currentSessionKey &&
       !currentSessionKey.isExpired() &&
-      currentSessionKey.getAddress() === suiAddress
+      currentSessionKey.getAddress() === mysoAddress
     ) {
       const moveCallConstructor = constructMoveCall(packageId, serviceId, subscriptionId);
       downloadAndDecrypt(
         blobIds,
         currentSessionKey,
-        suiClient,
+        mysoClient,
         client,
         moveCallConstructor,
         setError,
@@ -219,10 +220,10 @@ const FeedsToSubscribe: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
     setCurrentSessionKey(null);
 
     const sessionKey = await SessionKey.create({
-      address: suiAddress,
+      address: mysoAddress,
       packageId,
       ttlMin: TTL_MIN,
-      suiClient,
+      mysoClient,
     });
 
     try {
@@ -241,7 +242,7 @@ const FeedsToSubscribe: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
             await downloadAndDecrypt(
               blobIds,
               sessionKey,
-              suiClient,
+              mysoClient,
               client,
               moveCallConstructor,
               setError,

@@ -1,12 +1,13 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::tests::externals::get_key;
 use crate::tests::MyDataTestCluster;
-use mys_sdk::{json::MysJsonValue, rpc_types::ObjectChange};
-use mys_types::base_types::{ObjectDigest, SequenceNumber};
-use mys_types::{
-    base_types::{ObjectID, MysAddress},
+use myso_sdk::{json::MySoJsonValue, rpc_types::ObjectChange};
+use myso_types::base_types::{ObjectDigest, SequenceNumber};
+use myso_types::{
+    base_types::{ObjectID, MySoAddress},
     programmable_transaction_builder::ProgrammableTransactionBuilder,
     transaction::{ObjectArg, ProgrammableTransaction},
     Identifier,
@@ -17,10 +18,14 @@ use tracing_test::traced_test;
 #[traced_test]
 #[tokio::test]
 async fn test_pd() {
-    let mut tc = MyDataTestCluster::new(2).await;
-    tc.add_open_server().await;
+    let mut tc = MyDataTestCluster::new(2, "mydata").await;
 
-    let (package_id, _) = tc.publish("patterns").await;
+    let (mydata_package, _) = tc.publish("mydata").await;
+    let (package_id, _) = tc
+        .publish_with_deps("patterns", vec![("mydata", mydata_package)])
+        .await;
+
+    tc.add_open_server(mydata_package).await;
 
     // create PrivateData with nonce=package_id, owned by addr1
     let (pd, version, digest) =
@@ -64,11 +69,11 @@ async fn test_pd() {
 }
 
 pub(crate) async fn create_private_data(
-    user: MysAddress,
+    user: MySoAddress,
     cluster: &TestCluster,
     package_id: ObjectID,
 ) -> (ObjectID, SequenceNumber, ObjectDigest) {
-    let builder = cluster.mys_client().transaction_builder();
+    let builder = cluster.myso_client().transaction_builder();
     let tx = builder
         .move_call(
             cluster.get_address_0(),
@@ -77,8 +82,8 @@ pub(crate) async fn create_private_data(
             "store_entry",
             vec![],
             vec![
-                MysJsonValue::from_object_id(package_id),
-                MysJsonValue::from_object_id(package_id),
+                MySoJsonValue::from_object_id(package_id),
+                MySoJsonValue::from_object_id(package_id),
             ],
             None,
             50_000_000,
@@ -95,14 +100,13 @@ pub(crate) async fn create_private_data(
             object_id,
             ..
         } = created
+            && object_type.name.as_str() == "PrivateData"
         {
-            if object_type.name.as_str() == "PrivateData" {
-                pd.replace(object_id);
-            };
-        }
+            pd.replace(object_id);
+        };
     }
 
-    let builder = cluster.mys_client().transaction_builder();
+    let builder = cluster.myso_client().transaction_builder();
     let tx = builder
         .transfer_object(cluster.get_address_0(), pd.unwrap(), None, 50_000_000, user)
         .await
@@ -117,10 +121,9 @@ pub(crate) async fn create_private_data(
             digest,
             ..
         } = modified
+            && object_type.name.as_str() == "PrivateData"
         {
-            if object_type.name.as_str() == "PrivateData" {
-                return (object_id, version, digest);
-            }
+            return (object_id, version, digest);
         }
     }
 

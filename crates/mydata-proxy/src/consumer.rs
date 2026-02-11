@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -90,7 +91,7 @@ impl ProtobufDecoder {
         Self { buf }
     }
     /// parse a delimited buffer of protobufs. this is used to consume data sent
-    /// from a mys-node
+    /// from a myso-node
     pub fn parse<T: protobuf::Message>(&mut self) -> Result<Vec<T>> {
         let timer =
             with_label!(CONSUMER_OPERATION_DURATION, "decode_len_delim_protobuf").start_timer();

@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -12,7 +13,7 @@
 ///
 module patterns::account_based;
 
-use mys::bcs;
+use myso::bcs;
 
 const ENoAccess: u64 = 1;
 
@@ -36,6 +37,6 @@ fun test_check_policy() {
     let id = bcs::to_bytes(&sender);
     assert!(check_policy(id, &ctx), 0);
 
-    let id = bcs::to_bytes(&0x0232);
+    let id = bcs::to_bytes(&@0x0232);
     assert!(!check_policy(id, &ctx), 0);
 }

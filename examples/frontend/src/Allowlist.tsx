@@ -1,13 +1,14 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
-import { useCurrentAccount, useSignAndExecuteTransaction, useMysClient } from '@socialproof/dapp-kit';
-import { Transaction } from '@socialproof/mys/transactions';
+import { useCurrentAccount, useSignAndExecuteTransaction, useMySoClient } from '@socialproof/dapp-kit';
+import { Transaction } from '@socialproof/myso/transactions';
 import { Button, Card, Flex } from '@radix-ui/themes';
 import { useNetworkVariable } from './networkConfig';
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { useParams } from 'react-router-dom';
-import { isValidMysAddress } from '@socialproof/mys/utils';
+import { isValidMySoAddress } from '@socialproof/myso/utils';
 import { getObjectExplorerLink } from './utils';
 
 export interface Allowlist {
@@ -23,7 +24,7 @@ interface AllowlistProps {
 
 export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
   const packageId = useNetworkVariable('packageId');
-  const suiClient = useMysClient();
+  const mysoClient = useMySoClient();
   const currentAccount = useCurrentAccount();
   const [allowlist, setAllowlist] = useState<Allowlist>();
   const { id } = useParams();
@@ -32,7 +33,7 @@ export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
   useEffect(() => {
     async function getAllowlist() {
       // load all caps
-      const res = await suiClient.getOwnedObjects({
+      const res = await mysoClient.getOwnedObjects({
         owner: currentAccount?.address!,
         options: {
           showContent: true,
@@ -58,7 +59,7 @@ export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
       setInnerCapId(capId[0]);
 
       // load the allowlist for the given id
-      const allowlist = await suiClient.getObject({
+      const allowlist = await mysoClient.getObject({
         id: id!,
         options: { showContent: true },
       });
@@ -85,7 +86,7 @@ export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
 
   const { mutate: signAndExecute } = useSignAndExecuteTransaction({
     execute: async ({ bytes, signature }) =>
-      await suiClient.executeTransactionBlock({
+      await mysoClient.executeTransactionBlock({
         transactionBlock: bytes,
         signature,
         options: {
@@ -97,7 +98,7 @@ export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
 
   const addItem = (newAddressToAdd: string, wl_id: string, cap_id: string) => {
     if (newAddressToAdd.trim() !== '') {
-      if (!isValidMysAddress(newAddressToAdd.trim())) {
+      if (!isValidMySoAddress(newAddressToAdd.trim())) {
         alert('Invalid address');
         return;
       }

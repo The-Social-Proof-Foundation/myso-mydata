@@ -1,0 +1,34 @@
+[package]
+name = "mydata-committee-cli"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+mydata-committee = { path = "../mydata-committee" }
+
+fastcrypto.workspace = true
+fastcrypto-tbls.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+bcs.workspace = true
+rand.workspace = true
+anyhow.workspace = true
+myso-sdk-types.workspace = true
+tokio.workspace = true
+serde_yaml.workspace = true
+myso_sdk.workspace = true
+myso_types.workspace = true
+myso-move-build.workspace = true
+move-package-alt-compilation.workspace = true
+myso-package-alt.workspace = true
+myso-rpc.workspace = true
+myso-rpc-api.workspace = true
+prost-types.workspace = true
+dirs = "5.0"
+
+[[bin]]
+name = "mydata-committee"
+path = "src/main.rs"

@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -11,8 +12,24 @@ use prometheus::{
 use std::sync::Arc;
 use std::time::Instant;
 
+/// Known valid routes for metrics labeling.
+/// Any route not in this list will be normalized to "unknown" to prevent
+/// high-cardinality label explosion from malicious requests.
+const KNOWN_ROUTES: &[&str] = &["/v1/fetch_key", "/v1/service", "/health"];
+
+/// Normalize a route path to a known route or "unknown".
+/// This prevents high-cardinality metrics from malicious/invalid request paths.
+fn normalize_route(path: &str) -> &'static str {
+    for &route in KNOWN_ROUTES {
+        if path == route {
+            return route;
+        }
+    }
+    "unknown"
+}
+
 #[derive(Debug)]
-pub(crate) struct Metrics {
+pub struct KeyServerMetrics {
     /// Total number of requests received
     pub requests: IntCounter,
 
@@ -21,15 +38,6 @@ pub(crate) struct Metrics {
 
     /// Total number of internal errors by type
     errors: IntCounterVec,
-
-    /// Delay of timestamp of the latest checkpoint
-    pub checkpoint_timestamp_delay: Histogram,
-
-    /// Duration of getting the latest checkpoint timestamp
-    pub get_checkpoint_timestamp_duration: Histogram,
-
-    /// Status of requests of getting the latest checkpoint timestamp
-    pub get_checkpoint_timestamp_status: IntCounterVec,
 
     /// Status of requests of getting the reference gas price
     pub get_reference_gas_price_status: IntCounterVec,
@@ -52,15 +60,25 @@ pub(crate) struct Metrics {
     /// HTTP request in flight by route
     pub http_request_in_flight: IntGaugeVec,
 
-    /// MySocial RPC request duration by label
-    pub mys_rpc_request_duration_millis: HistogramVec,
+    /// MySo RPC request duration by label
+    pub myso_rpc_request_duration_millis: HistogramVec,
 
     /// Dry run gas cost per package
     pub dry_run_gas_cost_per_package: HistogramVec,
+
+    /// Total number of requests failed due to stale FN
+    pub requests_failed_due_to_staleness: IntCounter,
+
+    /// The current key server version
+    pub key_server_version: IntCounterVec,
+
+    /// Client SDK versions by type seen in requests
+    #[allow(dead_code)]
+    pub client_sdk_version: IntCounterVec,
 }
 
-impl Metrics {
-    pub(crate) fn new(registry: &Registry) -> Self {
+impl KeyServerMetrics {
+    pub fn new(registry: &Registry) -> Self {
         Self {
             requests: register_int_counter_with_registry!(
                 "total_requests",
@@ -79,27 +97,6 @@ impl Metrics {
                 "service_requests",
                 "Total number of service requests received",
                 registry
-            )
-            .unwrap(),
-            checkpoint_timestamp_delay: register_histogram_with_registry!(
-                "checkpoint_timestamp_delay",
-                "Delay of timestamp of the latest checkpoint",
-                buckets(0.0, 150000.0, 1000.0),
-                registry
-            )
-            .unwrap(),
-            get_checkpoint_timestamp_duration: register_histogram_with_registry!(
-                "checkpoint_timestamp_duration",
-                "Duration of getting the latest checkpoint timestamp",
-                default_external_call_duration_buckets(),
-                registry
-            )
-            .unwrap(),
-            get_checkpoint_timestamp_status: register_int_counter_vec_with_registry!(
-                "checkpoint_timestamp_status",
-                "Status of request to get the latest timestamp",
-                &["status"],
-                registry,
             )
             .unwrap(),
             fetch_pkg_ids_duration: register_histogram_with_registry!(
@@ -152,9 +149,9 @@ impl Metrics {
                 registry
             )
             .unwrap(),
-            mys_rpc_request_duration_millis: register_histogram_vec_with_registry!(
-                "mys_rpc_request_duration_millis",
-                "MySocial RPC request duration and status in milliseconds",
+            myso_rpc_request_duration_millis: register_histogram_vec_with_registry!(
+                "myso_rpc_request_duration_millis",
+                "MySo RPC request duration and status in milliseconds",
                 &["method", "status"],
                 default_fast_call_duration_buckets(),
                 registry
@@ -168,16 +165,37 @@ impl Metrics {
                 registry
             )
             .unwrap(),
+            requests_failed_due_to_staleness: register_int_counter_with_registry!(
+                "requests_failed_due_to_staleness",
+                "Total number of requests that failed due to a stale fullnode",
+                registry
+            )
+            .unwrap(),
+            key_server_version: register_int_counter_vec_with_registry!(
+                "key_server_version",
+                "The current key server version",
+                &["version"],
+                registry
+            )
+            .unwrap(),
+            client_sdk_version: register_int_counter_vec_with_registry!(
+                "client_sdk_version",
+                "Client SDK versions by type seen in requests",
+                &["sdk_type", "version"],
+                registry
+            )
+            .unwrap(),
         }
     }
 
-    pub(crate) fn observe_error(&self, error_type: &str) {
+    pub fn observe_error(&self, error_type: &str) {
         self.errors.with_label_values(&[error_type]).inc();
     }
 }
 
 /// If metrics is Some, apply the closure and measure the duration of the closure and call set_duration with the duration.
 /// Otherwise, just call the closure.
+#[allow(dead_code)]
 pub(crate) fn call_with_duration<T>(metrics: Option<&Histogram>, closure: impl FnOnce() -> T) -> T {
     if let Some(metrics) = metrics {
         let start = Instant::now();
@@ -189,25 +207,15 @@ pub(crate) fn call_with_duration<T>(metrics: Option<&Histogram>, closure: impl F
     }
 }
 
-/// Create a callback function which when called will add the input transformed by f to the histogram.
-pub(crate) fn observation_callback<T, U: Fn(T) -> f64>(
-    histogram: &Histogram,
-    f: U,
-) -> impl Fn(T) + use<T, U> {
-    let histogram = histogram.clone();
-    move |t| {
-        histogram.observe(f(t));
-    }
-}
-
+#[allow(dead_code)]
 pub(crate) fn status_callback(metrics: &IntCounterVec) -> impl Fn(bool) + use<> {
     let metrics = metrics.clone();
     move |status: bool| {
-        let value = match status {
+        let label = match status {
             true => "success",
             false => "failure",
         };
-        metrics.with_label_values(&[value]).inc();
+        metrics.with_label_values(&[label]).inc();
     }
 }
 
@@ -222,33 +230,143 @@ fn buckets(start: f64, end: f64, step: f64) -> Vec<f64> {
     buckets
 }
 
-fn default_external_call_duration_buckets() -> Vec<f64> {
-    buckets(50.0, 2000.0, 50.0)
-}
-
 fn default_fast_call_duration_buckets() -> Vec<f64> {
     buckets(10.0, 100.0, 10.0)
 }
 
-/// Middleware that tracks metrics for HTTP requests and response status.
-pub(crate) async fn metrics_middleware(
-    State(metrics): State<Arc<Metrics>>,
+/// Collector that tracks the uptime of the server.
+#[allow(dead_code)]
+pub fn uptime_metric(service_name: &str, version: &str) -> Box<dyn prometheus::core::Collector> {
+    let opts = prometheus::opts!(
+        "uptime",
+        format!("uptime of the {} in seconds", service_name)
+    )
+    .variable_label("version");
+
+    let start_time = std::time::Instant::now();
+    let uptime = move || start_time.elapsed().as_secs();
+    let metric = prometheus_closure_metric::ClosureMetric::new(
+        opts,
+        prometheus_closure_metric::ValueType::Counter,
+        uptime,
+        &[version],
+    )
+    .unwrap();
+
+    Box::new(metric)
+}
+
+#[allow(dead_code)]
+#[derive(Debug)]
+pub struct AggregatorMetrics {
+    /// Total number of requests received
+    pub requests: IntCounter,
+
+    /// Total number of internal errors by type
+    errors: IntCounterVec,
+
+    /// HTTP request latency by route and status code
+    pub http_request_duration_millis: HistogramVec,
+
+    /// HTTP request count by route and status code
+    pub http_requests_total: IntCounterVec,
+
+    /// HTTP request in flight by route
+    pub http_request_in_flight: IntGaugeVec,
+
+    /// Client SDK versions by type seen in requests
+    pub client_sdk_version: IntCounterVec,
+
+    /// Errors from upstream key servers by server name and error type
+    pub upstream_key_server_errors: IntCounterVec,
+}
+
+#[allow(dead_code)]
+impl AggregatorMetrics {
+    pub fn new(registry: &Registry) -> Self {
+        Self {
+            requests: register_int_counter_with_registry!(
+                "total_requests",
+                "Total number of fetch_key requests received",
+                registry
+            )
+            .unwrap(),
+            errors: register_int_counter_vec_with_registry!(
+                "internal_errors",
+                "Total number of internal errors by type",
+                &["internal_error_type"],
+                registry
+            )
+            .unwrap(),
+            http_request_duration_millis: register_histogram_vec_with_registry!(
+                "http_request_duration_millis",
+                "HTTP request duration in milliseconds",
+                &["route", "status"],
+                default_fast_call_duration_buckets(),
+                registry
+            )
+            .unwrap(),
+            http_requests_total: register_int_counter_vec_with_registry!(
+                "http_requests_total",
+                "Total number of HTTP requests",
+                &["route", "status"],
+                registry
+            )
+            .unwrap(),
+            http_request_in_flight: register_int_gauge_vec_with_registry!(
+                "http_request_in_flight",
+                "Number of HTTP requests in flight",
+                &["route"],
+                registry
+            )
+            .unwrap(),
+            client_sdk_version: register_int_counter_vec_with_registry!(
+                "client_sdk_version",
+                "Client SDK versions by type seen in requests",
+                &["sdk_type", "version"],
+                registry
+            )
+            .unwrap(),
+            upstream_key_server_errors: register_int_counter_vec_with_registry!(
+                "upstream_key_server_errors",
+                "Errors from upstream key servers by server name and error type",
+                &["key_server_name", "error_type"],
+                registry
+            )
+            .unwrap(),
+        }
+    }
+
+    pub fn observe_error(&self, error_type: &str) {
+        self.errors.with_label_values(&[error_type]).inc();
+    }
+
+    pub fn observe_upstream_error(&self, key_server_name: &str, error_type: &str) {
+        self.upstream_key_server_errors
+            .with_label_values(&[key_server_name, error_type])
+            .inc();
+    }
+}
+
+/// Middleware that tracks metrics for HTTP requests and response status (for key server).
+pub async fn metrics_middleware(
+    State(metrics): State<Arc<KeyServerMetrics>>,
     request: axum::extract::Request,
     next: middleware::Next,
 ) -> axum::response::Response {
-    let route = request.uri().path().to_string();
+    let route = normalize_route(request.uri().path());
     let start = std::time::Instant::now();
 
     metrics
         .http_request_in_flight
-        .with_label_values(&[&route])
+        .with_label_values(&[route])
         .inc();
 
     let response = next.run(request).await;
 
     metrics
         .http_request_in_flight
-        .with_label_values(&[&route])
+        .with_label_values(&[route])
         .dec();
 
     let duration = start.elapsed().as_millis() as f64;
@@ -256,12 +374,72 @@ pub(crate) async fn metrics_middleware(
 
     metrics
         .http_request_duration_millis
-        .with_label_values(&[&route, &status])
+        .with_label_values(&[route, &status])
         .observe(duration);
     metrics
         .http_requests_total
-        .with_label_values(&[&route, &status])
+        .with_label_values(&[route, &status])
         .inc();
 
     response
+}
+
+/// Middleware that tracks metrics for HTTP requests and response status (for aggregator).
+#[allow(dead_code)]
+pub async fn aggregator_metrics_middleware(
+    State(metrics): State<Arc<AggregatorMetrics>>,
+    request: axum::extract::Request,
+    next: middleware::Next,
+) -> axum::response::Response {
+    let route = normalize_route(request.uri().path());
+    let start = std::time::Instant::now();
+
+    metrics
+        .http_request_in_flight
+        .with_label_values(&[route])
+        .inc();
+
+    let response = next.run(request).await;
+
+    metrics
+        .http_request_in_flight
+        .with_label_values(&[route])
+        .dec();
+
+    let duration = start.elapsed().as_millis() as f64;
+    let status = response.status().as_str().to_string();
+
+    metrics
+        .http_request_duration_millis
+        .with_label_values(&[route, &status])
+        .observe(duration);
+    metrics
+        .http_requests_total
+        .with_label_values(&[route, &status])
+        .inc();
+
+    response
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_normalize_route_known_routes() {
+        assert_eq!(normalize_route("/v1/fetch_key"), "/v1/fetch_key");
+        assert_eq!(normalize_route("/v1/service"), "/v1/service");
+        assert_eq!(normalize_route("/health"), "/health");
+    }
+
+    #[test]
+    fn test_normalize_route_unknown_routes() {
+        assert_eq!(normalize_route("/v1/unknown"), "unknown");
+        assert_eq!(normalize_route("/malicious/path"), "unknown");
+        assert_eq!(normalize_route("/v1/fetch_key/extra"), "unknown");
+        assert_eq!(normalize_route(""), "unknown");
+        assert_eq!(normalize_route("/"), "unknown");
+        // Long malicious path should be normalized to "unknown"
+        assert_eq!(normalize_route(&"a".repeat(10000)), "unknown");
+    }
 }

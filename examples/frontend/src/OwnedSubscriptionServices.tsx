@@ -1,7 +1,8 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCurrentAccount, useMysClient } from '@socialproof/dapp-kit';
+import { useCurrentAccount, useMySoClient } from '@socialproof/dapp-kit';
 import { useEffect, useState } from 'react';
 import { useNetworkVariable } from './networkConfig';
 import { Button, Card } from '@radix-ui/themes';
@@ -23,14 +24,14 @@ export interface CardItem {
 export function AllServices() {
   const packageId = useNetworkVariable('packageId');
   const currentAccount = useCurrentAccount();
-  const suiClient = useMysClient();
+  const mysoClient = useMySoClient();
 
   const [cardItems, setCardItems] = useState<CardItem[]>([]);
 
   useEffect(() => {
     async function getCapObj() {
       // get all owned cap objects
-      const res = await suiClient.getOwnedObjects({
+      const res = await mysoClient.getOwnedObjects({
         owner: currentAccount?.address!,
         options: {
           showContent: true,
@@ -53,7 +54,7 @@ export function AllServices() {
       // get all services of all the owned cap objects
       const cardItems: CardItem[] = await Promise.all(
         caps.map(async (cap) => {
-          const service = await suiClient.getObject({
+          const service = await mysoClient.getObject({
             id: cap.service_id,
             options: { showContent: true },
           });

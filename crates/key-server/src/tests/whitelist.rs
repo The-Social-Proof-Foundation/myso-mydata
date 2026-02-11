@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -5,11 +6,11 @@ use super::externals::get_key;
 use crate::tests::MyDataTestCluster;
 use serde_json::json;
 use std::path::PathBuf;
-use mys_sdk::{json::MysJsonValue, rpc_types::ObjectChange};
-use mys_types::{
-    base_types::{ObjectID, MysAddress},
+use myso_sdk::{json::MySoJsonValue, rpc_types::ObjectChange};
+use myso_types::{
+    base_types::{ObjectID, MySoAddress},
     programmable_transaction_builder::ProgrammableTransactionBuilder,
-    transaction::{ObjectArg, ProgrammableTransaction},
+    transaction::{ObjectArg, ProgrammableTransaction, SharedObjectMutability},
     Identifier,
 };
 use test_cluster::TestCluster;
@@ -18,11 +19,14 @@ use tracing_test::traced_test;
 #[traced_test]
 #[tokio::test]
 async fn test_whitelist() {
-    let mut tc = MyDataTestCluster::new(2).await;
-    tc.add_open_server().await;
-    tc.add_open_server().await;
+    let mut tc = MyDataTestCluster::new(2, "mydata").await;
+    let (mydata_package, _) = tc.publish("mydata").await;
+    let (package_id, _) = tc
+        .publish_with_deps("patterns", vec![("mydata", mydata_package)])
+        .await;
 
-    let (package_id, _) = tc.publish("patterns").await;
+    tc.add_open_server(mydata_package).await;
+    tc.add_open_server(mydata_package).await;
 
     let (whitelist, cap, initial_shared_version) =
         create_whitelist(tc.test_cluster(), package_id).await;
@@ -49,12 +53,13 @@ async fn test_whitelist() {
 #[traced_test]
 #[tokio::test]
 async fn test_whitelist_with_upgrade() {
-    let mut tc = MyDataTestCluster::new(1).await;
-    tc.add_open_server().await;
+    let mut tc = MyDataTestCluster::new(1, "mydata").await;
+    let (mydata_package, _) = tc.publish("mydata").await;
+    tc.add_open_server(mydata_package).await;
 
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/tests/whitelist_v1");
     let (package_id_1, upgrade_cap) = tc.publish_path(path).await;
-    println!("Old pkg: {}", package_id_1);
+    println!("Old pkg: {package_id_1}");
 
     let (whitelist, cap, initial_shared_version) =
         create_whitelist(tc.test_cluster(), package_id_1).await;
@@ -179,7 +184,7 @@ pub fn whitelist_create_ptb(
         .obj(ObjectArg::SharedObject {
             id: whitelist_id,
             initial_shared_version: initial_shared_version.into(),
-            mutable: false,
+            mutability: SharedObjectMutability::Immutable,
         })
         .unwrap();
 
@@ -200,7 +205,7 @@ pub(crate) async fn create_whitelist(
 ) -> (ObjectID, ObjectID, u64) {
     // Create new whitelist
     let tx = cluster
-        .mys_client()
+        .myso_client()
         .transaction_builder()
         .move_call(
             cluster.get_address_0(),
@@ -245,11 +250,11 @@ pub(crate) async fn add_user_to_whitelist(
     package_id: ObjectID,
     whitelist: ObjectID,
     cap: ObjectID,
-    user: MysAddress,
+    user: MySoAddress,
 ) {
     // Add the first user to the whitelist
     let tx = cluster
-        .mys_client()
+        .myso_client()
         .transaction_builder()
         .move_call(
             cluster.get_address_0(),
@@ -258,9 +263,9 @@ pub(crate) async fn add_user_to_whitelist(
             "add",
             vec![],
             vec![
-                MysJsonValue::from_object_id(whitelist),
-                MysJsonValue::from_object_id(cap),
-                MysJsonValue::new(json!(user)).unwrap(),
+                MySoJsonValue::from_object_id(whitelist),
+                MySoJsonValue::from_object_id(cap),
+                MySoJsonValue::new(json!(user)).unwrap(),
             ],
             None,
             50_000_000,
@@ -280,7 +285,7 @@ pub(crate) async fn upgrade_whitelist(
 ) {
     // Add the first user to the whitelist
     let tx = cluster
-        .mys_client()
+        .myso_client()
         .transaction_builder()
         .move_call(
             cluster.get_address_0(),
@@ -289,8 +294,8 @@ pub(crate) async fn upgrade_whitelist(
             "upgrade_version",
             vec![],
             vec![
-                MysJsonValue::from_object_id(whitelist),
-                MysJsonValue::from_object_id(cap),
+                MySoJsonValue::from_object_id(whitelist),
+                MySoJsonValue::from_object_id(cap),
             ],
             None,
             50_000_000,

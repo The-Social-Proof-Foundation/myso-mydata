@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -395,7 +396,7 @@ pub(crate) mod tests {
                         "sample values do not match"
                     );
 
-                    // timestamps are injected on the mys-node and we copy it to our sample
+                    // timestamps are injected on the myso-node and we copy it to our sample
                     // make sure that works
                     assert_eq!(
                         actual_sample.timestamp, expected_sample.timestamp,

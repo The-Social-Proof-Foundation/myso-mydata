@@ -1,10 +1,11 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
 use crypto::{elgamal, ibe};
 use fastcrypto::ed25519::{Ed25519PublicKey, Ed25519Signature};
 use serde::{Deserialize, Serialize};
-use mys_sdk_types::{Address as MysAddress, UserSignature};
+use myso_sdk_types::{Address as MySoAddress, UserSignature};
 
 pub type ElGamalPublicKey = elgamal::PublicKey<ibe::UserSecretKey>;
 pub type ElgamalEncryption = elgamal::Encryption<ibe::UserSecretKey>;
@@ -13,7 +14,7 @@ pub type ElgamalVerificationKey = elgamal::VerificationKey<ibe::PublicKey>;
 pub type KeyId = Vec<u8>;
 
 pub type ElGamalSecretKey = crypto::elgamal::SecretKey<fastcrypto::groups::bls12381::G1Element>;
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct DecryptionKey {
     pub id: KeyId,
     pub encrypted_key: ElgamalEncryption,
@@ -27,7 +28,7 @@ pub struct FetchKeyResponse {
 /// The session certificate, signed by the user.
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Certificate {
-    pub user: MysAddress,
+    pub user: MySoAddress,
     pub session_vk: Ed25519PublicKey,
     pub creation_time: u64,
     pub ttl_min: u16,
@@ -35,7 +36,7 @@ pub struct Certificate {
     pub mvr_name: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct FetchKeyRequest {
     pub ptb: String,
     pub enc_key: ElGamalPublicKey,

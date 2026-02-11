@@ -1,9 +1,10 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::mys_rpc_client::MysRpcClient;
+use crate::myso_rpc_client::RpcResult;
+use crate::myso_rpc_client::MySoRpcClient;
 use std::time::{Duration, Instant};
-use mys_sdk::error::MysRpcResult;
 use tokio::sync::watch::{channel, Receiver};
 use tokio::task::JoinHandle;
 use tracing::debug;
@@ -13,7 +14,7 @@ use tracing::debug;
 /// If a duration_callback is provided, it will be called with the duration of each fetch operation.
 /// Returns the [Receiver].
 pub async fn spawn_periodic_updater<F, Fut, G, H, I>(
-    client: &MysRpcClient,
+    client: &MySoRpcClient,
     update_interval: Duration,
     fetch_fn: F,
     value_name: &'static str,
@@ -22,8 +23,8 @@ pub async fn spawn_periodic_updater<F, Fut, G, H, I>(
     success_callback: Option<I>,
 ) -> (Receiver<u64>, JoinHandle<()>)
 where
-    F: Fn(MysRpcClient) -> Fut + Send + 'static,
-    Fut: Future<Output = MysRpcResult<u64>> + Send,
+    F: Fn(MySoRpcClient) -> Fut + Send + 'static,
+    Fut: Future<Output = RpcResult<u64>> + Send,
     G: Fn(u64) + Send + 'static,
     H: Fn(Duration) + Send + 'static,
     I: Fn(bool) + Send + 'static,
@@ -68,6 +69,6 @@ where
     receiver
         .changed()
         .await
-        .unwrap_or_else(|_| panic!("Failed to get {}", value_name));
+        .unwrap_or_else(|_| panic!("Failed to get {value_name}"));
     (receiver, handle)
 }

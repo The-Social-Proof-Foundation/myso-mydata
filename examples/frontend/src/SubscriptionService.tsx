@@ -1,6 +1,7 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
-import { useCurrentAccount, useMysClient } from '@socialproof/dapp-kit';
+import { useCurrentAccount, useMySoClient } from '@socialproof/dapp-kit';
 import { Card, Flex } from '@radix-ui/themes';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -21,7 +22,7 @@ interface AllowlistProps {
 }
 
 export function Service({ setRecipientAllowlist, setCapId }: AllowlistProps) {
-  const suiClient = useMysClient();
+  const mysoClient = useMySoClient();
   const packageId = useNetworkVariable('packageId');
   const currentAccount = useCurrentAccount();
   const [service, setService] = useState<Service>();
@@ -30,7 +31,7 @@ export function Service({ setRecipientAllowlist, setCapId }: AllowlistProps) {
   useEffect(() => {
     async function getService() {
       // load the service for the given id
-      const service = await suiClient.getObject({
+      const service = await mysoClient.getObject({
         id: id!,
         options: { showContent: true },
       });
@@ -45,7 +46,7 @@ export function Service({ setRecipientAllowlist, setCapId }: AllowlistProps) {
       setRecipientAllowlist(id!);
 
       // load all caps
-      const res = await suiClient.getOwnedObjects({
+      const res = await mysoClient.getOwnedObjects({
         owner: currentAccount?.address!,
         options: {
           showContent: true,

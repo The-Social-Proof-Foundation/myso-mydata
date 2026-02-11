@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -5,7 +6,7 @@
 
 module test::whitelist;
 
-use mys::table;
+use myso::table;
 
 const ENoAccess: u64 = 1;
 const EInvalidCap: u64 = 2;

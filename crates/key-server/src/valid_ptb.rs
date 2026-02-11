@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 use crate::errors::InternalError;
@@ -5,9 +6,9 @@ use crate::return_err;
 use crate::KeyId;
 use crypto::create_full_id;
 use fastcrypto::encoding::{Base64, Encoding};
-use mys_sdk::types::transaction::{Argument, CallArg, Command, ProgrammableTransaction};
-use mys_types::base_types::ObjectID;
-use mys_types::transaction::ProgrammableMoveCall;
+use myso_sdk::types::transaction::{Argument, CallArg, Command, ProgrammableTransaction};
+use myso_types::base_types::ObjectID;
+use myso_types::transaction::ProgrammableMoveCall;
 use tracing::debug;
 
 ///
@@ -29,8 +30,7 @@ impl TryFrom<ProgrammableTransaction> for ValidPtb {
         if ptb.commands.len() > MAX_COMMANDS {
             return_err!(
                 InternalError::InvalidPTB(format!(
-                    "Too many commands in PTB (more than {})",
-                    MAX_COMMANDS
+                    "Too many commands in PTB (more than {MAX_COMMANDS})"
                 )),
                 "Too many commands in PTB: {:?}",
                 ptb
@@ -161,10 +161,10 @@ impl ValidPtb {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mys_sdk::types::base_types::MysAddress;
-    use mys_types::base_types::ObjectID;
-    use mys_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-    use mys_types::Identifier;
+    use myso_sdk::types::base_types::MySoAddress;
+    use myso_types::base_types::ObjectID;
+    use myso_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+    use myso_types::Identifier;
 
     #[test]
     fn test_valid() {
@@ -228,7 +228,7 @@ mod tests {
     #[test]
     fn test_invalid_non_move_call() {
         let mut builder = ProgrammableTransactionBuilder::new();
-        let sender = MysAddress::random_for_testing_only();
+        let sender = MySoAddress::random_for_testing_only();
         let id = vec![1u8, 2, 3, 4];
         let id_caller = builder.pure(id.clone()).unwrap();
         let pkgid = ObjectID::random();
@@ -241,7 +241,7 @@ mod tests {
             vec![id_caller],
         );
         // Add a transfer command instead of move call
-        builder.transfer_mys(sender, Some(1));
+        builder.transfer_myso(sender, Some(1));
         let ptb = builder.finish();
         assert_eq!(
             ValidPtb::try_from(ptb).err(),

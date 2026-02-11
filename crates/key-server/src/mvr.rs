@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -10,32 +11,30 @@
 //! * There is a registry on mainnet that is used to store all MVR records (see [MVR_REGISTRY]). Using the MVR name, we can look up an `app_record` here.
 //! * If there is an `app_info` field in the `app_record`, there is a package address in this that points to the package address on mainnet.
 //! * The `app_record` has a `networks` field which contains a mapping of network IDs to metadata. If there is an entry with name [TESTNET_ID], it contains the package info for the testnet. The package address information here is <i>not</i> guaranteed to be accurate, so for testnet we should instead look up the package info object on testnet and get the package address from there.
-//! * A valid name is of the form `subname@name/mvr-app` or, equivalently, `subname.name.mys/mvr-app`. The subname is optional, but there is always an `/` in the name, meaning that it is not possible to register an object ID like `0xe8417c530cde59eddf6dfb760e8a0e3e2c6f17c69ddaab5a73dd6a6e65fc463b` as an MVR name.
+//! * A valid name is of the form `subname@name/mvr-app` or, equivalently, `subname.name.myso/mvr-app`. The subname is optional, but there is always an `/` in the name, meaning that it is not possible to register an object ID like `0xe8417c530cde59eddf6dfb760e8a0e3e2c6f17c69ddaab5a73dd6a6e65fc463b` as an MVR name.
 //! * The app record and package info objects point to the package address that was used when the name was registered, but there could be more recent versions of the package.
 
 use crate::errors::InternalError;
 use crate::errors::InternalError::{Failure, InvalidMVRName, InvalidPackage};
 use crate::key_server_options::KeyServerOptions;
-use crate::mvr::mainnet::mvr_core::app_record::AppRecord;
-use crate::mvr::mainnet::mvr_core::name::Name;
-use crate::mvr::mainnet::mys::dynamic_field::Field;
-use crate::mvr::mainnet::mys::vec_map::VecMap;
-use crate::mvr::testnet::mvr_metadata::package_info::PackageInfo;
-use crate::mys_rpc_client::MysRpcClient;
+use crate::myso_rpc_client::MySoRpcClient;
 use crate::types::Network;
 use move_core_types::account_address::AccountAddress;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::StructTag;
+use mvr_types::name::Name;
 use serde::Deserialize;
 use serde_json::json;
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::str::FromStr;
-use mys_sdk::rpc_types::MysObjectDataOptions;
-use mys_sdk::MysClientBuilder;
-use mys_types::base_types::ObjectID;
-use mys_types::dynamic_field::DynamicFieldName;
-use mys_types::TypeTag;
+use myso_rpc::client::Client as MySoGrpcClient;
+use myso_sdk::rpc_types::MySoObjectDataOptions;
+use myso_sdk::MySoClientBuilder;
+use myso_types::base_types::ObjectID;
+use myso_types::collection_types::Table;
+use myso_types::dynamic_field::{DynamicFieldName, Field};
+use myso_types::TypeTag;
 
 const MVR_REGISTRY: &str = "0xe8417c530cde59eddf6dfb760e8a0e3e2c6f17c69ddaab5a73dd6a6e65fc463b";
 const MVR_CORE: &str = "0x62c1f5b1cb9e3bfc3dd1f73c95066487b662048a6358eabdbf67f6cdeca6db4b";
@@ -43,88 +42,49 @@ const MVR_CORE: &str = "0x62c1f5b1cb9e3bfc3dd1f73c95066487b662048a6358eabdbf67f6
 /// Testnet records are stored on mainnet on the registry defined above, but under the 'networks' section using the following ID as key
 const TESTNET_ID: &str = "4c78adac";
 
-/// Manual MVR type definitions using mys_sdk_types (production-grade, no move-binding dependency)
-pub mod mainnet {
-    pub mod mys {
-        pub mod dynamic_field {
-            use mys_sdk_types::ObjectId;
-            use serde::{Deserialize, Serialize};
-            
-            #[derive(Debug, Clone, Serialize, Deserialize)]
-            pub struct Field<N, V> {
-                pub id: ObjectId,
-                pub name: N,
-                pub value: V,
-            }
-        }
-        
-        pub mod vec_map {
-            use serde::{Deserialize, Serialize};
-            
-            #[derive(Debug, Clone, Serialize, Deserialize)]
-            pub struct Entry<K, V> {
-                pub key: K,
-                pub value: V,
-            }
-            
-            #[derive(Debug, Clone, Serialize, Deserialize)]
-            pub struct VecMap<K, V> {
-                pub contents: Vec<Entry<K, V>>,
-            }
-        }
-    }
-    
-    pub mod mvr_core {
-        pub mod app_record {
-            use mys_sdk_types::Address;
-            use serde::{Deserialize, Serialize};
-            
-            #[derive(Debug, Clone, Serialize, Deserialize)]
-            pub struct AppInfo {
-                pub package_address: Option<Address>,
-            }
-            
-            #[derive(Debug, Clone, Serialize, Deserialize)]
-            pub struct NetworkMetadata {
-                pub package_info_id: Option<mys_sdk_types::ObjectId>,
-            }
-            
-            #[derive(Debug, Clone, Serialize, Deserialize)]
-            pub struct AppRecord {
-                pub app_info: Option<AppInfo>,
-                pub networks: super::super::mys::vec_map::VecMap<String, NetworkMetadata>,
-            }
-        }
-        
-        pub mod name {
-            use serde::{Deserialize, Serialize};
-            
-            #[derive(Debug, Clone, Serialize, Deserialize)]
-            pub struct Name {
-                pub name: String,
-            }
-        }
-    }
+#[derive(Deserialize, Clone, Debug)]
+pub struct VecMap<K, V>(myso_types::collection_types::VecMap<K, V>);
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct AppRecord {
+    _app_cap_id: ObjectID,
+    _ns_nft_id: ObjectID,
+    app_info: Option<AppInfo>,
+    networks: VecMap<String, AppInfo>,
+    _metadata: VecMap<String, String>,
+    _storage: ObjectID,
 }
 
-pub mod testnet {
-    pub mod mvr_metadata {
-        pub mod package_info {
-            use mys_sdk_types::Address;
-            use serde::{Deserialize, Serialize};
-            
-            #[derive(Debug, Clone, Serialize, Deserialize)]
-            pub struct PackageInfo {
-                pub package_address: Address,
-                pub metadata: super::super::super::mainnet::mys::vec_map::VecMap<String, String>,
-            }
-        }
-    }
+#[derive(Deserialize, Clone, Debug)]
+pub struct AppInfo {
+    package_info_id: Option<ObjectID>,
+    package_address: Option<ObjectID>,
+    _upgrade_cap_id: Option<ObjectID>,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct PackageInfo {
+    _id: ObjectID,
+    _display: PackageDisplay,
+    _upgrade_cap_id: ObjectID,
+    package_address: ObjectID,
+    metadata: VecMap<String, String>,
+    _git_versioning: Table,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct PackageDisplay {
+    _gradient_from: String,
+    _gradient_to: String,
+    _text_color: String,
+    _name: String,
+    _uri_encoded_name: String,
 }
 
 impl<K: Eq + Hash, V> From<VecMap<K, V>> for HashMap<K, V> {
     fn from(value: VecMap<K, V>) -> Self {
         value
+            .0
             .contents
             .into_iter()
             .map(|entry| (entry.key, entry.value))
@@ -134,13 +94,12 @@ impl<K: Eq + Hash, V> From<VecMap<K, V>> for HashMap<K, V> {
 
 /// Given an MVR name, look up the package it points to.
 pub(crate) async fn mvr_forward_resolution(
-    mys_rpc_client: &MysRpcClient,
+    myso_rpc_client: &MySoRpcClient,
     mvr_name: &str,
     key_server_options: &KeyServerOptions,
 ) -> Result<ObjectID, InternalError> {
-    let network = resolve_network(&key_server_options.network)?;
-    let package_address = match network {
-        Network::Mainnet => get_from_mvr_registry(mvr_name, mys_rpc_client)
+    let package_address = match key_server_options.network {
+        Network::Mainnet => get_from_mvr_registry(mvr_name, myso_rpc_client)
             .await?
             .value
             .app_info
@@ -152,14 +111,16 @@ pub(crate) async fn mvr_forward_resolution(
         Network::Testnet => {
             let networks: HashMap<_, _> = get_from_mvr_registry(
                 mvr_name,
-                &MysRpcClient::new(
-                    MysClientBuilder::default()
+                &MySoRpcClient::new(
+                    MySoClientBuilder::default()
                         .request_timeout(key_server_options.rpc_config.timeout)
                         .build_mainnet()
                         .await
-                        .map_err(|_| Failure("Failed to build mys client".to_string()))?,
+                        .map_err(|_| Failure("Failed to build myso client".to_string()))?,
+                    MySoGrpcClient::new(Network::Mainnet.default_node_url())
+                        .expect("Failed to create MySoGrpcClient"),
                     key_server_options.rpc_config.retry_config.clone(),
-                    mys_rpc_client.get_metrics(),
+                    myso_rpc_client.get_metrics(),
                 ),
             )
             .await?
@@ -174,13 +135,8 @@ pub(crate) async fn mvr_forward_resolution(
                 .package_info_id
                 .ok_or(Failure(format!(
                     "No package info ID for MVR name {mvr_name} on testnet"
-                )))
-                .and_then(|id| {
-                    ObjectID::from_bytes(id.inner().as_ref()).map_err(|e| {
-                        Failure(format!("Failed to convert ObjectId to ObjectID: {:?}", e))
-                    })
-                })?;
-            let package_info: PackageInfo = get_object(package_info_id, mys_rpc_client).await?;
+                )))?;
+            let package_info: PackageInfo = get_object(package_info_id, myso_rpc_client).await?;
 
             // Check that the name in the package info matches the MVR name.
             let metadata: HashMap<_, _> = package_info.metadata.into();
@@ -195,38 +151,16 @@ pub(crate) async fn mvr_forward_resolution(
         }
         _ => return Err(Failure("Invalid network for MVR resolution".to_string())),
     };
-    // Convert mys_sdk_types::Address to mys_types::ObjectID
-    Ok(ObjectID::from_bytes(package_address.inner().as_ref()).map_err(|e| {
-        Failure(format!("Failed to convert address to ObjectID: {:?}", e))
-    })?)
-}
-
-/// Resolve the network from the network configuration for Custom.
-pub(crate) fn resolve_network(network: &Network) -> Result<Network, InternalError> {
-    match &network {
-        Network::Mainnet => Ok(Network::Mainnet),
-        Network::Testnet => Ok(Network::Testnet),
-        Network::Custom {
-            use_default_mainnet_for_mvr,
-            ..
-        } => {
-            match use_default_mainnet_for_mvr {
-                Some(true) => Ok(Network::Mainnet),
-                Some(false) => Ok(Network::Testnet),
-                None => Ok(Network::Mainnet), // Default to Mainnet if not present
-            }
-        }
-        _ => Err(Failure("Invalid network for MVR resolution".to_string())),
-    }
+    Ok(package_address)
 }
 
 /// Given an MVR name, look up the record in the MVR registry on mainnet.
 async fn get_from_mvr_registry(
     mvr_name: &str,
-    mainnet_mys_rpc_client: &MysRpcClient,
+    mainnet_myso_rpc_client: &MySoRpcClient,
 ) -> Result<Field<Name, AppRecord>, InternalError> {
     let dynamic_field_name = dynamic_field_name(mvr_name)?;
-    let record_id = mainnet_mys_rpc_client
+    let record_id = mainnet_myso_rpc_client
         .get_dynamic_field_object(
             ObjectID::from_str(MVR_REGISTRY).unwrap(),
             dynamic_field_name.clone(),
@@ -241,7 +175,7 @@ async fn get_from_mvr_registry(
         .map_err(|_| InvalidMVRName)?;
 
     // TODO: Is there a way to get the BCS data in the above call instead of making a second call?
-    get_object(record_id, mainnet_mys_rpc_client).await
+    get_object(record_id, mainnet_myso_rpc_client).await
 }
 
 /// Construct a `DynamicFieldName` from an MVR name for use in the MVR registry.
@@ -265,11 +199,11 @@ fn dynamic_field_name(mvr_name: &str) -> Result<DynamicFieldName, InternalError>
 
 async fn get_object<T: for<'a> Deserialize<'a>>(
     object_id: ObjectID,
-    mys_rpc_client: &MysRpcClient,
+    myso_rpc_client: &MySoRpcClient,
 ) -> Result<T, InternalError> {
     bcs::from_bytes(
-        mys_rpc_client
-            .get_object_with_options(object_id, MysObjectDataOptions::new().with_bcs())
+        myso_rpc_client
+            .get_object_with_options(object_id, MySoObjectDataOptions::new().with_bcs())
             .await
             .map_err(|_| Failure(format!("Failed to get object {object_id}")))?
             .move_object_bcs()
@@ -283,19 +217,20 @@ mod tests {
     use crate::errors::InternalError::InvalidMVRName;
     use crate::key_server_options::{KeyServerOptions, RetryConfig};
     use crate::mvr::mvr_forward_resolution;
-    use crate::mys_rpc_client::MysRpcClient;
+    use crate::myso_rpc_client::MySoRpcClient;
     use crate::types::Network;
     use mvr_types::name::VersionedName;
     use std::str::FromStr;
-    use mys_sdk::MysClientBuilder;
-    use mys_types::base_types::ObjectID;
-
+    use myso_rpc::client::Client as MySoGrpcClient;
+    use myso_sdk::MySoClientBuilder;
+    use myso_types::base_types::ObjectID;
     #[tokio::test]
     async fn test_forward_resolution() {
         assert!(crate::externals::check_mvr_package_id(
-            &Some("@mysten/kiosk".to_string()),
-            &MysRpcClient::new(
-                MysClientBuilder::default().build_mainnet().await.unwrap(),
+            &Some("@socialproof/kiosk".to_string()),
+            &MySoRpcClient::new(
+                MySoClientBuilder::default().build_mainnet().await.unwrap(),
+                MySoGrpcClient::new(Network::Mainnet.default_node_url()).unwrap(),
                 RetryConfig::default(),
                 None,
             ),
@@ -311,7 +246,7 @@ mod tests {
 
         // Verify the cache is added.
         assert_eq!(
-            crate::externals::get_mvr_cache("@mysten/kiosk"),
+            crate::externals::get_mvr_cache("@socialproof/kiosk"),
             Some(
                 ObjectID::from_str(
                     "0xdfb4f1d4e43e0c3ad834dcd369f0d39005c872e118c9dc1c5da9765bb93ee5f3"
@@ -321,12 +256,13 @@ mod tests {
         );
         assert_eq!(
             mvr_forward_resolution(
-                &MysRpcClient::new(
-                    MysClientBuilder::default().build_testnet().await.unwrap(),
+                &MySoRpcClient::new(
+                    MySoClientBuilder::default().build_testnet().await.unwrap(),
+                    MySoGrpcClient::new(Network::Testnet.default_node_url()).unwrap(),
                     RetryConfig::default(),
                     None,
                 ),
-                "@mysten/kiosk",
+                "@socialproof/kiosk",
                 &KeyServerOptions::new_for_testing(Network::Testnet),
             )
             .await
@@ -340,8 +276,10 @@ mod tests {
         // This MVR name is not registered on mainnet.
         assert_eq!(
             mvr_forward_resolution(
-                &MysRpcClient::new(
-                    MysClientBuilder::default().build_mainnet().await.unwrap(),
+                &MySoRpcClient::new(
+                    MySoClientBuilder::default().build_mainnet().await.unwrap(),
+                    MySoGrpcClient::new(Network::Mainnet.default_node_url())
+                        .expect("Failed to create MySoGrpcClient"),
                     RetryConfig::default(),
                     None,
                 ),
@@ -357,8 +295,10 @@ mod tests {
         // ..but it is on testnet.
         assert_eq!(
             mvr_forward_resolution(
-                &MysRpcClient::new(
-                    MysClientBuilder::default().build_testnet().await.unwrap(),
+                &MySoRpcClient::new(
+                    MySoClientBuilder::default().build_testnet().await.unwrap(),
+                    MySoGrpcClient::new(Network::Testnet.default_node_url())
+                        .expect("Failed to create MySoGrpcClient"),
                     RetryConfig::default(),
                     None,
                 ),
@@ -378,8 +318,10 @@ mod tests {
     async fn test_invalid_name() {
         assert_eq!(
             mvr_forward_resolution(
-                &MysRpcClient::new(
-                    MysClientBuilder::default().build_mainnet().await.unwrap(),
+                &MySoRpcClient::new(
+                    MySoClientBuilder::default().build_mainnet().await.unwrap(),
+                    MySoGrpcClient::new(Network::Mainnet.default_node_url())
+                        .expect("Failed to create MySoGrpcClient"),
                     RetryConfig::default(),
                     None,
                 ),
@@ -394,8 +336,10 @@ mod tests {
 
         assert_eq!(
             mvr_forward_resolution(
-                &MysRpcClient::new(
-                    MysClientBuilder::default().build_mainnet().await.unwrap(),
+                &MySoRpcClient::new(
+                    MySoClientBuilder::default().build_mainnet().await.unwrap(),
+                    MySoGrpcClient::new(Network::Mainnet.default_node_url())
+                        .expect("Failed to create MySoGrpcClient"),
                     RetryConfig::default(),
                     None,
                 ),

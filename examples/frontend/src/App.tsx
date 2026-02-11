@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -77,7 +78,7 @@ function App() {
         </p>
         <p>
           2. These examples are for Testnet only. Make sure you wallet is set to Testnet and has
-          some balance (can request from <a href="https://faucet.mys.io/">faucet.mys.io</a>).
+          some balance (can request from <a href="https://faucet.mysocial.network/">faucet.mysocial.network</a>).
         </p>
         <p>
           3. Blobs are only stored on Walrus Testnet for 1 epoch by default, older files cannot be
@@ -128,7 +129,7 @@ function App() {
                   <Route path="/admin/allowlists" element={<AllAllowlist />} />
                   <Route
                     path="/view/allowlist/:id"
-                    element={<Feeds suiAddress={currentAccount.address} />}
+                    element={<Feeds mysoAddress={currentAccount.address} />}
                   />
                 </Routes>
               }
@@ -157,7 +158,7 @@ function App() {
                   <Route path="/admin/services" element={<AllServices />} />
                   <Route
                     path="/view/service/:id"
-                    element={<FeedsToSubscribe suiAddress={currentAccount.address} />}
+                    element={<FeedsToSubscribe mysoAddress={currentAccount.address} />}
                   />
                 </Routes>
               }

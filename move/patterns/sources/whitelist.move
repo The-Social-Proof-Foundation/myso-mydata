@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -18,7 +19,7 @@
 ///
 module patterns::whitelist;
 
-use mys::table;
+use myso::table;
 
 const ENoAccess: u64 = 1;
 const EInvalidCap: u64 = 2;
@@ -82,7 +83,7 @@ public fun remove(wl: &mut Whitelist, cap: &Cap, account: address) {
 }
 
 // Cap can also be used to upgrade the version of Whitelist in future versions,
-// see https://docs.mys.io/concepts/mys-move-concepts/packages/upgrade#versioned-shared-objects
+// see https://docs.mysocial.network/concepts/myso-move-concepts/packages/upgrade#versioned-shared-objects
 
 //////////////////////////////////////////////////////////
 /// Access control

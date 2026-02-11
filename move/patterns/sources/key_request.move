@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -18,7 +19,7 @@
 ///
 module patterns::key_request {
     use std::{ascii::String, type_name};
-    use mys::clock::Clock;
+    use myso::clock::Clock;
 
     /// KeyRequest object has all the info needed to access a key.
     public struct KeyRequest has key, store {
@@ -40,7 +41,7 @@ module patterns::key_request {
         ctx: &mut TxContext,
     ): KeyRequest {
         // The package of the caller (via the witness T).
-        let package = type_name::get_with_original_ids<T>().get_address();
+        let package = type_name::with_original_ids<T>().address_string();
         KeyRequest {
             id: object::new(ctx),
             package,
@@ -64,7 +65,7 @@ module patterns::key_request {
         user: address,
         c: &Clock,
     ): bool {
-        let package = type_name::get_with_original_ids<T>().get_address();
+        let package = type_name::with_original_ids<T>().address_string();
         (req.package == package) && (req.inner_id == id) && (req.user == user) && (c.timestamp_ms() <= req.valid_till)
     }
 }
@@ -73,7 +74,7 @@ module patterns::key_request {
 #[test_only]
 module patterns::key_request_whitelist_test {
     use patterns::key_request as kro;
-    use mys::clock::Clock;
+    use myso::clock::Clock;
 
     const ENoAccess: u64 = 1;
 
@@ -114,7 +115,7 @@ module patterns::key_request_whitelist_test {
 
     #[test]
     fun test_e2e() {
-        use mys::clock;
+        use myso::clock;
 
         let ctx = &mut tx_context::dummy(); // sender = 0x0
         let c = clock::create_for_testing(ctx); // time = 0

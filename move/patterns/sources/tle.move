@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -18,7 +19,7 @@
 ///
 module patterns::tle;
 
-use mys::{bcs::{Self, BCS}, clock};
+use myso::{bcs::{Self, BCS}, clock};
 
 const ENoAccess: u64 = 77;
 

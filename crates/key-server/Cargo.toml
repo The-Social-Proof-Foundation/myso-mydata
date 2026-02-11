@@ -9,7 +9,15 @@ license.workspace = true
 name = "key-server"
 path = "src/server.rs"
 
+[[bin]]
+name = "aggregator-server"
+path = "src/aggregator/server.rs"
+
 [dependencies]
+crypto = { path = "../crypto" }
+mydata-sdk = { path = "../mydata-sdk" }
+mydata-committee = { path = "../mydata-committee" }
+
 fastcrypto.workspace = true
 rand.workspace = true
 serde.workspace = true
@@ -17,43 +25,45 @@ serde_json.workspace = true
 hex.workspace = true
 bcs.workspace = true
 tracing.workspace = true
-mys_types.workspace = true
+myso_types.workspace = true
 mysten-service.workspace = true
-mys_sdk.workspace = true
+myso_sdk.workspace = true
 shared_crypto.workspace = true
 move-core-types.workspace = true
-mvr_types = { git = "https://github.com/MystenLabs/mvr", branch = "main", package = "mvr-types" }
-
-tokio = { version = "1.46.1", features = ["full"] }
+semver.workspace = true
+tokio.workspace = true
 axum.workspace = true
-tower-http = { version = "0.5", features = ["cors", "limit"] }
-crypto = { path = "../crypto" }
-tap = "1.0.1"
-prometheus = "0.13.3"
-anyhow = "1.0.79"
-once_cell = "1.20.2"
-chrono = "0.4.39"
-semver = { version = "1.0.26", features = ["serde"] }
-jsonrpsee = "0.24.0"
-serde_yaml = "0.9"
-duration-str = "0.17.0"
-git-version = "0.3.9"
-moka = { version = "0.12.10", features = ["sync"] }
-snap = "1.1.0"
-reqwest = { version = "0.12", features = ["json"] }
+tower-http.workspace = true
+futures.workspace = true
+anyhow.workspace = true
+once_cell.workspace = true
+serde_yaml.workspace = true
+reqwest = { workspace = true, features = ["json"] }
 serde_with = { workspace = true, features = ["base64"] }
-hostname = "0.4"
+prometheus_closure_metric.workspace = true
+prometheus.workspace = true
+snap.workspace = true
+git-version.workspace = true
+tonic.workspace = true
+prost-types.workspace = true
 
-mys-sdk-types = { workspace = true }
-mys-transaction-builder = { workspace = true }
-prometheus_closure_metric = { workspace = true }
+tap = "1.0.1"
+jsonrpsee = "0.24.0"
+duration-str = "0.17.0"
+moka = { version = "0.12.10", features = ["sync"] }
+hostname = "0.4"
 hyper-util = "0.1.10"
 http-body-util = "0.1.2"
-futures = "0.3"
-mydata-sdk = { path = "../mydata-sdk" }
+
+myso-sdk-types.workspace = true
+myso-rpc.workspace = true
+mvr_types = { git = "https://github.com/MystenLabs/mvr", rev = "1993d7188f62564b05f0ccab46bbfb24b0eea326", package = "mvr-types" }
 
 [dev-dependencies]
 tracing-test = "0.2.5"
 test-cluster = { workspace = true }
-mys-move-build = { workspace = true }
+myso-move-build = { workspace = true }
+move-package-alt.workspace = true
 temp-env = { version = "0.3", features = ["async_closure"] }
+fastcrypto-tbls = { workspace = true }
+wiremock = "0.5"

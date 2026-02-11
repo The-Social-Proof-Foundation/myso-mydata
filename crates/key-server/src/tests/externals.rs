@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -7,15 +8,15 @@ use crate::time::current_epoch_time;
 use crate::valid_ptb::ValidPtb;
 use crate::{Certificate, Server};
 use crypto::elgamal;
-use fastcrypto::groups::bls12381::G1Element;
+use fastcrypto::ed25519::Ed25519Signature;
+use fastcrypto::traits::{KeyPair, Signer};
+use fastcrypto::{ed25519::Ed25519KeyPair, groups::bls12381::G1Element};
 use rand::thread_rng;
 use mydata_sdk::signed_message;
 use mydata_sdk::types::{ElGamalPublicKey, ElgamalVerificationKey};
 use shared_crypto::intent::{Intent, IntentMessage, PersonalMessage};
-use mys_types::{
-    base_types::ObjectID,
-    crypto::{Ed25519KeyPair, Ed25519Signature, KeypairTraits, Signature},
-    signature::GenericSignature,
+use myso_types::{
+    base_types::ObjectID, crypto::Signature, signature::GenericSignature,
     transaction::ProgrammableTransaction,
 };
 
@@ -80,7 +81,7 @@ pub(crate) async fn get_key(
         .map(|(pkg_id, ids)| {
             elgamal::decrypt(
                 &sk,
-                &server.create_response(pkg_id, &ids, &pk).decryption_keys[0].encrypted_key,
+                &server.create_response(pkg_id, ids, &pk).decryption_keys[0].encrypted_key,
             )
         })
 }

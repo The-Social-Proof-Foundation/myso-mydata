@@ -1,9 +1,10 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
 /// Owner private data pattern:
-/// - Anyone can encrypt any data and store it encrypted as a MySocial object.
-/// - The owner of the MySocial object can always decrypt the data.
+/// - Anyone can encrypt any data and store it encrypted as a MySo object.
+/// - The owner of the MySo object can always decrypt the data.
 ///
 /// Use cases that can be built on top of this: personal key storage, private NFTs.
 ///

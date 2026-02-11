@@ -12,7 +12,7 @@ To gain access, a user must sign a personal message, which is then verified agai
 
 A subscription service allows a creator to define a service with a specified price (denominated in MIST) and a time period (X minutes). When a user purchases a subscription, it is represented as a non-fungible token (NFT) stored on-chain.
 
-To access the service, the user must sign a personal message, which is then validated by the servers. The servers verify whether the subscription is active for the next X minutes by referencing the on-chain MySocial clock and ensuring the user holds a valid subscription NFT. If the conditions are met, the user retrieves the decryption key, enabling access to the decrypted content.
+To access the service, the user must sign a personal message, which is then validated by the servers. The servers verify whether the subscription is active for the next X minutes by referencing the on-chain MySo clock and ensuring the user holds a valid subscription NFT. If the conditions are met, the user retrieves the decryption key, enabling access to the decrypted content.
 
 > **IMPORTANT**
 > This reference application serves as a demonstration of MyData's capabilities and is intended solely as a playground environment. It does not provide guarantees of uptime, reliability, or correctness. Users are strongly advised not to connect their primary wallets or upload any sensitive content while utilizing this application.

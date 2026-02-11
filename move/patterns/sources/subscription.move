@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -12,7 +13,7 @@
 ///
 module patterns::subscription;
 
-use mys::{clock::Clock, coin::Coin, mys::MYS};
+use myso::{clock::Clock, coin::Coin, myso::MYSO};
 
 const EInvalidFee: u64 = 12;
 const ENoAccess: u64 = 77;
@@ -31,7 +32,7 @@ public struct PackageVersionCap has key {
 }
 
 // PackageVersionCap can also be used to upgrade the version of PackageVersion in future versions,
-// see https://docs.mys.io/concepts/mys-move-concepts/packages/upgrade#versioned-shared-objects
+// see https://docs.mysocial.network/concepts/myso-move-concepts/packages/upgrade#versioned-shared-objects
 
 fun init(ctx: &mut TxContext) {
     transfer::share_object(PackageVersion {
@@ -76,7 +77,7 @@ entry fun create_service_entry(fee: u64, ttl: u64, ctx: &mut TxContext) {
 }
 
 public fun subscribe(
-    fee: Coin<MYS>,
+    fee: Coin<MYSO>,
     service: &Service,
     c: &Clock,
     ctx: &mut TxContext,
@@ -171,12 +172,12 @@ entry fun mydata_approve(
 
 #[test]
 fun test_approve() {
-    use mys::clock;
-    use mys::coin;
+    use myso::clock;
+    use myso::coin;
 
     let ctx = &mut tx_context::dummy();
     let mut c = clock::create_for_testing(ctx); // time = 0
-    let coin = coin::mint_for_testing<MYS>(10, ctx);
+    let coin = coin::mint_for_testing<MYSO>(10, ctx);
     let (pkg_version, _pkg_version_cap) = create_for_testing(ctx);
 
     let ser = create_service(10, 2, ctx);

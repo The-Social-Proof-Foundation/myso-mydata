@@ -1,10 +1,11 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::externals::{add_package, add_upgraded_package};
 use crate::key_server_options::{KeyServerOptions, RetryConfig, RpcConfig, ServerMode};
 use crate::master_keys::MasterKeys;
-use crate::mys_rpc_client::MysRpcClient;
+use crate::myso_rpc_client::MySoRpcClient;
 use crate::tests::KeyServerType::Open;
 use crate::time::from_mins;
 use crate::types::Network;
@@ -14,20 +15,23 @@ use crypto::ibe::public_key_from_master_key;
 use fastcrypto::ed25519::Ed25519KeyPair;
 use fastcrypto::encoding::Encoding;
 use fastcrypto::serde_helpers::ToFromByteArray;
-use fastcrypto::traits::KeyPair;
 use futures::future::join_all;
+use move_package_alt::PackageLoader;
 use rand::thread_rng;
 use semver::VersionReq;
 use serde_json::json;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::str::FromStr;
+use std::sync::{Arc, RwLock};
 use std::time::Duration;
-use mys_move_build::BuildConfig;
-use mys_sdk::json::MysJsonValue;
-use mys_sdk::rpc_types::{ObjectChange, MysData, MysObjectDataOptions};
-use mys_types::base_types::{ObjectID, MysAddress};
-use mys_types::move_package::UpgradePolicy;
+use myso_move_build::BuildConfig;
+use myso_rpc::client::Client as MySoGrpcClient;
+use myso_sdk::json::MySoJsonValue;
+use myso_sdk::rpc_types::{ObjectChange, MySoData, MySoObjectDataOptions};
+use myso_types::base_types::{ObjectID, MySoAddress};
+use myso_types::crypto::get_key_pair_from_rng;
+use myso_types::move_package::UpgradePolicy;
 use test_cluster::{TestCluster, TestClusterBuilder};
 
 mod e2e;
@@ -37,8 +41,9 @@ mod tle;
 pub(crate) mod whitelist;
 
 mod server;
+mod test_utils;
 
-/// Wrapper for MySocial test cluster with some MyData specific functionality.
+/// Wrapper for MySo test cluster with some MyData specific functionality.
 pub(crate) struct MyDataTestCluster {
     cluster: TestCluster,
     #[allow(dead_code)]
@@ -48,7 +53,7 @@ pub(crate) struct MyDataTestCluster {
 }
 
 pub(crate) struct MyDataUser {
-    address: MysAddress,
+    address: MySoAddress,
     keypair: Ed25519KeyPair,
 }
 
@@ -63,20 +68,19 @@ pub enum KeyServerType {
 
 impl MyDataTestCluster {
     /// Create a new MyDataTestCluster with the given number users. To add servers, use the `add_server` method.
-    pub async fn new(users: usize) -> Self {
+    pub async fn new(users: usize, module: &str) -> Self {
         let cluster = TestClusterBuilder::new()
             .with_num_validators(1)
             .build()
             .await;
-        let registry = Self::publish_internal(&cluster, "mydata").await;
+        let registry = Self::publish_internal(&cluster, module, vec![]).await;
         Self {
             cluster,
             servers: vec![],
             registry,
             users: (0..users)
                 .map(|_| {
-                    let keypair = Ed25519KeyPair::generate(&mut thread_rng());
-                    let address: MysAddress = (&mys_types::crypto::PublicKey::Ed25519((*keypair.public()).into())).into();
+                    let (address, keypair) = get_key_pair_from_rng(&mut thread_rng());
                     MyDataUser { address, keypair }
                 })
                 .collect(),
@@ -92,19 +96,39 @@ impl MyDataTestCluster {
         &self.cluster
     }
 
-    pub async fn add_open_server(&mut self) {
-        let master_key = ibe::generate_key_pair(&mut thread_rng()).0;
-        let name = DefaultEncoding::encode(public_key_from_master_key(&master_key).to_byte_array());
-        self.add_server(Open(master_key), &name).await;
+    pub async fn add_open_server(&mut self, mydata_package: ObjectID) {
+        self.add_open_server_with_allowed_staleness(mydata_package, Duration::from_secs(120))
+            .await;
     }
 
-    pub async fn add_open_servers(&mut self, num_servers: usize) {
+    pub async fn add_open_servers(&mut self, num_servers: usize, mydata_package: ObjectID) {
         for _ in 0..num_servers {
-            self.add_open_server().await;
+            self.add_open_server(mydata_package).await;
         }
     }
 
-    pub async fn add_server(&mut self, server: KeyServerType, name: &str) {
+    pub async fn add_open_server_with_allowed_staleness(
+        &mut self,
+        mydata_package: ObjectID,
+        allowed_staleness: Duration,
+    ) {
+        let master_key = ibe::generate_key_pair(&mut thread_rng()).0;
+        let name = DefaultEncoding::encode(public_key_from_master_key(&master_key).to_byte_array());
+        self.add_server_with_allowed_staleness(
+            Open(master_key),
+            &name,
+            mydata_package,
+            allowed_staleness,
+        )
+        .await;
+    }
+
+    pub async fn add_server_with_options(
+        &mut self,
+        server: KeyServerType,
+        name: &str,
+        options: KeyServerOptions,
+    ) {
         match server {
             Open(master_key) => {
                 let key_server_object_id = self
@@ -115,32 +139,62 @@ impl MyDataTestCluster {
                     )
                     .await;
                 let server = Server {
-                    mys_rpc_client: MysRpcClient::new(
-                        self.cluster.mys_client().clone(),
+                    myso_rpc_client: MySoRpcClient::new(
+                        self.cluster.myso_client().clone(),
+                        MySoGrpcClient::new(self.cluster.fullnode_handle.rpc_url.clone())
+                            .expect("Failed to create gRPC client"),
                         RetryConfig::default(),
                         None,
                     ),
                     master_keys: MasterKeys::Open { master_key },
-                    key_server_oid_to_pop: HashMap::new(),
-                    options: KeyServerOptions {
-                        network: Network::TestCluster,
-                        server_mode: ServerMode::Open {
-                            key_server_object_id,
-                        },
-                        metrics_host_port: 0,
-                        checkpoint_update_interval: Duration::from_secs(10),
-                        rgp_update_interval: Duration::from_secs(60),
-                        sdk_version_requirement: VersionReq::from_str(">=0.4.6").unwrap(),
-                        allowed_staleness: Duration::from_secs(120),
-                        session_key_ttl_max: from_mins(30),
-                        rpc_config: RpcConfig::default(),
-                        metrics_push_config: None,
-                    },
+                    key_server_oid_to_pop: Arc::new(RwLock::new(HashMap::new())),
+                    options,
                 };
                 self.servers.push((key_server_object_id, server));
             }
             _ => panic!(),
         };
+    }
+
+    pub async fn add_server_with_allowed_staleness(
+        &mut self,
+        server: KeyServerType,
+        name: &str,
+        mydata_package: ObjectID,
+        allowed_staleness: Duration,
+    ) {
+        match server {
+            Open(master_key) => {
+                let key_server_object_id = self
+                    .register_key_server(
+                        name,
+                        "http://localhost:8080", // Dummy URL, not used in this test
+                        public_key_from_master_key(&master_key),
+                    )
+                    .await;
+                self.add_server_with_options(
+                    server,
+                    name,
+                    KeyServerOptions {
+                        network: Network::TestCluster { mydata_package },
+                        node_url: None,
+                        server_mode: ServerMode::Open {
+                            key_server_object_id,
+                        },
+                        metrics_host_port: 0,
+                        rgp_update_interval: Duration::from_secs(60),
+                        ts_sdk_version_requirement: VersionReq::from_str(">=0.4.6").unwrap(),
+                        aggregator_version_requirement: VersionReq::from_str(">=0.5.15").unwrap(),
+                        allowed_staleness,
+                        session_key_ttl_max: from_mins(30),
+                        rpc_config: RpcConfig::default(),
+                        metrics_push_config: None,
+                    },
+                )
+                .await;
+            }
+            _ => panic!(),
+        }
     }
 
     pub fn server(&self) -> &Server {
@@ -149,28 +203,92 @@ impl MyDataTestCluster {
 
     /// Publish the Move module in /move/<module> and return the package id and upgrade cap.
     pub async fn publish(&self, module: &str) -> (ObjectID, ObjectID) {
-        Self::publish_internal(&self.cluster, module).await
+        Self::publish_internal(&self.cluster, module, vec![]).await
     }
 
-    pub async fn publish_internal(cluster: &TestCluster, module: &str) -> (ObjectID, ObjectID) {
+    /// Publish with explicit dependency addresses (for packages that depend on other packages)
+    pub async fn publish_with_deps(
+        &self,
+        module: &str,
+        deps: Vec<(&str, ObjectID)>,
+    ) -> (ObjectID, ObjectID) {
+        Self::publish_internal(&self.cluster, module, deps).await
+    }
+
+    pub async fn publish_internal(
+        cluster: &TestCluster,
+        module: &str,
+        deps: Vec<(&str, ObjectID)>,
+    ) -> (ObjectID, ObjectID) {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.extend(["..", "..", "move", module]);
-        Self::publish_path_internal(cluster, path).await
+        Self::publish_path_internal(cluster, path, deps).await
     }
 
     pub async fn publish_path(&self, path: PathBuf) -> (ObjectID, ObjectID) {
-        Self::publish_path_internal(&self.cluster, path).await
+        Self::publish_path_internal(&self.cluster, path, vec![]).await
     }
 
-    async fn publish_path_internal(cluster: &TestCluster, path: PathBuf) -> (ObjectID, ObjectID) {
-        let compiled_package = BuildConfig::new_for_testing().build(&path).unwrap();
-        // Publish package
-        let builder = cluster.mys_client().transaction_builder();
+    async fn publish_path_internal(
+        cluster: &TestCluster,
+        path: PathBuf,
+        deps: Vec<(&str, ObjectID)>,
+    ) -> (ObjectID, ObjectID) {
+        // Use ephemeral package loader. This skips Published.toml and uses an ephemeral publication
+        // file instead.
+        let chain_id = cluster
+            .myso_client()
+            .read_api()
+            .get_chain_identifier()
+            .await
+            .unwrap_or_else(|_| "localnet".to_string());
+
+        let ephemeral_pub_file = PathBuf::from(format!("Published.test.{}.toml", chain_id));
+
+        let mut root_pkg = PackageLoader::new_ephemeral(
+            &path,
+            Some("testnet".to_string()),
+            chain_id.clone(),
+            ephemeral_pub_file.clone(),
+        )
+        .load()
+        .await
+        .unwrap();
+
+        let mut move_config = BuildConfig::new_for_testing();
+
+        for (addr_name, obj_id) in &deps {
+            move_config
+                .config
+                .additional_named_addresses
+                .insert((*addr_name).to_string(), (*obj_id).into());
+        }
+
+        move_config.config.root_as_zero = true;
+        move_config.config.set_unpublished_deps_to_zero = true;
+
+        let compiled_package = move_config
+            .build_async_from_root_pkg(&mut root_pkg)
+            .await
+            .unwrap();
+
+        // Clean up ephemeral file immediately after build
+        std::fs::remove_file(&ephemeral_pub_file).ok();
+
+        let mut dep_ids = compiled_package.get_dependency_storage_package_ids();
+        // Add any dependencies we explicitly passed that aren't in the storage IDs
+        for (_, obj_id) in deps {
+            if !dep_ids.contains(&obj_id) {
+                dep_ids.push(obj_id);
+            }
+        }
+
+        let builder = cluster.myso_client().transaction_builder();
         let tx = builder
             .publish(
                 cluster.get_address_0(),
-                compiled_package.get_package_bytes(true),
-                compiled_package.get_dependency_storage_package_ids(),
+                compiled_package.get_package_bytes(false),
+                dep_ids,
                 None,
                 40_000_000_000,
             )
@@ -213,7 +331,7 @@ impl MyDataTestCluster {
         let compiled_package = BuildConfig::new_for_testing().build(&path).unwrap();
 
         // Publish package
-        let builder = self.cluster.mys_client().transaction_builder();
+        let builder = self.cluster.myso_client().transaction_builder();
 
         let tx = builder
             .upgrade(
@@ -258,7 +376,7 @@ impl MyDataTestCluster {
     ) -> ObjectID {
         let tx = self
             .cluster
-            .mys_client()
+            .myso_client()
             .transaction_builder()
             .move_call(
                 self.cluster.get_address_0(),
@@ -267,10 +385,10 @@ impl MyDataTestCluster {
                 "create_and_transfer_v1",
                 vec![],
                 vec![
-                    MysJsonValue::from_str(description).unwrap(),
-                    MysJsonValue::from_str(url).unwrap(), // Dummy url, not used in this test
-                    MysJsonValue::from_str(&0u8.to_string()).unwrap(), // Fix to BF-IBE
-                    MysJsonValue::new(json!(pk.to_byte_array().to_vec())).unwrap(),
+                    MySoJsonValue::from_str(description).unwrap(),
+                    MySoJsonValue::from_str(url).unwrap(), // Dummy url, not used in this test
+                    MySoJsonValue::from_str(&0u8.to_string()).unwrap(), // Fix to BF-IBE
+                    MySoJsonValue::new(json!(pk.to_byte_array().to_vec())).unwrap(),
                 ],
                 None,
                 50_000_000,
@@ -302,7 +420,7 @@ impl MyDataTestCluster {
     pub async fn get_public_keys(&self, object_ids: &[ObjectID]) -> Vec<ibe::PublicKey> {
         let futures = object_ids.iter().map(|id| {
             self.cluster
-                .mys_client()
+                .myso_client()
                 .read_api()
                 .get_dynamic_fields(*id, None, None)
         });
@@ -323,9 +441,9 @@ impl MyDataTestCluster {
             .collect::<Vec<_>>();
         let objects = self
             .cluster
-            .mys_client()
+            .myso_client()
             .read_api()
-            .multi_get_object_with_options(object_ids, MysObjectDataOptions::full_content())
+            .multi_get_object_with_options(object_ids, MySoObjectDataOptions::full_content())
             .await
             .unwrap();
         objects
@@ -360,7 +478,7 @@ impl MyDataTestCluster {
 
 #[tokio::test]
 async fn test_pkg_upgrade() {
-    let mut setup = MyDataTestCluster::new(0).await;
+    let mut setup = MyDataTestCluster::new(0, "mydata").await;
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/tests/whitelist_v1");
     let (package_id, upgrade_cap) = setup.publish_path(path).await;
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/tests/whitelist_v2");

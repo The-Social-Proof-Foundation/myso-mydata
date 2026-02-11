@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -14,7 +15,7 @@ use rand::thread_rng;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::collections::HashMap;
-pub use mys_sdk_types::ObjectId as ObjectID;
+pub use myso_sdk_types::Address as ObjectID;
 use tss::split;
 use utils::generate_random_bytes;
 
@@ -28,16 +29,16 @@ pub mod tss;
 mod utils;
 
 /// The domain separation tag for generating H1(id)
-pub const DST_ID: &[u8] = b"MYS-MYDATA-IBE-BLS12381-00";
+pub const DST_ID: &[u8] = b"MYSO-MYDATA-IBE-BLS12381-00";
 
 /// The domain separation tag for the hash-to-group unction used in PoP.
-pub const DST_POP: &[u8] = b"MYS-MYDATA-IBE-BLS12381-POP-00";
+pub const DST_POP: &[u8] = b"MYSO-MYDATA-IBE-BLS12381-POP-00";
 
 /// Domain separation tag for [ibe::kdf]
-pub const DST_KDF: &[u8] = b"MYS-MYDATA-IBE-BLS12381-H2-00";
+pub const DST_KDF: &[u8] = b"MYSO-MYDATA-IBE-BLS12381-H2-00";
 
 /// Domain separation tag for [crate::derive_key]
-pub const DST_DERIVE_KEY: &[u8] = b"MYS-MYDATA-IBE-BLS12381-H3-00";
+pub const DST_DERIVE_KEY: &[u8] = b"MYSO-MYDATA-IBE-BLS12381-H3-00";
 
 pub const KEY_SIZE: usize = 32;
 
@@ -132,11 +133,7 @@ pub fn mydata_encrypt(
         indices, shares, ..
     } = split(&mut rng, base_key, threshold, number_of_shares)?;
 
-    let services = key_servers
-        .iter()
-        .zip(indices)
-        .map(|(s, i)| (*s, i))
-        .collect::<Vec<_>>();
+    let services = key_servers.iter().cloned().zip(indices).collect::<Vec<_>>();
 
     let encrypted_shares = match public_keys {
         IBEPublicKeys::BonehFranklinBLS12381(pks) => {
@@ -469,8 +466,6 @@ impl IBEEncryptions {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
     use super::*;
     use crate::dem::{Aes256Gcm, Hmac256Ctr};
     use crate::ibe::{hash_to_g1, public_key_from_master_key, PublicKey};
@@ -480,7 +475,9 @@ mod tests {
         groups::bls12381::Scalar,
         serde_helpers::ToFromByteArray,
     };
-    use mys_types::base_types::ObjectID;
+    use std::str::FromStr;
+    use myso_sdk_types::Address as NewObjectID;
+    use myso_types::base_types::ObjectID;
     #[test]
     fn test_hash_with_prefix_regression() {
         let hash = hash_to_g1(&create_full_id(
@@ -506,14 +503,14 @@ mod tests {
         let services = keypairs.iter().map(|_| ObjectID::random()).collect_vec();
         let services_ids = services
             .into_iter()
-            .map(|id| mys_sdk_types::ObjectId::new(id.into_bytes()))
+            .map(|id| NewObjectID::new(id.into_bytes()))
             .collect_vec();
         let threshold = 2;
         let public_keys =
             IBEPublicKeys::BonehFranklinBLS12381(keypairs.iter().map(|(_, pk)| *pk).collect_vec());
 
         let encrypted = mydata_encrypt(
-            mys_sdk_types::ObjectId::new(package_id.into_bytes()),
+            NewObjectID::new(package_id.into_bytes()),
             id,
             services_ids.clone(),
             &public_keys,
@@ -570,7 +567,7 @@ mod tests {
         let services = keypairs.iter().map(|_| ObjectID::random()).collect_vec();
         let services_ids = services
             .into_iter()
-            .map(|id| mys_sdk_types::ObjectId::new(id.into_bytes()))
+            .map(|id| NewObjectID::new(id.into_bytes()))
             .collect_vec();
 
         let threshold = 2;
@@ -578,7 +575,7 @@ mod tests {
             IBEPublicKeys::BonehFranklinBLS12381(keypairs.iter().map(|(_, pk)| *pk).collect_vec());
 
         let encrypted = mydata_encrypt(
-            mys_sdk_types::ObjectId::new(package_id.into_bytes()),
+            NewObjectID::new(package_id.into_bytes()),
             id,
             services_ids.clone(),
             &public_keys,
@@ -633,14 +630,14 @@ mod tests {
         let services = keypairs.iter().map(|_| ObjectID::random()).collect_vec();
         let services_ids = services
             .into_iter()
-            .map(|id| mys_sdk_types::ObjectId::new(id.into_bytes()))
+            .map(|id| NewObjectID::new(id.into_bytes()))
             .collect_vec();
         let threshold = 2;
         let public_keys =
             IBEPublicKeys::BonehFranklinBLS12381(keypairs.iter().map(|(_, pk)| *pk).collect_vec());
 
         let (encrypted, key) = mydata_encrypt(
-            mys_sdk_types::ObjectId::new(package_id.into_bytes()),
+            NewObjectID::new(package_id.into_bytes()),
             id,
             services_ids.clone(),
             &public_keys,
@@ -695,7 +692,7 @@ mod tests {
             "0x0000000000000000000000000000000000000000000000000000000000000003",
         ]
         .iter()
-        .map(|id| mys_sdk_types::ObjectId::from_str(id).unwrap())
+        .map(|id| NewObjectID::from_str(id).unwrap())
         .collect::<Vec<_>>();
 
         let full_id = create_full_id(&package_id, &inner_id);
@@ -731,7 +728,7 @@ mod tests {
         let services_ids = services
             .clone()
             .into_iter()
-            .map(|id| mys_sdk_types::ObjectId::new(id.into_bytes()))
+            .map(|id| NewObjectID::new(id.into_bytes()))
             .collect_vec();
         let threshold = 2;
         let pks = keypairs.iter().map(|(_, pk)| *pk).collect_vec();
@@ -803,7 +800,7 @@ mod tests {
         let services_ids = services
             .clone()
             .into_iter()
-            .map(|(id, index)| (mys_sdk_types::ObjectId::new(id.into_bytes()), index))
+            .map(|(id, index)| (NewObjectID::new(id.into_bytes()), index))
             .collect_vec();
         if pks.len() != number_of_shares as usize {
             return Err(InvalidInput);
@@ -821,7 +818,7 @@ mod tests {
         let services = services.iter().map(|(id, _)| *id).collect_vec();
         let service_ids = services
             .into_iter()
-            .map(|id| mys_sdk_types::ObjectId::new(id.into_bytes()))
+            .map(|id| NewObjectID::new(id.into_bytes()))
             .collect_vec();
         let encrypted_randomness = ibe::encrypt_randomness(
             &randomness,
@@ -863,7 +860,7 @@ mod tests {
         Ok((
             EncryptedObject {
                 version: 0,
-                package_id: mys_sdk_types::ObjectId::new(package_id.into_bytes()),
+                package_id: NewObjectID::new(package_id.into_bytes()),
                 id,
                 services: services_ids,
                 threshold,

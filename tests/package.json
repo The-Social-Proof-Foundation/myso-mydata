@@ -6,17 +6,21 @@
   "type": "module",
   "scripts": {
     "test": "tsx simple-mydata-server.test.ts",
-    "lint": "eslint ."
+    "prettier:check": "prettier -c --ignore-unknown .",
+    "prettier:fix": "prettier -w --ignore-unknown .",
+    "lint": "pnpm run prettier:check",
+    "lint:fix": "pnpm run prettier:fix"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@socialproof/bcs": "^1.7.0",
-    "@mysten/mydata": "^0.5.2",
-    "@socialproof/mys": "^1.37.6"
+    "@socialproof/bcs": "^0.0.1",
+    "@socialproof/mydata": "^0.0.1",
+    "@socialproof/myso": "^0.0.1"
   },
   "devDependencies": {
+    "prettier": "^3.4.2",
     "tsx": "^4.20.4",
     "typescript": "^5.9.2"
   }

@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # pin@v4
       - name: Install licensesnip
-        uses: taiki-e/install-action@14083e64ac8cf1f5e54356df00b9779b23e192a1 # pin@v2.58.29
+        uses: taiki-e/install-action@5b5de1b4da26ad411330c0454bdd72929bfcbeb2 # pin@v2.62.29
         with:
           tool: licensesnip@1.7.0
       - run: licensesnip check
@@ -54,7 +54,7 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # pin@v4
       - name: Install correct Rust toolchain
         run: rustup update && rustup toolchain install
-      - uses: taiki-e/install-action@14083e64ac8cf1f5e54356df00b9779b23e192a1 # pin@v2.58.29
+      - uses: taiki-e/install-action@5b5de1b4da26ad411330c0454bdd72929bfcbeb2 # pin@v2.62.29
         with:
           tool: cargo-nextest
       - name: Run tests
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # pin@v4
-      - uses: EmbarkStudios/cargo-deny-action@f2ba7abc2abebaf185c833c3961145a3c275caad # pin@v2
+      - uses: EmbarkStudios/cargo-deny-action@76cd80eb775d7bbbd2d80292136d74d39e1b4918 # pin@v2.0.14
         with:
           command: check
           arguments: --all-features
@@ -100,3 +100,76 @@ jobs:
           CARGO_NET_RETRY: 10
           RUSTUP_MAX_RETRIES: 10
           RUST_BACKTRACE: full
+
+  docker-build:
+    name: Docker build (key-server)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # pin@v4
+        with:
+          fetch-depth: 0
+      - name: Check for crate changes
+        id: crate-changes
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          fi
+
+          if echo "$CHANGED_FILES" | grep -qE '(^crates/.*\.(rs|toml)$|^Cargo\.(toml|lock)$|^Dockerfile$)'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Set up Docker Buildx
+        if: steps.crate-changes.outputs.changed == 'true'
+        uses: docker/setup-buildx-action@v3
+      - name: Build Docker image
+        if: steps.crate-changes.outputs.changed == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: mydata-key-server:test
+          build-args: |
+            GIT_REVISION=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  docker-build-aggregator:
+    name: Docker build (aggregator)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # pin@v4
+        with:
+          fetch-depth: 0
+      - name: Check for crate changes
+        id: crate-changes
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          fi
+
+          if echo "$CHANGED_FILES" | grep -qE '(^crates/.*\.(rs|toml)$|^Cargo\.(toml|lock)$|^Dockerfile\.aggregator$)'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Set up Docker Buildx
+        if: steps.crate-changes.outputs.changed == 'true'
+        uses: docker/setup-buildx-action@v3
+      - name: Build Docker image
+        if: steps.crate-changes.outputs.changed == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.aggregator
+          push: false
+          tags: mydata-aggregator:test
+          build-args: |
+            GIT_REVISION=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

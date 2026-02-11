@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -22,7 +23,7 @@ use mydata::bf_hmac_encryption::{
     verify_derived_keys,
     parse_encrypted_object
 };
-use mys::bls12381::g1_from_bytes;
+use myso::bls12381::g1_from_bytes;
 
 const EInvalidVote: u64 = 1;
 const EVoteNotDone: u64 = 2;
@@ -192,7 +193,7 @@ public fun finalize_vote(
 #[test]
 fun test_vote() {
     use mydata::key_server::{create_and_transfer_v1, KeyServer, destroy_for_testing as ks_destroy};
-    use mys::test_scenario::{Self, next_tx, ctx};
+    use myso::test_scenario::{Self, next_tx, ctx};
 
     let addr1 = @0xA;
     let mut scenario = test_scenario::begin(addr1);

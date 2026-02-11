@@ -1,0 +1,6 @@
+[package]
+name = "mydata_committee"
+edition = "2024"
+
+[dependencies]
+mydata_testnet = { local = "../mydata_testnet" }

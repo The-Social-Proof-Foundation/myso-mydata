@@ -1,3 +1,4 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -6,7 +7,7 @@
 module walrus::allowlist;
 
 use std::string::String;
-use mys::dynamic_field as df;
+use myso::dynamic_field as df;
 use walrus::utils::is_prefix;
 
 const EInvalidCap: u64 = 0;
@@ -86,7 +87,7 @@ entry fun mydata_approve(id: vector<u8>, allowlist: &Allowlist, ctx: &TxContext)
     assert!(approve_internal(ctx.sender(), id, allowlist), ENoAccess);
 }
 
-/// Encapsulate a blob into a MySocial object and attach it to the allowlist
+/// Encapsulate a blob into a MySo object and attach it to the allowlist
 public fun publish(allowlist: &mut Allowlist, cap: &Cap, blob_id: String) {
     assert!(cap.allowlist_id == object::id(allowlist), EInvalidCap);
     df::add(&mut allowlist.id, blob_id, MARKER);

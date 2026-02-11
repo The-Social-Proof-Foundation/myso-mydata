@@ -1,0 +1,37 @@
+// Copyright (c), Mysten Labs, Inc.
+// Copyright (c), The Social Proof Foundation, LLC.
+// SPDX-License-Identifier: Apache-2.0
+
+use serde::{Deserialize, Serialize};
+use std::{fmt::Display, str::FromStr};
+
+/// Network enum for DKG and MyData CLI operations.
+/// Only supports mainnet and testnet.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub enum Network {
+    Testnet,
+    Mainnet,
+}
+
+impl FromStr for Network {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "mainnet" => Ok(Network::Mainnet),
+            "testnet" => Ok(Network::Testnet),
+            _ => Err(format!(
+                "Unknown network: {s}. Only 'mainnet' and 'testnet' are supported"
+            )),
+        }
+    }
+}
+
+impl Display for Network {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Network::Mainnet => write!(f, "mainnet"),
+            Network::Testnet => write!(f, "testnet"),
+        }
+    }
+}

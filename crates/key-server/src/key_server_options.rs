@@ -1,6 +1,8 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::common::NetworkConfig;
 use crate::metrics_push::MetricsPushConfig;
 use crate::time::from_mins;
 use crate::types::Network;
@@ -9,7 +11,8 @@ use duration_str::deserialize_duration;
 use semver::VersionReq;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
-use mys_types::base_types::ObjectID;
+use myso_sdk_types::Address;
+use myso_types::base_types::ObjectID;
 use tracing::info;
 
 /// ClientKeyType for a permissioned client.
@@ -36,6 +39,17 @@ pub struct ClientConfig {
     pub package_ids: Vec<ObjectID>,     // first versions only
 }
 
+/// State of the committee key server.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum CommitteeState {
+    /// Active mode: the key server is operating with one master share. Version is determined from
+    /// the onchain key server object.
+    Active,
+    /// Rotation mode: the key server is rotating to a new version. Target version is read from the
+    /// the config, and the current is target - 1.
+    Rotation { target_version: u32 },
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum ServerMode {
     Open {
@@ -46,6 +60,15 @@ pub enum ServerMode {
     Permissioned {
         // Master key is expected to by 32 byte HKDF seed
         client_configs: Vec<ClientConfig>,
+    },
+    Committee {
+        member_address: Address,
+        key_server_obj_id: Address,
+        /// The state of the committee: Active or Rotation.
+        committee_state: CommitteeState,
+        /// Server name fetched from onchain PartialKeyServer (populated during initialization).
+        #[serde(skip)]
+        server_name: String,
     },
 }
 
@@ -96,22 +119,22 @@ pub struct KeyServerOptions {
     /// The network this key server is running on.
     pub network: Network,
 
+    /// A custom node URL. If not set, the default for the given network is used.
+    pub node_url: Option<String>,
+
     /// If the server is open or permissioned.
     pub server_mode: ServerMode,
 
-    /// The minimum version of the SDK that is required to use this service.
-    #[serde(default = "default_sdk_version_requirement")]
-    pub sdk_version_requirement: VersionReq,
+    /// The minimum version of the client SDK that is required to use this key server.
+    #[serde(default = "default_ts_sdk_version_requirement")]
+    pub ts_sdk_version_requirement: VersionReq,
+
+    /// The minimum version of the aggregator that is required to use this key server.
+    #[serde(default = "default_aggregator_version_requirement")]
+    pub aggregator_version_requirement: VersionReq,
 
     #[serde(default = "default_metrics_host_port")]
     pub metrics_host_port: u16,
-
-    /// The interval at which the latest checkpoint timestamp is updated.
-    #[serde(
-        default = "default_checkpoint_update_interval",
-        deserialize_with = "deserialize_duration"
-    )]
-    pub checkpoint_update_interval: Duration,
 
     /// The interval at which the reference gas price is updated.
     #[serde(
@@ -121,7 +144,7 @@ pub struct KeyServerOptions {
     pub rgp_update_interval: Duration,
 
     /// The allowed staleness of the full node.
-    /// When setting this duration, note a timestamp on MySocial may be a bit late compared to
+    /// When setting this duration, note a timestamp on MySo may be a bit late compared to
     /// the current time, but it shouldn't be more than a second.
     #[serde(
         default = "default_allowed_staleness",
@@ -136,13 +159,23 @@ pub struct KeyServerOptions {
     )]
     pub session_key_ttl_max: Duration,
 
-    /// The configuration for the MySocial RPC client.
+    /// The configuration for the MySo RPC client.
     #[serde(default)]
     pub rpc_config: RpcConfig,
 
     /// Optional configuration for pushing metrics to an external endpoint (e.g., mydata-proxy).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub metrics_push_config: Option<MetricsPushConfig>,
+}
+
+impl NetworkConfig for KeyServerOptions {
+    fn network(&self) -> &Network {
+        &self.network
+    }
+
+    fn node_url_option(&self) -> &Option<String> {
+        &self.node_url
+    }
 }
 
 impl KeyServerOptions {
@@ -152,12 +185,13 @@ impl KeyServerOptions {
     ) -> Self {
         Self {
             network,
-            sdk_version_requirement: default_sdk_version_requirement(),
+            node_url: None,
+            ts_sdk_version_requirement: default_ts_sdk_version_requirement(),
+            aggregator_version_requirement: default_aggregator_version_requirement(),
             server_mode: ServerMode::Open {
                 key_server_object_id,
             },
             metrics_host_port: default_metrics_host_port(),
-            checkpoint_update_interval: default_checkpoint_update_interval(),
             rgp_update_interval: default_rgp_update_interval(),
             allowed_staleness: default_allowed_staleness(),
             session_key_ttl_max: default_session_key_ttl_max(),
@@ -170,12 +204,13 @@ impl KeyServerOptions {
     pub fn new_for_testing(network: Network) -> Self {
         Self {
             network,
-            sdk_version_requirement: default_sdk_version_requirement(),
+            node_url: None,
+            ts_sdk_version_requirement: default_ts_sdk_version_requirement(),
+            aggregator_version_requirement: default_aggregator_version_requirement(),
             server_mode: ServerMode::Open {
                 key_server_object_id: ObjectID::random(),
             },
             metrics_host_port: default_metrics_host_port(),
-            checkpoint_update_interval: default_checkpoint_update_interval(),
             rgp_update_interval: default_rgp_update_interval(),
             allowed_staleness: default_allowed_staleness(),
             session_key_ttl_max: default_session_key_ttl_max(),
@@ -237,6 +272,7 @@ impl KeyServerOptions {
                         config.key_server_object_id
                     ));
                 }
+
                 for pkg_id in &config.package_ids {
                     if !obj_ids.insert(*pkg_id) {
                         return Err(anyhow!("Duplicate package ID: {}", pkg_id));
@@ -255,7 +291,6 @@ impl KeyServerOptions {
         }
         Ok(())
     }
-
     pub(crate) fn get_supported_key_server_object_ids(&self) -> Vec<ObjectID> {
         match &self.server_mode {
             ServerMode::Open {
@@ -273,12 +308,11 @@ impl KeyServerOptions {
                 })
                 .map(|c| c.key_server_object_id)
                 .collect(),
+            ServerMode::Committee {
+                key_server_obj_id, ..
+            } => vec![ObjectID::new(key_server_obj_id.into_inner())],
         }
     }
-}
-
-fn default_checkpoint_update_interval() -> Duration {
-    Duration::from_secs(10)
 }
 
 fn default_rgp_update_interval() -> Duration {
@@ -297,21 +331,23 @@ fn default_metrics_host_port() -> u16 {
     9184
 }
 
-fn default_sdk_version_requirement() -> VersionReq {
-    VersionReq::parse(">=0.4.5").expect("Failed to parse default SDK version requirement")
+fn default_ts_sdk_version_requirement() -> VersionReq {
+    VersionReq::parse(">=0.4.5").expect("Failed to parse default TSSDK version requirement")
+}
+
+fn default_aggregator_version_requirement() -> VersionReq {
+    VersionReq::parse(">=0.6.0").expect("Failed to parse default aggregator version requirement")
 }
 
 #[test]
 fn test_parse_open_config() {
-    use crate::mvr::resolve_network;
     use std::str::FromStr;
     let valid_configuration = r#"
 network: Mainnet
-sdk_version_requirement: '>=0.2.7'
+ts_sdk_version_requirement: '>=0.2.7'
 metrics_host_port: 1234
 server_mode: !Open
   key_server_object_id: '0x0000000000000000000000000000000000000000000000000000000000000002'
-checkpoint_update_interval: '13s'
 rgp_update_interval: '5s'
 allowed_staleness: '2s'
 session_key_ttl_max: '60s'
@@ -320,7 +356,7 @@ session_key_ttl_max: '60s'
     let options: KeyServerOptions =
         serde_yaml::from_str(valid_configuration).expect("Failed to parse valid configuration");
     assert_eq!(options.network, Network::Mainnet);
-    assert_eq!(options.sdk_version_requirement.to_string(), ">=0.2.7");
+    assert_eq!(options.ts_sdk_version_requirement.to_string(), ">=0.2.7");
     assert_eq!(options.metrics_host_port, 1234);
 
     let expected_server_mode = ServerMode::Open {
@@ -331,25 +367,30 @@ session_key_ttl_max: '60s'
     };
     assert_eq!(options.server_mode, expected_server_mode);
 
-    assert_eq!(options.checkpoint_update_interval, Duration::from_secs(13));
-
-    let valid_configuration_custom_network = r#"
-network: !Custom
-  node_url: https://node.dk
-  use_default_mainnet_for_mvr: false
+    let valid_configuration_custom_node_url = r#"
+network: Testnet
+node_url: https://node.dk
 server_mode: !Open
   key_server_object_id: '0x0'
 "#;
-    let options: KeyServerOptions = serde_yaml::from_str(valid_configuration_custom_network)
+    let options: KeyServerOptions = serde_yaml::from_str(valid_configuration_custom_node_url)
         .expect("Failed to parse valid configuration");
 
-    assert!(resolve_network(&options.network).unwrap() == Network::Testnet);
+    assert_eq!(options.network, Network::Testnet);
+    assert_eq!(options.node_url, Some("https://node.dk".to_string()));
+
+    let valid_configuration_devnet = r#"
+network: !Devnet
+  mydata_package: '0x7'
+server_mode: !Open
+  key_server_object_id: '0x0'
+"#;
+    let options: KeyServerOptions = serde_yaml::from_str(valid_configuration_devnet)
+        .expect("Failed to parse valid configuration");
+    assert!(matches!(options.network, Network::Devnet { .. }));
     assert_eq!(
-        options.network,
-        Network::Custom {
-            node_url: Some("https://node.dk".to_string()),
-            use_default_mainnet_for_mvr: Some(false),
-        }
+        options.network.mydata_package().package_id(),
+        ObjectID::from_str("0x7").unwrap()
     );
 
     let unknown_option = "a_complete_unknown: 'a rolling stone'\n";
@@ -357,34 +398,11 @@ server_mode: !Open
 }
 
 #[test]
-fn test_parse_custom_network_with_env_var() {
-    use crate::mvr::resolve_network;
-    // Test that NODE_URL can be omitted from config when not set in env
-    let config_without_url = r#"
-network: !Custom {}
-server_mode: !Open
-  key_server_object_id: '0x0'
-"#;
-
-    let options: KeyServerOptions = serde_yaml::from_str(config_without_url)
-        .expect("Failed to parse configuration without node_url");
-
-    assert!(resolve_network(&options.network).unwrap() == Network::Mainnet);
-    match options.network {
-        Network::Custom { node_url, .. } => {
-            assert_eq!(node_url, None);
-        }
-        _ => panic!("Expected Custom network"),
-    }
-}
-
-#[test]
 fn test_parse_permissioned_config() {
     use std::str::FromStr;
-
     let valid_configuration = r#"
 network: Mainnet
-sdk_version_requirement: '>=0.2.7'
+ts_sdk_version_requirement: '>=0.2.7'
 metrics_host_port: 1234
 server_mode: !Permissioned
   client_configs:
@@ -407,7 +425,6 @@ server_mode: !Permissioned
       key_server_object_id: "0xcccc000000000000000000000000000000000000000000000000000000000003"
       package_ids:
       - "0x3333333333333333333333333333333333333333333333333333333333333333"
-checkpoint_update_interval: '13s'
 rgp_update_interval: '5s'
 allowed_staleness: '2s'
 session_key_ttl_max: '60s'
@@ -565,7 +582,7 @@ server_mode: !Permissioned
         let options: KeyServerOptions =
             serde_yaml::from_str(yaml).expect("Failed to parse valid configuration");
         let result = options.validate();
-        assert!(result.is_err(), "Expected validation to fail for: {}", yaml);
+        assert!(result.is_err(), "Expected validation to fail for: {yaml}");
         assert_eq!(result.unwrap_err().to_string(), expected_error);
     }
 }

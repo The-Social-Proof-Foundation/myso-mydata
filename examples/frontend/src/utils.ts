@@ -1,9 +1,10 @@
+// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
-import { MyDataClient, SessionKey, NoAccessError, EncryptedObject } from '@mysten/mydata';
-import { MysClient } from '@socialproof/mys/client';
-import { Transaction } from '@socialproof/mys/transactions';
+import { MyDataClient, SessionKey, NoAccessError, EncryptedObject } from '@socialproof/mydata';
+import { MySoClient } from '@socialproof/myso/client';
+import { Transaction } from '@socialproof/myso/transactions';
 import React from 'react';
 
 export type MoveCallConstructor = (tx: Transaction, id: string) => void;
@@ -11,7 +12,7 @@ export type MoveCallConstructor = (tx: Transaction, id: string) => void;
 export const downloadAndDecrypt = async (
   blobIds: string[],
   sessionKey: SessionKey,
-  suiClient: MysClient,
+  mysoClient: MySoClient,
   mydataClient: MyDataClient,
   moveCallConstructor: (tx: Transaction, id: string) => void,
   setError: (error: string | null) => void,
@@ -66,7 +67,7 @@ export const downloadAndDecrypt = async (
     const ids = batch.map((enc) => EncryptedObject.parse(new Uint8Array(enc)).id);
     const tx = new Transaction();
     ids.forEach((id) => moveCallConstructor(tx, id));
-    const txBytes = await tx.build({ client: suiClient, onlyTransactionKind: true });
+    const txBytes = await tx.build({ client: mysoClient, onlyTransactionKind: true });
     try {
       await mydataClient.fetchKeys({ ids, txBytes, sessionKey, threshold: 2 });
     } catch (err) {
@@ -87,7 +88,7 @@ export const downloadAndDecrypt = async (
     const fullId = EncryptedObject.parse(new Uint8Array(encryptedData)).id;
     const tx = new Transaction();
     moveCallConstructor(tx, fullId);
-    const txBytes = await tx.build({ client: suiClient, onlyTransactionKind: true });
+    const txBytes = await tx.build({ client: mysoClient, onlyTransactionKind: true });
     try {
       // Note that all keys are fetched above, so this only local decryption is done
       const decryptedFile = await mydataClient.decrypt({
@@ -120,7 +121,7 @@ export const getObjectExplorerLink = (id: string): React.ReactElement => {
   return React.createElement(
     'a',
     {
-      href: `https://testnet.suivision.xyz/object/${id}`,
+      href: `https://testnet.mysovision.xyz/object/${id}`,
       target: '_blank',
       rel: 'noopener noreferrer',
       style: { textDecoration: 'underline' },
