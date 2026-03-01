@@ -12,11 +12,11 @@ node_url: https://fullnode.testnet.mysocial.network:443
 #
 # For the Open mode, set the registered key server object ID to be used, e.g.,:
 # server_mode: !Open
-#   key_server_object_id: '0x0000000000000000000000000000000000000000000000000000000000005ea1'
+#   key_server_object_id: '0x000000000000000000000000000000000000000000000000000000000000da7a'
 #
 # Example:
 server_mode: !Open
-  key_server_object_id: '0x0000000000000000000000000000000000000000000000000000000000005ea1'
+  key_server_object_id: '0x000000000000000000000000000000000000000000000000000000000000da7a'
 
 #### Optional advanced configurations ####
 #

@@ -3,8 +3,8 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "/opt/key-server/bin/key-server"
-healthcheckPath = "/v1/service"
+startCommand = "/opt/key-server/entrypoint.sh"
+healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
@@ -26,3 +26,5 @@ source = { repo = "https://github.com/The-Social-Proof-Foundation/myso-mydata", 
 [services.variables]
 PORT = "8080"
 METRICS_PORT = "9184"
+# Required when volume is empty so entrypoint can auto-generate config
+KEY_SERVER_OBJECT_ID = "0x000000000000000000000000000000000000000000000000000000000000da7a"

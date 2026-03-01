@@ -146,8 +146,8 @@ Use the correct `key_server_object_id` per server. Each of the 3 services gets i
 | `RUST_LOG` | `info` | Optional |
 | `NODE_URL` | `https://fullnode.testnet.mysocial.network:443` | Override if needed |
 
-4. **Config file:** Either (a) add a volume at `/app/config` with `key-server-config-railway.yaml`, or (b) set `KEY_SERVER_OBJECT_ID` — the entrypoint will auto-generate the config when the file is missing
-5. **Health check:** `GET /v1/service`
+4. **Config file:** Either (a) add a volume at `/app/config` with `key-server-config-railway.yaml`, or (b) set `KEY_SERVER_OBJECT_ID` — the entrypoint will auto-generate the config when the file is missing. **Important:** Use `startCommand = "/opt/key-server/entrypoint.sh"` (not the binary directly) so the entrypoint runs and can generate config when needed.
+5. **Health check:** `GET /health` (use `/health`, not `/v1/service` — the latter requires a `service_id` query param)
 6. **Generate public URL:** Enable "Generate Domain" for each service
 
 ### Option B: Railway Config Files
@@ -202,7 +202,7 @@ metrics_push_config:
 
 ## Part 6: Verification
 
-1. **Health:** `curl https://<key-server-url>.up.railway.app/v1/service`
+1. **Health:** `curl https://<key-server-url>.up.railway.app/health`
 2. **CLI test:** Use `mydata-cli fetch-keys` with your key server object IDs and network
 3. **SDK:** Use `@socialproof/mydata` with your key server URLs in client config
 
@@ -220,7 +220,7 @@ metrics_push_config:
 | ----- | ----- | --- |
 | Build failed | Missing deps | Ensure `Cargo.toml` and `Cargo.lock` are present |
 | Config not found | Volume mount | Verify config path and volume mount |
-| Health check fails | Wrong port | Key server uses `PORT` env; ensure `/v1/service` is exposed |
+| Health check fails | Wrong path or port | Use `/health` for healthcheck (not `/v1/service`); key server uses `PORT` env |
 | Policy check fails | Wrong network | Verify `node_url` and `network` match |
 
 ## Related Documentation
