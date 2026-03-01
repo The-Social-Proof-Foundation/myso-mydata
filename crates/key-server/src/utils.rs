@@ -11,11 +11,25 @@ use std::env;
 use myso_types::base_types::{ObjectID, MYSO_ADDRESS_LENGTH};
 
 /// Read a byte array from an environment variable and decode it using the specified encoding.
+/// Trims whitespace/newlines (common when copy-pasting into PaaS dashboards like Railway).
 pub fn decode_byte_array<E: Encoding, const N: usize>(env_name: &str) -> anyhow::Result<[u8; N]> {
-    let hex_string =
-        env::var(env_name).map_err(|_| anyhow!("Environment variable {} must be set", env_name))?;
-    let bytes = E::decode(&hex_string)
-        .map_err(|_| anyhow!("Environment variable {} should be hex encoded", env_name))?;
+    let hex_string = env::var(env_name)
+        .map_err(|_| anyhow!("Environment variable {} must be set", env_name))?
+        .trim()
+        .to_string();
+    if hex_string.is_empty() {
+        return Err(anyhow!(
+            "Environment variable {} is empty (after trimming whitespace)",
+            env_name
+        ));
+    }
+    let bytes = E::decode(&hex_string).map_err(|_| {
+        anyhow!(
+            "Environment variable {} should be hex encoded (64 hex chars for 32 bytes, optional 0x prefix). \
+             Check for extra spaces, newlines, or invalid characters.",
+            env_name
+        )
+    })?;
     bytes.try_into().map_err(|_| {
         anyhow!(
             "Invalid byte array length for environment variable {env_name}. Must be {N} bytes long"
