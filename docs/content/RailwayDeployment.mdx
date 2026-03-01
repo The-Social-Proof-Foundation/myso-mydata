@@ -140,12 +140,13 @@ Use the correct `key_server_object_id` per server. Each of the 3 services gets i
 | Variable | Value | Notes |
 | -------- | ----- | ----- |
 | `PORT` | `8080` | Railway sets this; key server reads it |
-| `CONFIG_PATH` | `/app/config/key-server-config-railway.yaml` | Config mount path |
+| `CONFIG_PATH` | `/app/config/key-server-config-railway.yaml` | Config path (auto-generated if missing) |
+| `KEY_SERVER_OBJECT_ID` | `<from Step 1.2>` | **Required** when config is auto-generated |
 | `MASTER_KEY` | `<secret>` | From Step 1.1 - **use Railway Secrets** |
 | `RUST_LOG` | `info` | Optional |
-| `NODE_URL` | `http://fullnode.testnet.mysocial.network:9000` | Override if needed |
+| `NODE_URL` | `https://fullnode.testnet.mysocial.network:443` | Override if needed |
 
-4. **Config file:** Add a volume named `config` at `/app/config` and provide `key-server-config-railway.yaml` for each service
+4. **Config file:** Either (a) add a volume at `/app/config` with `key-server-config-railway.yaml`, or (b) set `KEY_SERVER_OBJECT_ID` — the entrypoint will auto-generate the config when the file is missing
 5. **Health check:** `GET /v1/service`
 6. **Generate public URL:** Enable "Generate Domain" for each service
 
@@ -159,7 +160,7 @@ Reference the provided config files:
 
 :::warning
 
-`MASTER_KEY` must be set as a **secret** in Railway, not in the config file. The config file must be provided via the volume mount.
+`MASTER_KEY` must be set as a **secret** in Railway. When using an empty volume, set `KEY_SERVER_OBJECT_ID` so the entrypoint can auto-generate the config.
 
 :::
 

@@ -21,8 +21,9 @@ mountPath = "/app/config"
 
 [[services]]
 name = "mydata-key-server-1"
-source = { repo = "https://github.com/The-Social-Proof-Foundation/myso-mydata", branch = "main" }
+source = { repo = "https://github.com/The-Social-Proof-Foundation/myso-mydata", branch = "master" }
 
 [services.variables]
 PORT = "8080"
 METRICS_PORT = "9184"
+# KEY_SERVER_OBJECT_ID = "<required when volume is empty - set per service>"

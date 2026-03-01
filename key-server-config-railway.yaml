@@ -1,23 +1,9 @@
 #### Mandatory configurations ####
 
-# Network to use. Should be one of:
-# network: Testnet
-# network: Mainnet
-# network: Devnet
-# network: !Custom
-#   node_url: 'url_to_node_endpoint'  # Optional - see below
-#   use_default_mainnet_for_mvr: true # Optional, default to true if not present, 
-# set this to false for mvr to resolve on testnet. 
-#
-# Use Custom for production deployments. You must provide the node URL
-# in exactly one of these ways:
-# 1. Set the `node_url` in this config file
-# 2. OR omit `node_url` here and set the NODE_URL environment variable
-#
-#
-# Example:
-network: !Custom
-  node_url: http://fullnode.testnet.mysocial.network:9000
+# Network to use. Should be one of: Testnet, Mainnet, or !Devnet
+# Provide node URL via: 1) node_url below, or 2) NODE_URL env var
+network: Testnet
+node_url: https://fullnode.testnet.mysocial.network:443
 
 
 # Server mode. The server can either work in Open/permissionless mode that 

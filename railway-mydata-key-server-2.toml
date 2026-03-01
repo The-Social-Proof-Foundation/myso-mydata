@@ -21,7 +21,7 @@ mountPath = "/app/config"
 
 [[services]]
 name = "mydata-key-server-2"
-source = { repo = "https://github.com/The-Social-Proof-Foundation/myso-mydata", branch = "main" }
+source = { repo = "https://github.com/The-Social-Proof-Foundation/myso-mydata", branch = "master" }
 
 [services.variables]
 PORT = "8080"
