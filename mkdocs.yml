@@ -33,6 +33,7 @@ nav:
     - Security Best Practices: SecurityBestPractices.md
   - Operator Guide:
     - Key Server Operations: KeyServerOps.md
+    - Railway Deployment: RailwayDeployment.md
     - MyData CLI: MyDataCLI.md
   - Pricing: Pricing.md
   - Terms of Service: TermsOfService.md

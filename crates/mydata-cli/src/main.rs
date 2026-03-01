@@ -46,8 +46,8 @@ pub async fn fetch_key_server_urls(
     network: &str,
 ) -> Result<Vec<KeyServerInfo>, FastCryptoError> {
     let myso_rpc = match network {
-        "mainnet" => "https://fullnode.mainnet.mysocial.network:443",
-        "testnet" => "https://fullnode.testnet.mysocial.network:443",
+        "mainnet" => "http://fullnode.mainnet.mysocial.network:9000",
+        "testnet" => "http://fullnode.testnet.mysocial.network:9000",
         _ => {
             return Err(FastCryptoError::GeneralError(format!(
                 "Invalid network: {network}. Use 'mainnet' or 'testnet'"

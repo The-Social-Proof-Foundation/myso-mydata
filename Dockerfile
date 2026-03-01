@@ -14,7 +14,7 @@ ENV GIT_REVISION=$GIT_REVISION
 RUN cargo build --bin key-server --profile $PROFILE --config net.git-fetch-with-cli=true
 FROM debian:bullseye-slim AS runtime
 
-EXPOSE 2024
+EXPOSE 2024 8080
 
 RUN apt-get update && apt-get install -y cmake clang libpq5 ca-certificates libpq-dev postgresql
 

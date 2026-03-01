@@ -47,6 +47,10 @@
     "/markdown/index.md": {
       "Content-Disposition": "inline",
       "content-type": "text/markdown; charset=utf-8"
+    },
+    "/markdown/RailwayDeployment.md": {
+      "Content-Disposition": "inline",
+      "content-type": "text/markdown; charset=utf-8"
     }
   },
   "routes": {
@@ -82,7 +86,10 @@
     "/TermsOfService.md": "/markdown/TermsOfService.md",
     "/UsingMyData": "/UsingMyData/index.html",
     "/UsingMyData.html": "/UsingMyData/index.html",
-    "/UsingMyData.md": "/markdown/UsingMyData.md"
+    "/UsingMyData.md": "/markdown/UsingMyData.md",
+    "/RailwayDeployment": "/RailwayDeployment/index.html",
+    "/RailwayDeployment.html": "/RailwayDeployment/index.html",
+    "/RailwayDeployment.md": "/markdown/RailwayDeployment.md"
   },
   "metadata": {
     "link": "https://mydata-docs.wal.app",

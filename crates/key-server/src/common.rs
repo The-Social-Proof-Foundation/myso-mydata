@@ -24,9 +24,9 @@ pub enum Network {
 impl Network {
     pub fn default_node_url(&self) -> &str {
         match self {
-            Network::Devnet { .. } => "https://fullnode.devnet.mysocial.network:443",
-            Network::Testnet => "https://fullnode.testnet.mysocial.network:443",
-            Network::Mainnet => "https://fullnode.mainnet.mysocial.network:443",
+            Network::Devnet { .. } => "http://fullnode.devnet.mysocial.network:9000",
+            Network::Testnet => "http://fullnode.testnet.mysocial.network:9000",
+            Network::Mainnet => "http://fullnode.mainnet.mysocial.network:9000",
             #[cfg(test)]
             Network::TestCluster { .. } => panic!(), // Currently not used, but can be found from cluster.rpc_url() if needed
         }

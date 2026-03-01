@@ -11,7 +11,7 @@ network: !Testnet
 # for the given network.
 #
 # Example:
-node_url: https://fullnode.testnet.mysocial.network:443
+node_url: http://fullnode.testnet.mysocial.network:9000
 
 # The key server that the aggregator points to. An aggregator maps to one key server and fetches 
 # keys from its partial key servers. 

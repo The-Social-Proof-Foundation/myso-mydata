@@ -72,7 +72,7 @@ jobs:
             File: "$HOME/.myso/myso_config/myso.keystore"
           envs:
             - alias: mainnet
-              rpc: "https://fullnode.mainnet.mysocial.network:443"
+              rpc: "http://fullnode.mainnet.mysocial.network:9000"
           active_env: mainnet
           # Active address will be set later after key import
           YAML
@@ -82,7 +82,7 @@ jobs:
       - name: Configure MySo client for mainnet
         run: |
           # Create or update mainnet env and switch to it
-          myso client new-env --alias mainnet --rpc https://fullnode.mainnet.mysocial.network:443 || true
+          myso client new-env --alias mainnet --rpc http://fullnode.mainnet.mysocial.network:9000 || true
           myso client switch --env mainnet
 
       - name: Show MySo client info

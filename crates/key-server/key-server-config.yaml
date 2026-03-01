@@ -20,7 +20,7 @@ network: Testnet
 # If the `node_url` is not set in either place, a default URL will be used for the given network.
 #
 # Example:
-node_url: https://fullnode.testnet.mysocial.network:443
+node_url: http://fullnode.testnet.mysocial.network:9000
 
 # Server mode:
 #   1) Open: Supports all policy packages. 
