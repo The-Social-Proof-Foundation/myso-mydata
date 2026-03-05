@@ -29,7 +29,6 @@ compactor:
   sharding_ring:
     kvstore:
       store: memberlist
-  compaction_interval: 15m
 
 # Query configuration
 querier:
@@ -56,10 +55,6 @@ blocks_storage:
     dir: /tmp/mimir/blocks
   tsdb:
     dir: /tmp/mimir/tsdb
-    retention_period: 1296000s  # 15 days in seconds
-    wal_compression_enabled: true
-    head_compaction_concurrency: 1
-    stripe_size: 64
   bucket_store:
     sync_interval: 5m
     index_cache:
