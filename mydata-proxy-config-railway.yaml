@@ -6,7 +6,7 @@ label-actions:
     network: "railway-production"
     host: "mydata-proxy"
 remote-write:
-  url: "https://mydata-mimir-testnet.up.railway.app/api/v1/push"
+  url: "https://mimir-testnet.up.railway.app/api/v1/push"
   username: ""
   password: ""
   pool_max_idle_per_host: 100
