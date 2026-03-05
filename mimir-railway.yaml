@@ -48,26 +48,17 @@ ruler:
   rule_path: /tmp/mimir/rules
   alertmanager_url: ""
 
-# Common GCS storage configuration
-# Requires: GCP_SERVICE_ACCOUNT_JSON env var with valid JSON (minified, single-line recommended).
-# Invalid JSON causes "invalid character in numeric literal".
-common:
-  storage:
-    backend: gcs
-    gcs:
-      service_account: "${GCP_SERVICE_ACCOUNT_JSON}"
-
-# Ruler storage (separate bucket from blocks)
+# Ruler storage (filesystem; volume at /tmp/mimir)
 ruler_storage:
-  backend: gcs
-  gcs:
-    bucket_name: mydata-mimir-ruler
+  backend: filesystem
+  filesystem:
+    dir: /tmp/mimir/ruler
 
-# Blocks storage configuration
+# Blocks storage configuration (filesystem; volume at /tmp/mimir)
 blocks_storage:
-  backend: gcs
-  gcs:
-    bucket_name: mydata-mimir-blocks
+  backend: filesystem
+  filesystem:
+    dir: /tmp/mimir/blocks
   tsdb:
     dir: /tmp/mimir/tsdb
     head_compaction_interval: 1m
