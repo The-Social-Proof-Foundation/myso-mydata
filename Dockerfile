@@ -34,7 +34,7 @@ if [ -n "${CONFIG_PATH}" ] && [ ! -f "${CONFIG_PATH}" ]; then\n\
   mkdir -p $(dirname "${CONFIG_PATH}")\n\
   cat > "${CONFIG_PATH}" << EOF\n\
 network: ${NETWORK:-Testnet}\n\
-node_url: ${NODE_URL:-https://fullnode.testnet.mysocial.network:443}\n\
+node_url: ${NODE_URL:-http://fullnode.testnet.mysocial.network:9000}\n\
 server_mode: !Open\n\
   key_server_object_id: '\''${KEY_SERVER_OBJECT_ID}'\''\n\
 EOF\n\

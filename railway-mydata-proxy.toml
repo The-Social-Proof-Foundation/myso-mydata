@@ -1,3 +1,6 @@
+# Proxy: receives metrics from key servers (bearer auth via KEY_SERVER_X_TOKEN), forwards to Mimir.
+# REMOTE_WRITE_URL: Mimir's /api/v1/push endpoint. Overrides YAML at runtime if set.
+
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile.mydata-proxy"

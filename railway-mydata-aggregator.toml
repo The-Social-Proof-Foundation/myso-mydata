@@ -1,6 +1,6 @@
-# Railway config for MyData Aggregator (committee mode)
-# Requires a volume at /opt/aggregator-server/config with aggregator-config-railway.yaml
-# Copy aggregator-config-railway.yaml into the volume and customize key_server_object_id + api_credentials
+# Aggregator: committee mode only. Fetches from key servers via api_credentials in config.
+# No KEY_SERVER_*_TOKEN or REMOTE_WRITE_URL here - those are for proxy/key-server.
+# Volume: aggregator-config-railway.yaml with key_server_object_id + api_credentials.
 
 [build]
 builder = "DOCKERFILE"

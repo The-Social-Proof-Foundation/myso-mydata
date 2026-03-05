@@ -2,7 +2,7 @@
 
 # Network to use. Should be one of: Testnet, Mainnet
 network: Testnet
-node_url: https://fullnode.testnet.mysocial.network:443
+node_url: http://fullnode.testnet.mysocial.network:9000
 
 # The KeyServerV2 committee object ID. The aggregator fetches committee members from chain.
 # Replace with your committee's object ID from DKG/registration.

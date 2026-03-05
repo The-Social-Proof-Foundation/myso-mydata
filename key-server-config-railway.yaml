@@ -3,7 +3,7 @@
 # Network to use. Should be one of: Testnet, Mainnet, or !Devnet
 # Provide node URL via: 1) node_url below, or 2) NODE_URL env var
 network: Testnet
-node_url: https://fullnode.testnet.mysocial.network:443
+node_url: http://fullnode.testnet.mysocial.network:9000
 
 
 # Server mode. The server can either work in Open/permissionless mode that 
@@ -33,8 +33,9 @@ allowed_staleness: '2m'
 session_key_ttl_max: '30m'
 
 # Optional: Metrics push configuration to send metrics to mydata-proxy
-# Uncomment and configure to enable pushing metrics to an external endpoint
+# Each key server must use its own bearer_token matching KEY_SERVER_X_TOKEN on the proxy.
+# Key-server-1: key-server-1-token | Key-server-2: key-server-2-token | Key-server-3: key-server-3-token
 metrics_push_config:
-  bearer_token: "key-server-token-placeholder"
+  bearer_token: "key-server-1-token"
   push_interval_secs: 10
   push_url: "https://mydata-proxy-testnet.up.railway.app/publish/metrics"

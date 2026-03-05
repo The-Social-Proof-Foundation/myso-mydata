@@ -1,3 +1,5 @@
+# Mimir: metrics sink. Receives at /api/v1/push. No REMOTE_WRITE_URL - proxy pushes TO Mimir.
+
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile.mimir"

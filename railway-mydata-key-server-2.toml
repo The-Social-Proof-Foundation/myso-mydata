@@ -14,6 +14,9 @@ RUST_LOG = "info"
 RUST_BACKTRACE = "1"
 CONFIG_PATH = "/app/config/key-server-config-railway.yaml"
 MASTER_KEY = "0x9626290d5e30dea1e1d86a27086e64d4dc2955adbce4b6c54d6cd4fba015ac9c"
+KEY_SERVER_OBJECT_ID = "0x000000000000000000000000000000000000000000000000000000000000da7a"
+NODE_URL = "http://fullnode.testnet.mysocial.network:9000"
+NETWORK = "Testnet"
 
 [[volumes]]
 name = "config"

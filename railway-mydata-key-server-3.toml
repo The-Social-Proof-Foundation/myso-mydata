@@ -26,5 +26,6 @@ source = { repo = "https://github.com/The-Social-Proof-Foundation/myso-mydata", 
 [services.variables]
 PORT = "8080"
 METRICS_PORT = "9184"
-# Required when volume is empty so entrypoint can auto-generate config
 KEY_SERVER_OBJECT_ID = "0x000000000000000000000000000000000000000000000000000000000000da7a"
+NODE_URL = "http://fullnode.testnet.mysocial.network:9000"
+NETWORK = "Testnet"

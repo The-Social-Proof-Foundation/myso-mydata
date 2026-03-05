@@ -14,6 +14,9 @@ RUST_LOG = "info"
 RUST_BACKTRACE = "1"
 CONFIG_PATH = "/app/config/key-server-config-railway.yaml"
 MASTER_KEY = "0x446db97b3b61a4c007a3d07a10506c38bc01fa1181dd14836583d89cf5bc65a1"
+KEY_SERVER_OBJECT_ID = "0x000000000000000000000000000000000000000000000000000000000000da7a"
+NODE_URL = "http://fullnode.testnet.mysocial.network:9000"
+NETWORK = "Testnet"
 
 [[volumes]]
 name = "config"
@@ -26,4 +29,3 @@ source = { repo = "https://github.com/The-Social-Proof-Foundation/myso-mydata", 
 [services.variables]
 PORT = "8080"
 METRICS_PORT = "9184"
-# KEY_SERVER_OBJECT_ID = "<required when volume is empty - set per service>"

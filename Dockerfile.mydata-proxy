@@ -33,6 +33,11 @@ for var in $(env | cut -d= -f1); do\n\
     export "$var"\n\
 done\n\
 \n\
+# Override remote-write URL from REMOTE_WRITE_URL env if set (Railway deployment)\n\
+if [ -n \"${REMOTE_WRITE_URL}\" ]; then\n\
+  sed -i \"s|url:.*|url: \\\"${REMOTE_WRITE_URL}\\\"|\" /app/config/mydata-proxy-config-railway.yaml\n\
+fi\n\
+\n\
 # Generate bearer tokens YAML file from environment variables\n\
 cat > /app/config/bearer-tokens-railway.yaml << EOF\n\
 - name: key-server-1\n\

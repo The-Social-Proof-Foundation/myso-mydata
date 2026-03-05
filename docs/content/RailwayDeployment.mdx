@@ -144,7 +144,7 @@ Use the correct `key_server_object_id` per server. Each of the 3 services gets i
 | `KEY_SERVER_OBJECT_ID` | `<from Step 1.2>` | **Required** when config is auto-generated |
 | `MASTER_KEY` | `<secret>` | From Step 1.1 - **use Railway Secrets** |
 | `RUST_LOG` | `info` | Optional |
-| `NODE_URL` | `https://fullnode.testnet.mysocial.network:443` | Override if needed |
+| `NODE_URL` | `http://fullnode.testnet.mysocial.network:9000` | Override if needed |
 
 4. **Config file:** Either (a) add a volume at `/app/config` with `key-server-config-railway.yaml`, or (b) set `KEY_SERVER_OBJECT_ID` — the entrypoint will auto-generate the config when the file is missing. **Important:** Use `startCommand = "/opt/key-server/entrypoint.sh"` (not the binary directly) so the entrypoint runs and can generate config when needed.
 5. **Health check:** `GET /health` (use `/health`, not `/v1/service` — the latter requires a `service_id` query param)
