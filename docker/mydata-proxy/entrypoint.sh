@@ -9,9 +9,9 @@ done
 cp /opt/mydata-proxy/config/mydata-proxy-config-railway.yaml /app/config/mydata-proxy-config-railway.yaml
 
 # Override remote-write URL from REMOTE_WRITE_URL env if set (Railway deployment)
-# Use @ delimiter to avoid | being interpreted as shell pipe
+# Use awk to avoid sed quoting issues in some shell environments
 if [ -n "${REMOTE_WRITE_URL}" ]; then
-  sed -i 's@url:.*@url: "'"${REMOTE_WRITE_URL}"'"@' /app/config/mydata-proxy-config-railway.yaml
+  awk -v url="${REMOTE_WRITE_URL}" '/^  url:/{print "  url: \"" url "\""; next}1' /app/config/mydata-proxy-config-railway.yaml > /tmp/mydata-proxy-config.yaml && mv /tmp/mydata-proxy-config.yaml /app/config/mydata-proxy-config-railway.yaml
 fi
 
 # Generate bearer tokens YAML file from environment variables
