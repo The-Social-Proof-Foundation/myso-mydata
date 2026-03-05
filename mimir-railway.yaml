@@ -61,7 +61,7 @@ blocks_storage:
     index_cache:
       backend: inmemory
     chunks_cache:
-      backend: inmemory
+      backend: ""
 
 # Limits configuration
 limits:
