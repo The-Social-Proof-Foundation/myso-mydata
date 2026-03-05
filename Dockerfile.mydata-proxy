@@ -2,7 +2,7 @@
 FROM rust:1.88 AS builder
 
 # Bump to force Railway rebuild (cache bust)
-ARG CACHE_BUST=2026-03-05-entrypoint-r2
+ARG CACHE_BUST=2026-03-05-entrypoint-r3
 ARG PROFILE=release
 
 WORKDIR work
@@ -18,7 +18,7 @@ RUN cargo build --bin mydata-proxy --profile $PROFILE --config net.git-fetch-wit
 FROM debian:bullseye-slim AS runtime
 
 # Bump to force rebuild; Railway may use cached image
-ARG CACHE_BUST=2026-03-05-entrypoint-r2
+ARG CACHE_BUST=2026-03-05-entrypoint-r3
 RUN echo "entrypoint-version: ${CACHE_BUST}"
 
 EXPOSE 8000 9185 8001

@@ -5,10 +5,6 @@ ENTRYPOINT_VERSION="2026-03-05-r2"
 
 echo "[mydata-proxy entrypoint] version=${ENTRYPOINT_VERSION}"
 echo "[mydata-proxy entrypoint] pid=$$"
-# Export all environment variables
-for var in $(env | cut -d= -f1); do
-    export "$var"
-done
 
 # Copy config from staging (volume at /app/config overlays COPY'd files at runtime)
 cp /opt/mydata-proxy/config/mydata-proxy-config-railway.yaml /app/config/mydata-proxy-config-railway.yaml
