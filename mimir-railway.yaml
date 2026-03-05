@@ -2,9 +2,9 @@
 multitenancy_enabled: false
 
 server:
-  http_listen_port: 9009
+  http_listen_port: ${PORT:-9009}
   http_listen_address: 0.0.0.0
-  grpc_listen_port: 9095
+  grpc_listen_port: ${GRPC_PORT:-9095}
   grpc_listen_address: 0.0.0.0
   log_level: info
 
