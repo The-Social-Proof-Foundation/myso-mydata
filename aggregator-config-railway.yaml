@@ -1,0 +1,29 @@
+#### Mandatory configurations ####
+
+# Network to use. Should be one of: Testnet, Mainnet
+network: Testnet
+node_url: https://fullnode.testnet.mysocial.network:443
+
+# The KeyServerV2 committee object ID. The aggregator fetches committee members from chain.
+# Replace with your committee's object ID from DKG/registration.
+key_server_object_id: '0x758312953b0db53942c783d56320a3be90ce3d063fa57c00e0ff776d393fded6'
+
+# API credentials for committee members. Map PartialKeyServer.name (from onchain) to credentials.
+# The aggregator uses these to authenticate requests to each key server.
+# Replace with actual credentials from your committee coordinator.
+api_credentials:
+  server1:
+    api_key_name: X-API-Key
+    api_key: "<REPLACE_WITH_SERVER1_API_KEY>"
+  server2:
+    api_key_name: X-API-Key
+    api_key: "<REPLACE_WITH_SERVER2_API_KEY>"
+  server3:
+    api_key_name: X-API-Key
+    api_key: "<REPLACE_WITH_SERVER3_API_KEY>"
+
+# Optional: Metrics push to mydata-proxy (uncomment and set your proxy URL)
+# metrics_push_config:
+#   bearer_token: "aggregator-token-placeholder"
+#   push_interval_secs: 10
+#   push_url: "https://mydata-proxy-testnet.up.railway.app/publish/metrics"

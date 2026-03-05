@@ -1,0 +1,31 @@
+# Railway config for MyData Aggregator (committee mode)
+# Requires a volume at /opt/aggregator-server/config with aggregator-config-railway.yaml
+# Copy aggregator-config-railway.yaml into the volume and customize key_server_object_id + api_credentials
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.aggregator"
+
+[deploy]
+startCommand = "/opt/aggregator-server/entrypoint.sh"
+healthcheckPath = "/health"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[environment]
+RUST_LOG = "info"
+RUST_BACKTRACE = "1"
+CONFIG_PATH = "/opt/aggregator-server/config/aggregator-config-railway.yaml"
+PORT = "2024"
+
+[[volumes]]
+name = "config"
+mountPath = "/opt/aggregator-server/config"
+
+[[services]]
+name = "mydata-aggregator"
+source = { repo = "https://github.com/The-Social-Proof-Foundation/myso-mydata", branch = "master" }
+
+[services.variables]
+PORT = "2024"
