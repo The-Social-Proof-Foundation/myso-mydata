@@ -25,34 +25,8 @@ COPY --from=builder /work/target/release/mydata-proxy /opt/mydata-proxy/bin/myda
 # Copy config files to default location
 COPY ./mydata-proxy-config-railway.yaml /app/config/mydata-proxy-config-railway.yaml
 
-# Create entrypoint script that generates bearer tokens from env vars and starts the proxy
-RUN cat << 'ENTRYPOINT_EOF' > /opt/mydata-proxy/entrypoint.sh
-#!/bin/bash
-set -e
-# Export all environment variables
-for var in $(env | cut -d= -f1); do
-    export "$var"
-done
-
-# Override remote-write URL from REMOTE_WRITE_URL env if set (Railway deployment)
-if [ -n "${REMOTE_WRITE_URL}" ]; then
-  sed -i "s|url:.*|url: \"${REMOTE_WRITE_URL}\"|" /app/config/mydata-proxy-config-railway.yaml
-fi
-
-# Generate bearer tokens YAML file from environment variables
-cat > /app/config/bearer-tokens-railway.yaml << EOF
-- name: key-server-1
-  token: ${KEY_SERVER_1_TOKEN:-key-server-1-token}
-- name: key-server-2
-  token: ${KEY_SERVER_2_TOKEN:-key-server-2-token}
-- name: key-server-3
-  token: ${KEY_SERVER_3_TOKEN:-key-server-3-token}
-- name: sample-client
-  token: ${SAMPLE_CLIENT_TOKEN:-sample-client-token}
-EOF
-
-exec /opt/mydata-proxy/bin/mydata-proxy --config=/app/config/mydata-proxy-config-railway.yaml --bearer-tokens-path=/app/config/bearer-tokens-railway.yaml "$@"
-ENTRYPOINT_EOF
+# Copy entrypoint script (real file avoids heredoc/Kaniko compatibility issues on Railway)
+COPY ./docker/mydata-proxy/entrypoint.sh /opt/mydata-proxy/entrypoint.sh
 RUN chmod +x /opt/mydata-proxy/entrypoint.sh
 
 ENTRYPOINT ["/opt/mydata-proxy/entrypoint.sh"]
