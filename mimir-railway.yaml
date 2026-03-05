@@ -49,12 +49,13 @@ ruler:
   alertmanager_url: ""
 
 # Common GCS storage configuration
-# Requires: GCP_SERVICE_ACCOUNT_JSON env var; entrypoint writes it to a file and sets
-# GOOGLE_APPLICATION_CREDENTIALS (avoids JSON parsing issues in config).
+# Requires: GCP_SERVICE_ACCOUNT_JSON env var with valid JSON (minified, single-line recommended).
+# Invalid JSON causes "invalid character in numeric literal".
 common:
   storage:
     backend: gcs
-    gcs: {}
+    gcs:
+      service_account: "${GCP_SERVICE_ACCOUNT_JSON}"
 
 # Ruler storage (separate bucket from blocks)
 ruler_storage:

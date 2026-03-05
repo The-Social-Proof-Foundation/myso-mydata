@@ -5,7 +5,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile.mimir"
 
 [deploy]
-startCommand = "/opt/mimir/entrypoint.sh"
+startCommand = "mimir -config.file=/etc/mimir/config.yaml -config.expand-env=true"
 healthcheckPath = "/ready"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"

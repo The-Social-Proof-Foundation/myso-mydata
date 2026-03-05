@@ -191,8 +191,9 @@ Collects metrics from key servers and pushes to Mimir. See [mydata-proxy-config-
 - **Storage:** Uses Google Cloud Storage (GCS). Before deploy:
   1. Create GCS buckets: `mimir-blocks`, `mimir-ruler`
   2. Create a GCP service account with Storage Object Admin on those buckets
-  3. Add Railway variable `GCP_SERVICE_ACCOUNT_JSON` with the full service account JSON (minified single-line or raw)
+  3. Add Railway variable `GCP_SERVICE_ACCOUNT_JSON` with the full service account JSON
   4. Mount a volume at `/tmp/mimir` for local TSDB and activity log
+  5. **JSON format:** Use minified (single-line) JSON to avoid "invalid character '-' in numeric literal". No YAML list markers (`-`), no extra quotes. Validate at jsonlint.com before pasting.
 
 ### Key server metrics push
 
@@ -228,6 +229,7 @@ metrics_push_config:
 | Config not found | Volume mount | Verify config path and volume mount |
 | Health check fails | Wrong path or port | Use `/health` for healthcheck (not `/v1/service`); key server uses `PORT` env |
 | Policy check fails | Wrong network | Verify `node_url` and `network` match |
+| Mimir "invalid character '-' in numeric literal" | Malformed `GCP_SERVICE_ACCOUNT_JSON` | Use minified single-line JSON; no YAML markers; validate at jsonlint.com |
 
 ## Related Documentation
 
