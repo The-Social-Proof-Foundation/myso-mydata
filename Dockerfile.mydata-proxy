@@ -26,31 +26,33 @@ COPY --from=builder /work/target/release/mydata-proxy /opt/mydata-proxy/bin/myda
 COPY ./mydata-proxy-config-railway.yaml /app/config/mydata-proxy-config-railway.yaml
 
 # Create entrypoint script that generates bearer tokens from env vars and starts the proxy
-RUN echo '#!/bin/bash\n\
-set -e\n\
-# Export all environment variables\n\
-for var in $(env | cut -d= -f1); do\n\
-    export "$var"\n\
-done\n\
-\n\
-# Override remote-write URL from REMOTE_WRITE_URL env if set (Railway deployment)\n\
-if [ -n \"${REMOTE_WRITE_URL}\" ]; then\n\
-  sed -i \"s|url:.*|url: \\\"${REMOTE_WRITE_URL}\\\"|\" /app/config/mydata-proxy-config-railway.yaml\n\
-fi\n\
-\n\
-# Generate bearer tokens YAML file from environment variables\n\
-cat > /app/config/bearer-tokens-railway.yaml << EOF\n\
-- name: key-server-1\n\
-  token: ${KEY_SERVER_1_TOKEN:-key-server-1-token}\n\
-- name: key-server-2\n\
-  token: ${KEY_SERVER_2_TOKEN:-key-server-2-token}\n\
-- name: key-server-3\n\
-  token: ${KEY_SERVER_3_TOKEN:-key-server-3-token}\n\
-- name: sample-client\n\
-  token: ${SAMPLE_CLIENT_TOKEN:-sample-client-token}\n\
-EOF\n\
-\n\
-exec /opt/mydata-proxy/bin/mydata-proxy --config=/app/config/mydata-proxy-config-railway.yaml --bearer-tokens-path=/app/config/bearer-tokens-railway.yaml "$@"' > /opt/mydata-proxy/entrypoint.sh && \
-    chmod +x /opt/mydata-proxy/entrypoint.sh
+RUN cat << 'ENTRYPOINT_EOF' > /opt/mydata-proxy/entrypoint.sh
+#!/bin/bash
+set -e
+# Export all environment variables
+for var in $(env | cut -d= -f1); do
+    export "$var"
+done
+
+# Override remote-write URL from REMOTE_WRITE_URL env if set (Railway deployment)
+if [ -n "${REMOTE_WRITE_URL}" ]; then
+  sed -i "s|url:.*|url: \"${REMOTE_WRITE_URL}\"|" /app/config/mydata-proxy-config-railway.yaml
+fi
+
+# Generate bearer tokens YAML file from environment variables
+cat > /app/config/bearer-tokens-railway.yaml << EOF
+- name: key-server-1
+  token: ${KEY_SERVER_1_TOKEN:-key-server-1-token}
+- name: key-server-2
+  token: ${KEY_SERVER_2_TOKEN:-key-server-2-token}
+- name: key-server-3
+  token: ${KEY_SERVER_3_TOKEN:-key-server-3-token}
+- name: sample-client
+  token: ${SAMPLE_CLIENT_TOKEN:-sample-client-token}
+EOF
+
+exec /opt/mydata-proxy/bin/mydata-proxy --config=/app/config/mydata-proxy-config-railway.yaml --bearer-tokens-path=/app/config/bearer-tokens-railway.yaml "$@"
+ENTRYPOINT_EOF
+RUN chmod +x /opt/mydata-proxy/entrypoint.sh
 
 ENTRYPOINT ["/opt/mydata-proxy/entrypoint.sh"]
