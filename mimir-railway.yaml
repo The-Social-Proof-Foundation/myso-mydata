@@ -55,13 +55,13 @@ blocks_storage:
     dir: /tmp/mimir/blocks
   tsdb:
     dir: /tmp/mimir/tsdb
-    head_compaction_interval: 5m
+    head_compaction_interval: 1m
   bucket_store:
     sync_interval: 5m
     index_cache:
       backend: inmemory
     chunks_cache:
-      backend: inmemory
+      backend: ""
 
 # Limits configuration
 limits:

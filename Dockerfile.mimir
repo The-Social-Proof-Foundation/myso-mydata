@@ -1,4 +1,4 @@
-FROM grafana/mimir:latest
+FROM grafana/mimir:2.10.0
 
 # Copy custom configuration
 COPY mimir-railway.yaml /etc/mimir/config.yaml
