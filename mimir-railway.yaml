@@ -58,7 +58,7 @@ blocks_storage:
     dir: /tmp/mimir/tsdb
     retention_period: 1296000s  # 15 days in seconds
     wal_compression_enabled: true
-    head_compaction_interval: 1h
+    head_compaction_interval: 5m
     head_compaction_concurrency: 1
     stripe_size: 64
   bucket_store:
