@@ -32,6 +32,7 @@ pub struct ReqwestClient {
     pub settings: RemoteWriteConfig,
 }
 
+
 /// make a reqwest client to connect to mimir
 pub fn make_reqwest_client(settings: RemoteWriteConfig, user_agent: &str) -> ReqwestClient {
     info!("making reqwest client with user agent: {:?}", user_agent);
