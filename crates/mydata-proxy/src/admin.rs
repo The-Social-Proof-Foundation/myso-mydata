@@ -10,7 +10,13 @@ use crate::histogram_relay::HistogramRelay;
 use crate::middleware::{expect_content_length, expect_valid_bearer_token};
 use crate::providers::BearerTokenProvider;
 use crate::var;
-use axum::{extract::DefaultBodyLimit, middleware, routing::post, Extension, Router};
+use axum::{
+    extract::DefaultBodyLimit,
+    http::StatusCode,
+    middleware,
+    routing::{get, post},
+    Extension, Router,
+};
 use std::sync::Arc;
 use tokio::signal;
 use tower::ServiceBuilder;
@@ -47,6 +53,13 @@ pub fn make_reqwest_client(settings: RemoteWriteConfig, user_agent: &str) -> Req
     }
 }
 
+/// Health check for Railway/orchestrator. Must be on the main port (8000) since
+/// Railway only healthchecks the exposed PORT. The metrics server's /pod_health
+/// is on port 9185 which is not reachable from Railway's healthcheck.
+async fn pod_health() -> StatusCode {
+    StatusCode::OK
+}
+
 /// build our axum app
 pub fn app(
     reqwest_client: ReqwestClient,
@@ -54,24 +67,24 @@ pub fn app(
     histogram_relay: HistogramRelay,
     label_actions: LabelActions,
 ) -> Router {
-    // build our application with a route and our sender mpsc
-    let mut router = Router::new()
+    let health_router = Router::new().route("/pod_health", get(pod_health));
+
+    let api_router = Router::new()
         .route("/publish/metrics", post(publish_metrics))
         .route_layer(DefaultBodyLimit::max(var!(
             "MAX_BODY_SIZE",
             1024 * 1024 * 5
         )))
         .route_layer(middleware::from_fn(expect_content_length))
-        .route_layer(middleware::from_fn(extract_client_ip));
-
-    // if we have an allower, add the middleware and extension
-    tracing::info!("adding bearer token middleware");
-    router = router
+        .route_layer(middleware::from_fn(extract_client_ip))
         .route_layer(middleware::from_fn(expect_valid_bearer_token))
         .layer(Extension(Arc::new(allower)));
 
-    router
-        // Enforce on all routes.
+    tracing::info!("adding bearer token middleware");
+
+    health_router
+        .merge(api_router)
+        // Enforce on all routes (health excluded from bearer by merge order).
         // If the request does not complete within the specified timeout it will be aborted
         // and a 408 Request Timeout response will be sent.
         .layer(TimeoutLayer::new(Duration::from_secs(var!(
