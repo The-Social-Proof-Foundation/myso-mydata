@@ -3,11 +3,16 @@ FROM grafana/mimir:latest
 # Copy custom configuration
 COPY mimir-railway.yaml /etc/mimir/config.yaml
 
+# Copy entrypoint (writes GCP creds to file, sets GOOGLE_APPLICATION_CREDENTIALS)
+COPY docker/mimir/entrypoint.sh /opt/mimir/entrypoint.sh
+RUN chmod +x /opt/mimir/entrypoint.sh
+
 # Expose ports
 EXPOSE 9009 9095
 
 # Set working directory
 WORKDIR /etc/mimir
 
-# Run Mimir
-CMD ["-config.file=/etc/mimir/config.yaml"]
+# Entrypoint handles GCP credentials; CMD args passed through
+ENTRYPOINT ["/opt/mimir/entrypoint.sh"]
+CMD []
