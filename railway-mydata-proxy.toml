@@ -3,9 +3,11 @@
 
 [build]
 builder = "DOCKERFILE"
+# Must point to repo-root Dockerfile.mydata-proxy (not docker/mydata-proxy/Dockerfile).
 dockerfilePath = "Dockerfile.mydata-proxy"
 
 [deploy]
+# Keep startCommand aligned with Docker ENTRYPOINT to run runtime config generation.
 startCommand = "/opt/mydata-proxy/entrypoint.sh"
 healthcheckPath = "/pod_health"
 healthcheckTimeout = 300

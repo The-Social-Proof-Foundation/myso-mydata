@@ -219,6 +219,7 @@ metrics_push_config:
 | Issue | Cause | Fix |
 | ----- | ----- | --- |
 | Build failed | Missing deps | Ensure `Cargo.toml` and `Cargo.lock` are present |
+| mydata-proxy starts with `sed`/`url:.*` errors | Stale image or wrong Dockerfile path built | Ensure proxy service builds `Dockerfile.mydata-proxy`, keep `startCommand` as `/opt/mydata-proxy/entrypoint.sh`, then trigger a fresh deploy |
 | Config not found | Volume mount | Verify config path and volume mount |
 | Health check fails | Wrong path or port | Use `/health` for healthcheck (not `/v1/service`); key server uses `PORT` env |
 | Policy check fails | Wrong network | Verify `node_url` and `network` match |

@@ -1,5 +1,10 @@
 #!/bin/sh
-set -e
+set -eu
+
+ENTRYPOINT_VERSION="2026-03-05-r2"
+
+echo "[mydata-proxy entrypoint] version=${ENTRYPOINT_VERSION}"
+echo "[mydata-proxy entrypoint] pid=$$"
 # Export all environment variables
 for var in $(env | cut -d= -f1); do
     export "$var"
@@ -11,7 +16,13 @@ cp /opt/mydata-proxy/config/mydata-proxy-config-railway.yaml /app/config/mydata-
 # Override remote-write URL from REMOTE_WRITE_URL env if set (Railway deployment)
 # Use awk to avoid sed quoting issues in some shell environments
 if [ -n "${REMOTE_WRITE_URL}" ]; then
-  awk -v url="${REMOTE_WRITE_URL}" '/^  url:/{print "  url: \"" url "\""; next}1' /app/config/mydata-proxy-config-railway.yaml > /tmp/mydata-proxy-config.yaml && mv /tmp/mydata-proxy-config.yaml /app/config/mydata-proxy-config-railway.yaml
+  echo "[mydata-proxy entrypoint] overriding remote-write.url from REMOTE_WRITE_URL"
+  tmp_config="/tmp/mydata-proxy-config.yaml"
+  if ! awk -v url="${REMOTE_WRITE_URL}" '/^  url:/{print "  url: \"" url "\""; next}1' /app/config/mydata-proxy-config-railway.yaml > "${tmp_config}"; then
+    echo "[mydata-proxy entrypoint] failed to rewrite config using REMOTE_WRITE_URL" >&2
+    exit 1
+  fi
+  mv "${tmp_config}" /app/config/mydata-proxy-config-railway.yaml
 fi
 
 # Generate bearer tokens YAML file from environment variables
