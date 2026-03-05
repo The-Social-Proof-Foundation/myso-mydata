@@ -15,7 +15,7 @@ ENV GIT_REVISION=$GIT_REVISION
 
 RUN cargo build --bin mydata-proxy --profile $PROFILE --config net.git-fetch-with-cli=true
 
-FROM debian:bullseye-slim AS runtime
+FROM debian:bookworm-slim AS runtime
 
 # Bump to force rebuild; Railway may use cached image
 ARG CACHE_BUST=2026-03-05-entrypoint-r3
