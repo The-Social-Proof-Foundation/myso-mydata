@@ -5,7 +5,7 @@
 [MyData](https://www.mysocial.network/mydata) is a decentralized secrets management (DSM) product. Application developers and users can use MyData to secure sensitive data at rest on decentralized storage like [File Storeage](https://docs.mysocial.network/mysocial/file-storage/overview) or any other onchain / offchain storage. MyData enables identity-based encryption and decryption of sensitive data, with access controlled by onchain policies on MySocial. Lightweight key servers enforce these policies and provide threshold-based decryption keys, while developers can integrate easily using the [TypeScript SDK](https://www.npmjs.com/package/@socialproof/mydata).
 
 > [!IMPORTANT]
-> Refer to the MyData documentation at [mydata-docs](https://docs.mysocial.network/mysocial/file-storage/overview) for a deeper product overview and details on the design, developer and key server usage, available key servers, security best practices, and terms of service. As a backup, you can also find the same content in the [docs directory](./docs/).
+> Refer to the MyData documentation at [mydata-docs](https://docs.mysocial.network/mysocial/mydata/overview) for a deeper product overview and details on the design, developer and key server usage, available key servers, security best practices, and terms of service. As a backup, you can also find the same content in the [docs directory](./docs/).
 
 ## Contributing
 
