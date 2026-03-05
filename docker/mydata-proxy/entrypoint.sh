@@ -1,13 +1,17 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 # Export all environment variables
 for var in $(env | cut -d= -f1); do
     export "$var"
 done
 
+# Copy config from staging (volume at /app/config overlays COPY'd files at runtime)
+cp /opt/mydata-proxy/config/mydata-proxy-config-railway.yaml /app/config/mydata-proxy-config-railway.yaml
+
 # Override remote-write URL from REMOTE_WRITE_URL env if set (Railway deployment)
+# Use @ delimiter to avoid | being interpreted as shell pipe
 if [ -n "${REMOTE_WRITE_URL}" ]; then
-  sed -i "s|url:.*|url: \"${REMOTE_WRITE_URL}\"|" /app/config/mydata-proxy-config-railway.yaml
+  sed -i 's@url:.*@url: "'"${REMOTE_WRITE_URL}"'"@' /app/config/mydata-proxy-config-railway.yaml
 fi
 
 # Generate bearer tokens YAML file from environment variables

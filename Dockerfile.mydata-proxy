@@ -22,8 +22,9 @@ RUN apt-get update && apt-get install -y openssl ca-certificates && \
 
 COPY --from=builder /work/target/release/mydata-proxy /opt/mydata-proxy/bin/mydata-proxy
 
-# Copy config files to default location
-COPY ./mydata-proxy-config-railway.yaml /app/config/mydata-proxy-config-railway.yaml
+# Copy config to staging path (volume at /app/config overlays at runtime; entrypoint copies in)
+RUN mkdir -p /opt/mydata-proxy/config
+COPY ./mydata-proxy-config-railway.yaml /opt/mydata-proxy/config/mydata-proxy-config-railway.yaml
 
 # Copy entrypoint script (real file avoids heredoc/Kaniko compatibility issues on Railway)
 COPY ./docker/mydata-proxy/entrypoint.sh /opt/mydata-proxy/entrypoint.sh
