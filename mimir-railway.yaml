@@ -48,11 +48,26 @@ ruler:
   rule_path: /tmp/mimir/rules
   alertmanager_url: ""
 
+# Common GCS storage configuration
+# Requires: GCP_SERVICE_ACCOUNT_JSON env var with service account JSON
+# Create buckets: mimir-blocks, mimir-ruler (or set GCS_BUCKET_BLOCKS, GCS_BUCKET_RULER)
+common:
+  storage:
+    backend: gcs
+    gcs:
+      service_account: "${GCP_SERVICE_ACCOUNT_JSON}"
+
+# Ruler storage (separate bucket from blocks)
+ruler_storage:
+  backend: gcs
+  gcs:
+    bucket_name: mydata-mimir-ruler
+
 # Blocks storage configuration
 blocks_storage:
-  backend: filesystem
-  filesystem:
-    dir: /tmp/mimir/blocks
+  backend: gcs
+  gcs:
+    bucket_name: mydata-mimir-blocks
   tsdb:
     dir: /tmp/mimir/tsdb
     head_compaction_interval: 1m
