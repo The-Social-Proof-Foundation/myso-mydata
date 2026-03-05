@@ -55,6 +55,7 @@ blocks_storage:
     dir: /tmp/mimir/blocks
   tsdb:
     dir: /tmp/mimir/tsdb
+    head_compaction_interval: 5m
   bucket_store:
     sync_interval: 5m
     index_cache:
