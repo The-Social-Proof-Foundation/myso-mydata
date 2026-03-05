@@ -46,12 +46,20 @@ async fn main() -> Result<()> {
     let args = Args::parse();
 
     let config: ProxyConfig = load(&args.config)?;
+
+    // Railway and other PaaS set PORT; prefer it over config for the main listen address
+    let listen_address = std::env::var("PORT")
+        .ok()
+        .map(|p| format!("0.0.0.0:{}", p))
+        .or_else(|| std::env::var("LISTEN_ADDRESS").ok())
+        .unwrap_or_else(|| config.listen_address.clone());
+
     info!(
         "listen on {:?} send to {:?}",
-        config.listen_address, config.remote_write.url
+        listen_address, config.remote_write.url
     );
 
-    let listener = tokio::net::TcpListener::bind(config.listen_address).await?;
+    let listener = tokio::net::TcpListener::bind(&listen_address).await?;
     let histogram_listener = std::net::TcpListener::bind(config.histogram_address)?;
     let metrics_listener = std::net::TcpListener::bind(config.metrics_address)?;
 
