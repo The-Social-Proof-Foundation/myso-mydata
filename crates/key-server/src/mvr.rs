@@ -40,7 +40,7 @@ const MVR_REGISTRY: &str = "0xe8417c530cde59eddf6dfb760e8a0e3e2c6f17c69ddaab5a73
 const MVR_CORE: &str = "0x62c1f5b1cb9e3bfc3dd1f73c95066487b662048a6358eabdbf67f6cdeca6db4b";
 
 /// Testnet records are stored on mainnet on the registry defined above, but under the 'networks' section using the following ID as key
-const TESTNET_ID: &str = "4c78adac";
+const TESTNET_ID: &str = "5a1f63dd";
 
 #[derive(Deserialize, Clone, Debug)]
 pub struct VecMap<K, V>(myso_types::collection_types::VecMap<K, V>);
