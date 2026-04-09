@@ -20,6 +20,7 @@ init-params:
 #   COORDINATOR_ADDRESS: 0x...  # Coordinator's address
 #   COMMITTEE_PKG: 0x...        # Published committee package ID
 #   COMMITTEE_ID: 0x...         # Created committee object ID
+#   ADMIN_CAP: 0x...            # Optional: PackagePublishingAdminCap (or pass --admin-cap)
 
 # genkey-and-register:
 #   MY_ADDRESS: 0x...           # Member's address

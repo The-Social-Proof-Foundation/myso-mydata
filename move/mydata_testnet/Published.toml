@@ -3,9 +3,9 @@
 # This file SHOULD be committed to source control
 
 [published.testnet]
-chain-id = "4c78adac"
-published-at = "0x41fee5f043ef36787add1f5747c3a484fb8c5dad74011667d5d406e6ff2d0b22"
-original-id = "0x41fee5f043ef36787add1f5747c3a484fb8c5dad74011667d5d406e6ff2d0b22"
+chain-id = "5a1f63dd"
+published-at = "0x000000000000000000000000000000000000000000000000000000000000da7a"
+original-id = "0x000000000000000000000000000000000000000000000000000000000000da7a"
 version = 1
 toolchain-version = "1.64.0"
 build-config = { flavor = "myso", edition = "2024" }

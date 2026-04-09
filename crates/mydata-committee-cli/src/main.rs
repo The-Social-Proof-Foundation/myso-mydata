@@ -19,8 +19,8 @@ use move_package_alt_compilation::build_config::BuildConfig as MoveBuildConfig;
 use rand::thread_rng;
 use mydata_committee::grpc_helper::to_partial_key_servers;
 use mydata_committee::{
-    build_new_to_old_map, create_grpc_client, fetch_committee_data, fetch_key_server_by_committee,
-    CommitteeState, Network, ServerType,
+    build_new_to_old_map, create_grpc_client, create_grpc_client_with_url, fetch_committee_data,
+    fetch_key_server_by_committee, CommitteeState, Network, ServerType,
 };
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -61,10 +61,6 @@ struct Cli {
     /// Override the active address from the wallet config.
     #[arg(long, global = true)]
     active_address: Option<MySoAddress>,
-
-    /// Gas budget for transactions (default: 100000000 = 0.1 MYSO).
-    #[arg(long, global = true, default_value = "100000000")]
-    gas_budget: u64,
 }
 
 #[derive(Subcommand)]
@@ -74,6 +70,10 @@ enum Commands {
         /// Path to configuration file.
         #[arg(short, long, default_value = "dkg-state/dkg.yaml")]
         config: PathBuf,
+
+        /// PackagePublishingAdminCap object ID (required when package publishing is disabled on the network).
+        #[arg(long)]
+        admin_cap: Option<ObjectID>,
     },
 
     /// Initialize committee rotation (coordinator operation).
@@ -174,7 +174,7 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::PublishAndInit { config } => {
+        Commands::PublishAndInit { config, admin_cap } => {
             let config_content = load_config(&config)?;
 
             // Check if already initialized.
@@ -200,6 +200,23 @@ async fn main() -> Result<()> {
 
             // Get committee package path.
             let committee_path = std::env::current_dir()?.join("move/committee");
+
+            // Pre-flight: ensure wallet's chain matches dependency chain (prevents VMVerificationOrDeserializationError).
+            if let Some(expected_chain_id) =
+                get_expected_dependency_chain_id(&committee_path, &network)?
+            {
+                let wallet_chain_id = wallet.load_or_cache_chain_id().await?;
+                if wallet_chain_id != expected_chain_id {
+                    bail!(
+                        "Chain mismatch: wallet RPC is on chain {} but mydata_testnet dependency is published on chain {}.\n\
+                        Fix: Configure your active env in ~/.myso/myso_config/client.yaml to use the same RPC as the dependency chain, \
+                        or publish mydata_testnet on chain {} first and update move/mydata_testnet/Published.toml.",
+                        wallet_chain_id,
+                        expected_chain_id,
+                        wallet_chain_id
+                    );
+                }
+            }
             if !committee_path.exists() {
                 bail!(
                     "Committee package not found at: {}",
@@ -221,12 +238,26 @@ async fn main() -> Result<()> {
             let compiled_package = create_build_config(&network).build(&committee_path)?;
             let compiled_modules_bytes = compiled_package.get_package_bytes(false);
 
-            let mut grpc_client = create_grpc_client(&network)?;
+            let mut grpc_client = create_grpc_client_resolved(
+                &network,
+                Some(&get_wallet_config_path(cli.wallet.as_deref())),
+            )?;
+
+            // Pre-flight: verify mydata_testnet package exists on chain (prevents VMVerificationOrDeserializationError).
+            if let Some(dep_pkg_id) = get_expected_dependency_package_id(&committee_path, &network)? {
+                if !package_exists_on_chain(&mut grpc_client, dep_pkg_id).await? {
+                    bail!(
+                        "mydata_testnet package {} not found on chain. \
+                        Publish it first: myso client publish move/mydata_testnet, then run publish-and-init again.",
+                        dep_pkg_id
+                    );
+                }
+            }
+
             let (gas_price, gas_budget, gas_coin_ref) = get_gas_params(
                 &mut grpc_client,
                 &wallet,
                 coordinator_address,
-                cli.gas_budget,
             )
             .await?;
 
@@ -236,7 +267,26 @@ async fn main() -> Result<()> {
                 .into_values()
                 .collect();
 
+            // Resolve admin cap from CLI or config (required when package publishing is disabled).
+            let admin_cap_id = admin_cap.or_else(|| {
+                get_config_field(&config_content, &["publish-and-init"], "ADMIN_CAP")
+                    .and_then(|v| v.as_str())
+                    .and_then(|s| ObjectID::from_hex_literal(s).ok())
+            });
+            if let Some(cap_id) = admin_cap_id {
+                println!("Admin cap: {} (will be included as input to publish transaction)", cap_id);
+            }
+
             let mut builder = ProgrammableTransactionBuilder::new();
+            // Add admin cap as PTB input first (required when package publishing is disabled).
+            // Must be in PTB inputs, not gas_payment—gas_payment accepts only gas objects.
+            if let Some(cap_id) = admin_cap_id {
+                let admin_cap_ref = wallet
+                    .get_object_ref(cap_id)
+                    .await
+                    .context("Failed to fetch admin cap object. Ensure it exists and is owned by the coordinator.")?;
+                builder.obj(ObjectArg::ImmOrOwnedObject(admin_cap_ref))?;
+            }
             let upgrade_cap = builder.publish_upgradeable(compiled_modules_bytes, dependencies);
             builder.transfer_arg(coordinator_address, upgrade_cap);
 
@@ -331,7 +381,10 @@ async fn main() -> Result<()> {
             // Fetch key server and extract current committee ID from owner field.
             println!("\nFetching key server: {}...", key_server_obj_id);
 
-            let mut grpc_client = create_grpc_client(&network)?;
+            let mut grpc_client = create_grpc_client_resolved(
+                &network,
+                Some(&get_wallet_config_path(cli.wallet.as_deref())),
+            )?;
             let mut ledger_client = grpc_client.ledger_client();
             let mut ks_request = GetObjectRequest::default();
             ks_request.object_id = Some(key_server_obj_id.to_string());
@@ -456,7 +509,6 @@ async fn main() -> Result<()> {
                 &mut grpc_client,
                 &wallet,
                 coordinator_address,
-                cli.gas_budget,
             )
             .await?;
 
@@ -593,7 +645,10 @@ async fn main() -> Result<()> {
 
             println!("\n=== Registering onchain ===");
             let network = get_network(&config_content)?;
-            let mut grpc_client = create_grpc_client(&network)?;
+            let mut grpc_client = create_grpc_client_resolved(
+                &network,
+                Some(&get_wallet_config_path(cli.wallet.as_deref())),
+            )?;
 
             // Register onchain.
             let mut register_builder = ProgrammableTransactionBuilder::new();
@@ -612,8 +667,12 @@ async fn main() -> Result<()> {
                 vec![committee_arg, enc_pk_arg, signing_pk_arg, url_arg, name_arg],
             );
 
-            let (gas_price, gas_budget, gas_coin_ref) =
-                get_gas_params(&mut grpc_client, &wallet, my_address, cli.gas_budget).await?;
+            let (gas_price, gas_budget, gas_coin_ref) = get_gas_params(
+                &mut grpc_client,
+                &wallet,
+                my_address,
+            )
+            .await?;
 
             let register_tx_data = TransactionData::new_programmable(
                 my_address,
@@ -690,7 +749,10 @@ async fn main() -> Result<()> {
             let output = process_dkg_messages(&mut state, messages, &local_keys)?;
 
             // Determine version.
-            let mut grpc_client = create_grpc_client(&network)?;
+            let mut grpc_client = create_grpc_client_resolved(
+                &network,
+                Some(&get_wallet_config_path(cli.wallet.as_deref())),
+            )?;
             let version =
                 determine_committee_version(&mut grpc_client, &state.config.committee_id).await?;
 
@@ -838,8 +900,12 @@ async fn main() -> Result<()> {
                 );
             }
 
-            let (gas_price, gas_budget, gas_coin_ref) =
-                get_gas_params(&mut grpc_client, &wallet, my_address, cli.gas_budget).await?;
+            let (gas_price, gas_budget, gas_coin_ref) = get_gas_params(
+                &mut grpc_client,
+                &wallet,
+                my_address,
+            )
+            .await?;
 
             let propose_tx_data = TransactionData::new_programmable(
                 my_address,
@@ -868,7 +934,10 @@ async fn main() -> Result<()> {
             let network = get_network(&config_content)?;
 
             // Fetch committee from onchain.
-            let mut grpc_client = create_grpc_client(&network)?;
+            let mut grpc_client = create_grpc_client_resolved(
+                &network,
+                Some(&get_wallet_config_path(cli.wallet.as_deref())),
+            )?;
             let committee = fetch_committee_data(&mut grpc_client, &committee_id).await?;
 
             println!("Committee ID: {committee_id}");
@@ -1009,7 +1078,17 @@ async fn execute_tx_and_log_status(
     let status = response.effects.status();
 
     if !status.is_ok() {
-        bail!("Transaction FAILED with status: {:?}", status);
+        let status_str = format!("{:?}", status);
+        let mut msg = format!("Transaction FAILED with status: {}", status_str);
+        if status_str.contains("VMVerificationOrDeserializationError") {
+            msg.push_str(
+                "\n\nThis often indicates a dependency or chain mismatch. Try:\n\
+                 1. Ensure wallet active env matches move/mydata_testnet/Published.toml chain-id.\n\
+                 2. Publish mydata_testnet first: myso client publish move/mydata_testnet\n\
+                 3. If package exists but error persists, re-publish mydata_testnet (framework may have changed).",
+            );
+        }
+        bail!("{}", msg);
     }
 
     println!("Transaction SUCCESS!");
@@ -1102,7 +1181,8 @@ async fn create_dkg_state_and_message(
     };
 
     // Fetch current committee from onchain.
-    let mut grpc_client = create_grpc_client(&network)?;
+    let wallet_path = get_wallet_config_path(None);
+    let mut grpc_client = create_grpc_client_resolved(&network, Some(&wallet_path))?;
     let committee = fetch_committee_data(&mut grpc_client, &committee_id).await?;
 
     // Validate committee state contains my address.
@@ -1281,14 +1361,151 @@ async fn create_dkg_state_and_message(
     Ok(())
 }
 
+/// Get the dependency package ID (published-at) for mydata_testnet from its Published.toml.
+/// Returns None if the dependency has no Published.toml or no entry for the network.
+fn get_expected_dependency_package_id(
+    committee_path: &Path,
+    network: &Network,
+) -> Result<Option<ObjectID>> {
+    let dep_path = committee_path
+        .parent()
+        .ok_or_else(|| anyhow!("Committee path has no parent"))?
+        .join("mydata_testnet");
+    let published_toml = dep_path.join("Published.toml");
+    if !published_toml.exists() {
+        return Ok(None);
+    }
+    let content = fs::read_to_string(&published_toml)
+        .with_context(|| format!("Failed to read {}", published_toml.display()))?;
+    let target_section = match network {
+        Network::Testnet => "[published.testnet]",
+        Network::Mainnet => "[published.mainnet]",
+    };
+    let mut in_target = false;
+    for line in content.lines() {
+        let line = line.trim();
+        if line.starts_with('[') {
+            in_target = line == target_section;
+            continue;
+        }
+        if in_target && line.starts_with("published-at") {
+            if let Some((_, value)) = line.split_once('=') {
+                let id_str = value.trim().trim_matches('"');
+                return Ok(Some(ObjectID::from_hex_literal(id_str)?));
+            }
+        }
+    }
+    Ok(None)
+}
+
+/// Get expected chain-id for the committee's dependency (mydata_testnet) from its Published.toml.
+/// Returns None if the dependency has no Published.toml or no entry for the network.
+fn get_expected_dependency_chain_id(
+    committee_path: &Path,
+    network: &Network,
+) -> Result<Option<String>> {
+    let dep_path = committee_path
+        .parent()
+        .ok_or_else(|| anyhow!("Committee path has no parent"))?
+        .join("mydata_testnet");
+    let published_toml = dep_path.join("Published.toml");
+    if !published_toml.exists() {
+        return Ok(None);
+    }
+    let content = fs::read_to_string(&published_toml)
+        .with_context(|| format!("Failed to read {}", published_toml.display()))?;
+    let target_section = match network {
+        Network::Testnet => "[published.testnet]",
+        Network::Mainnet => "[published.mainnet]",
+    };
+    let mut in_target = false;
+    for line in content.lines() {
+        let line = line.trim();
+        if line.starts_with('[') {
+            in_target = line == target_section;
+            continue;
+        }
+        if in_target && line.starts_with("chain-id") {
+            if let Some((_, value)) = line.split_once('=') {
+                return Ok(Some(value.trim().trim_matches('"').to_string()));
+            }
+        }
+    }
+    Ok(None)
+}
+
+/// Get the active RPC URL from wallet config (client.yaml).
+/// Returns None if the config cannot be read or has no matching env.
+fn get_wallet_active_rpc(config_path: &Path) -> Result<Option<String>> {
+    if !config_path.exists() {
+        return Ok(None);
+    }
+    let content = fs::read_to_string(config_path)
+        .with_context(|| format!("Failed to read {}", config_path.display()))?;
+    let config: serde_yaml::Value = serde_yaml::from_str(&content)
+        .context("Failed to parse wallet config")?;
+    let active_env = match config.get("active_env").and_then(|v| v.as_str()) {
+        Some(a) => a,
+        None => return Ok(None),
+    };
+    let envs = match config.get("envs").and_then(|v| v.as_sequence()) {
+        Some(e) => e,
+        None => return Ok(None),
+    };
+    for env in envs {
+        if env.get("alias").and_then(|v| v.as_str()) == Some(active_env) {
+            if let Some(rpc) = env.get("rpc").and_then(|v| v.as_str()) {
+                return Ok(Some(rpc.to_string()));
+            }
+        }
+    }
+    Ok(None)
+}
+
+/// Check if a package object exists on chain.
+async fn package_exists_on_chain(
+    grpc_client: &mut myso_rpc::client::Client,
+    package_id: ObjectID,
+) -> Result<bool> {
+    let mut ledger_client = grpc_client.ledger_client();
+    let mut request = GetObjectRequest::default();
+    request.object_id = Some(package_id.to_string());
+    request.read_mask = Some(prost_types::FieldMask {
+        paths: vec!["object_type".to_string()],
+    });
+    let response = ledger_client
+        .get_object(request)
+        .await
+        .map(|r| r.into_inner());
+    match response {
+        Ok(r) => Ok(r.object.is_some()),
+        Err(_) => Ok(false),
+    }
+}
+
+/// Create gRPC client. Uses wallet's active RPC if available, else network-based URL.
+fn create_grpc_client_resolved(
+    network: &Network,
+    wallet_config_path: Option<&Path>,
+) -> Result<myso_rpc::client::Client> {
+    if let Some(path) = wallet_config_path {
+        if let Some(url) = get_wallet_active_rpc(path)? {
+            return create_grpc_client_with_url(&url);
+        }
+    }
+    create_grpc_client(network)
+}
+
+const DEFAULT_GAS_BUDGET: u64 = 5_000_000;
+
 /// Get gas price, budget, and coin for a transaction.
 async fn get_gas_params(
     grpc_client: &mut myso_rpc::client::Client,
     wallet: &WalletContext,
     address: MySoAddress,
-    gas_budget: u64,
 ) -> Result<(u64, u64, myso_types::base_types::ObjectRef)> {
     let gas_price = grpc_client.get_reference_gas_price().await?;
+    let gas_budget = DEFAULT_GAS_BUDGET;
     let gas_coin = wallet
         .gas_for_owner_budget(address, gas_budget, Default::default())
         .await?
@@ -1296,18 +1513,23 @@ async fn get_gas_params(
     Ok((gas_price, gas_budget, gas_coin.compute_object_reference()))
 }
 
+/// Get wallet config path (default or CLI override).
+fn get_wallet_config_path(wallet_path: Option<&Path>) -> PathBuf {
+    wallet_path
+        .map(PathBuf::from)
+        .unwrap_or_else(|| {
+            let mut default = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
+            default.extend([".myso", "myso_config", "client.yaml"]);
+            default
+        })
+}
+
 /// Load wallet context from path.
 fn load_wallet(
     wallet_path: Option<&Path>,
     active_address: Option<MySoAddress>,
 ) -> Result<WalletContext> {
-    let config_path = if let Some(path) = wallet_path {
-        path.to_path_buf()
-    } else {
-        let mut default = dirs::home_dir().ok_or_else(|| anyhow!("Cannot find home directory"))?;
-        default.extend([".myso", "myso_config", "client.yaml"]);
-        default
-    };
+    let config_path = get_wallet_config_path(wallet_path);
 
     let mut wallet = WalletContext::new(&config_path).context("Failed to load wallet context")?;
 

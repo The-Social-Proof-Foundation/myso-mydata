@@ -16,12 +16,22 @@ use myso_sdk_types::{Address, Object, StructTag, TypeTag};
 
 pub(crate) const EXPECTED_KEY_SERVER_VERSION: u64 = 2;
 
+/// Testnet fullnode gRPC URL (HTTP, port 9000).
+const TESTNET_FULLNODE: &str = "http://fullnode.testnet.mysocial.network:9000";
+/// Mainnet fullnode gRPC URL (HTTP, port 9000).
+const MAINNET_FULLNODE: &str = "http://fullnode.mainnet.mysocial.network:9000";
+
 /// Create gRPC client for a given network.
 pub fn create_grpc_client(network: &Network) -> Result<Client> {
     let rpc_url = match network {
-        Network::Mainnet => Client::MAINNET_FULLNODE,
-        Network::Testnet => Client::TESTNET_FULLNODE,
+        Network::Mainnet => MAINNET_FULLNODE,
+        Network::Testnet => TESTNET_FULLNODE,
     };
+    Ok(Client::new(rpc_url)?)
+}
+
+/// Create gRPC client for a custom RPC URL (e.g. localnet).
+pub fn create_grpc_client_with_url(rpc_url: &str) -> Result<Client> {
     Ok(Client::new(rpc_url)?)
 }
 
@@ -263,7 +273,7 @@ mod tests {
                 .unwrap();
 
         // Create gRPC client.
-        let mut grpc_client = Client::new(Client::TESTNET_FULLNODE).unwrap();
+        let mut grpc_client = Client::new(TESTNET_FULLNODE).unwrap();
 
         // Fetch committee data to get member addresses.
         let committee = fetch_committee_data(&mut grpc_client, &committee_id)
