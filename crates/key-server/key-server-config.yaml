@@ -34,7 +34,7 @@ node_url: http://fullnode.testnet.mysocial.network:9000
 #
 # Example:
 server_mode: !Open
-  key_server_object_id: '0x0000000000000000000000000000000000000000000000000000000000000000'
+  key_server_object_id: '0x9aeff4c6e544bf1fb76fcec742d2e0b924e652191d5ab01a6f9af18bdaebb751'
 
 # #### PERMISSIONED MODE ####
 # For the Permissioned mode, set the allowed clients and their configurations.
