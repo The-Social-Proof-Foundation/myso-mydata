@@ -4,10 +4,12 @@
 
 import { Transaction } from '@socialproof/myso/transactions';
 import { Button, Card, Flex } from '@radix-ui/themes';
-import { useSignAndExecuteTransaction, useMySoClient } from '@socialproof/dapp-kit';
+import { useMySoClient } from '@socialproof/dapp-kit';
 import { useState } from 'react';
 import { useNetworkVariable } from './networkConfig';
 import { useNavigate } from 'react-router-dom';
+import { useMySocialAuth } from './auth/useMySocialAuth';
+import { signAndExecuteTransaction } from './auth/signAndExecuteTransaction';
 
 export function CreateService() {
   const [price, setPrice] = useState('');
@@ -16,19 +18,9 @@ export function CreateService() {
   const packageId = useNetworkVariable('packageId');
   const mysoClient = useMySoClient();
   const navigate = useNavigate();
-  const { mutate: signAndExecute } = useSignAndExecuteTransaction({
-    execute: async ({ bytes, signature }) =>
-      await mysoClient.executeTransactionBlock({
-        transactionBlock: bytes,
-        signature,
-        options: {
-          showRawEffects: true,
-          showEffects: true,
-        },
-      }),
-  });
+  const { requireKeypair } = useMySocialAuth();
 
-  function createService(price: number, ttl: number, name: string) {
+  async function createService(price: number, ttl: number, name: string) {
     if (price === 0 || ttl === 0 || name === '') {
       alert('Please fill in all fields');
       return;
@@ -40,26 +32,25 @@ export function CreateService() {
       arguments: [tx.pure.u64(price), tx.pure.u64(ttlMs), tx.pure.string(name)],
     });
     tx.setGasBudget(10000000);
-    signAndExecute(
-      {
-        transaction: tx,
-      },
-      {
-        onSuccess: async (result) => {
-          console.log('res', result);
-          const subscriptionObject = result.effects?.created?.find(
-            (item) => item.owner && typeof item.owner === 'object' && 'Shared' in item.owner,
-          );
-          const createdObjectId = subscriptionObject?.reference?.objectId;
-          if (createdObjectId) {
-            window.open(
-              `${window.location.origin}/subscription-example/admin/service/${createdObjectId}`,
-              '_blank',
-            );
-          }
-        },
-      },
-    );
+    try {
+      const result = await signAndExecuteTransaction(requireKeypair(), mysoClient, tx);
+      console.log('res', result);
+      const created = (result as { effects?: { created?: { owner?: unknown; reference?: { objectId?: string } }[] } })
+        .effects?.created;
+      const subscriptionObject = created?.find(
+        (item) => item.owner && typeof item.owner === 'object' && 'Shared' in item.owner,
+      );
+      const createdObjectId = subscriptionObject?.reference?.objectId;
+      if (createdObjectId) {
+        window.open(
+          `${window.location.origin}/subscription-example/admin/service/${createdObjectId}`,
+          '_blank',
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : 'Failed to create service.');
+    }
   }
   const handleViewAll = () => {
     navigate(`/subscription-example/admin/services`);

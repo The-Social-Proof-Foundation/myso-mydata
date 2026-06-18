@@ -4,29 +4,21 @@
 
 import { Transaction } from '@socialproof/myso/transactions';
 import { Button, Card, Flex } from '@radix-ui/themes';
-import { useSignAndExecuteTransaction, useMySoClient } from '@socialproof/dapp-kit';
+import { useMySoClient } from '@socialproof/dapp-kit';
 import { useState } from 'react';
 import { useNetworkVariable } from './networkConfig';
 import { useNavigate } from 'react-router-dom';
+import { useMySocialAuth } from './auth/useMySocialAuth';
+import { signAndExecuteTransaction } from './auth/signAndExecuteTransaction';
 
 export function CreateAllowlist() {
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const packageId = useNetworkVariable('packageId');
   const mysoClient = useMySoClient();
-  const { mutate: signAndExecute } = useSignAndExecuteTransaction({
-    execute: async ({ bytes, signature }) =>
-      await mysoClient.executeTransactionBlock({
-        transactionBlock: bytes,
-        signature,
-        options: {
-          showRawEffects: true,
-          showEffects: true,
-        },
-      }),
-  });
+  const { requireKeypair } = useMySocialAuth();
 
-  function createAllowlist(name: string) {
+  async function createAllowlist(name: string) {
     if (name === '') {
       alert('Please enter a name for the allowlist');
       return;
@@ -37,27 +29,25 @@ export function CreateAllowlist() {
       arguments: [tx.pure.string(name)],
     });
     tx.setGasBudget(10000000);
-    signAndExecute(
-      {
-        transaction: tx,
-      },
-      {
-        onSuccess: async (result) => {
-          console.log('res', result);
-          // Extract the created allowlist object ID from the transaction result
-          const allowlistObject = result.effects?.created?.find(
-            (item) => item.owner && typeof item.owner === 'object' && 'Shared' in item.owner,
-          );
-          const createdObjectId = allowlistObject?.reference?.objectId;
-          if (createdObjectId) {
-            window.open(
-              `${window.location.origin}/allowlist-example/admin/allowlist/${createdObjectId}`,
-              '_blank',
-            );
-          }
-        },
-      },
-    );
+    try {
+      const result = await signAndExecuteTransaction(requireKeypair(), mysoClient, tx);
+      console.log('res', result);
+      const created = (result as { effects?: { created?: { owner?: unknown; reference?: { objectId?: string } }[] } })
+        .effects?.created;
+      const allowlistObject = created?.find(
+        (item) => item.owner && typeof item.owner === 'object' && 'Shared' in item.owner,
+      );
+      const createdObjectId = allowlistObject?.reference?.objectId;
+      if (createdObjectId) {
+        window.open(
+          `${window.location.origin}/allowlist-example/admin/allowlist/${createdObjectId}`,
+          '_blank',
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : 'Failed to create allowlist.');
+    }
   }
 
   const handleViewAll = () => {

@@ -8,18 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@socialproof/bcs':
-        specifier: ^1.6.0
-        version: 1.6.0
-      '@socialproof/dapp-kit':
-        specifier: ^0.17.7
-        version: 0.17.7(@tanstack/react-query@5.71.10(react@19.1.0))(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.2)
-      '@socialproof/mydata':
-        specifier: 0.5.2
-        version: 0.5.2(typescript@5.8.2)
-      '@socialproof/myso':
-        specifier: ^1.37.6
-        version: 1.37.6(typescript@5.8.2)
       '@radix-ui/colors':
         specifier: ^3.0.0
         version: 3.0.0
@@ -38,6 +26,21 @@ importers:
       '@radix-ui/themes':
         specifier: ^3.2.1
         version: 3.2.1(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@socialproof/bcs':
+        specifier: ^0.0.2
+        version: 0.0.2
+      '@socialproof/dapp-kit':
+        specifier: ^0.0.4
+        version: 0.0.4(@socialproof/myso@0.0.4(typescript@5.8.2))(@tanstack/react-query@5.71.10(react@19.1.0))(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.2)(use-sync-external-store@1.5.0(react@19.1.0))
+      '@socialproof/mydata':
+        specifier: 0.0.4
+        version: 0.0.4(@socialproof/myso@0.0.4(typescript@5.8.2))
+      '@socialproof/myso':
+        specifier: ^0.0.4
+        version: 0.0.4(typescript@5.8.2)
+      '@socialproof/mysocial-auth':
+        specifier: ^0.12.0
+        version: 0.12.0
       '@tanstack/react-query':
         specifier: ^5.71.10
         version: 5.71.10(react@19.1.0)
@@ -424,25 +427,25 @@ packages:
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
 
-  '@gql.tada/cli-utils@1.7.1':
-    resolution: {integrity: sha512-wg5ysZNQxtNQm67T3laVWmZzLpGb7QfyYWZdaUD2r1OjDj5Bgftq7eQlplmH+hsdffjuUyhJw/b5XAjeE2mJtg==}
+  '@gql.tada/cli-utils@1.7.3':
+    resolution: {integrity: sha512-3iQY5E/jvv3Lnh6D1Mh7zr+Bb9C/TGk1DHkm+lbIjQBnZAu2m+BcTcr1e3spUt6Aa6HG/xAN2XxpbWw9oZALEg==}
     peerDependencies:
       '@0no-co/graphqlsp': ^1.12.13
-      '@gql.tada/svelte-support': 1.0.1
-      '@gql.tada/vue-support': 1.0.1
+      '@gql.tada/svelte-support': 1.0.2
+      '@gql.tada/vue-support': 1.0.2
       graphql: ^15.5.0 || ^16.0.0 || ^17.0.0
-      typescript: ^5.0.0
+      typescript: ^5.0.0 || ^6.0.0
     peerDependenciesMeta:
       '@gql.tada/svelte-support':
         optional: true
       '@gql.tada/vue-support':
         optional: true
 
-  '@gql.tada/internal@1.0.8':
-    resolution: {integrity: sha512-XYdxJhtHC5WtZfdDqtKjcQ4d7R1s0d1rnlSs3OcBEUbYiPoJJfZU7tWsVXuv047Z6msvmr4ompJ7eLSK5Km57g==}
+  '@gql.tada/internal@1.0.9':
+    resolution: {integrity: sha512-Bp8yi+kLrzIJ3l5Dfxhz48H4OCH2LCX+pShaPcJgh+oiBt6clrjUKDYNDD3Z78aDQ3+Tyrxe4dd0MfLgpSLPPg==}
     peerDependencies:
       graphql: ^15.5.0 || ^16.0.0 || ^17.0.0
-      typescript: ^5.0.0
+      typescript: ^5.0.0 || ^6.0.0
 
   '@graphql-typed-document-node/core@3.2.0':
     resolution: {integrity: sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==}
@@ -491,44 +494,13 @@ packages:
     resolution: {integrity: sha512-rmOWVRUbUJD7iSvJugjUbFZshTAuJ48MXoZ80Osx1GM0K/H1w7rSEvmw8m6vdWxNASgtaHIhAgre4H/E9GJiYQ==}
     engines: {node: '>=18'}
 
-  '@socialproof/bcs@1.6.0':
-    resolution: {integrity: sha512-ydDRYdIkIFCpHCcPvAkMC91fVwumjzbTgjqds0KsphDQI3jUlH3jFG5lfYNTmV6V3pkhOiRk1fupLBcsQsiszg==}
+  '@noble/curves@2.2.0':
+    resolution: {integrity: sha512-T/BoHgFXirb0ENSPBquzX0rcjXeM6Lo892a2jlYJkqk83LqZx0l1Of7DzlKJ6jkpvMrkHSnAcgb5JegL8SeIkQ==}
+    engines: {node: '>= 20.19.0'}
 
-  '@socialproof/bcs@1.7.0':
-    resolution: {integrity: sha512-8zE2Jzj2ai55RlVXx2pEMbbq+X3vB+uPGBvZr0F79IdTwuwcu4QdFG3PT/zHsytsvATkn+z0f2YDWhM5916u2A==}
-
-  '@socialproof/dapp-kit@0.17.7':
-    resolution: {integrity: sha512-meLhrdxk3de7pzPnIyCMCRuiTfjvZpbUJ3/WBY1qmuvvY49wsnBrCFqjOUapa0eZP5GlMLKPOAVj+cQa7xyg7A==}
-    peerDependencies:
-      '@tanstack/react-query': ^5.0.0
-      react: '*'
-
-  '@socialproof/mydata@0.5.2':
-    resolution: {integrity: sha512-hsUphZuZ3UycrYccCHQy5yUlWKjfZxTFKT9gezxWxitTR3TGSKPeiax1ISmchXFqnJ895k66aHf4OGtUTcYPyg==}
-
-  '@socialproof/slush-wallet@0.1.24':
-    resolution: {integrity: sha512-3hNYK8odHuajJAuR+t3Hm2LJ6YeDEP7To2msaFHUEOn4FCRJEograCf5h5gDYouBxEcrjEEwNVjP03hk01Gy8w==}
-
-  '@socialproof/myso@1.37.6':
-    resolution: {integrity: sha512-7ut5tWuXx9OIE+DQ2D5hd22UB8j8K4/F2Lx3R8Ej/JMwkm6cpgbF5FKNu0vYqehxiFEktMnq2YzzajxmlFHNPw==}
-    engines: {node: '>=18'}
-
-  '@socialproof/utils@0.1.1':
-    resolution: {integrity: sha512-jvhJC6/2la1QHltukQXzfyTZ+VVHxe187JjPx+mEXRUWyAo6jCSdioOQJIfaGu4K4i+37KeiydXRwV/bq/7UJQ==}
-
-  '@socialproof/wallet-standard@0.16.14':
-    resolution: {integrity: sha512-LJoDQUD+217RdRbkQLiKYYjkNtN6GhGpIN/X3wboUf3w5pdvBc4k/vS1Yi6GFv5xbgl/ge7wzC4Ac+h3orY2oQ==}
-
-  '@socialproof/window-wallet-core@0.0.6':
-    resolution: {integrity: sha512-uYjdUVok0pAaMGMxAdZfmW+2SCXgdQok9YtKmno5Tj8zlRQGv9Qet7EuCnDcBKquSbtqid3yhug7fcD+t8/KmA==}
-
-  '@noble/curves@1.9.7':
-    resolution: {integrity: sha512-gbKGcRUYIjA3/zCCNaWDciTMFI0dCkvou3TL8Zmy5Nc7sJ47a0jtOeZoTaMxkuqRo9cRhjOdZJXegxYE5FN/xw==}
-    engines: {node: ^14.21.3 || >=16}
-
-  '@noble/hashes@1.8.0':
-    resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
-    engines: {node: ^14.21.3 || >=16}
+  '@noble/hashes@2.2.0':
+    resolution: {integrity: sha512-IYqDGiTXab6FniAgnSdZwgWbomxpy9FtYvLKs7wCUs2a8RkITG+DFGO1DM9cr+E3/RgADRpFjrKVaJ1z6sjtEg==}
+    engines: {node: '>= 20.19.0'}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -542,6 +514,15 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
+  '@protobuf-ts/grpcweb-transport@2.11.1':
+    resolution: {integrity: sha512-1W4utDdvOB+RHMFQ0soL4JdnxjXV+ddeGIUg08DvZrA8Ms6k5NN6GBFU2oHZdTOcJVpPrDJ02RJlqtaoCMNBtw==}
+
+  '@protobuf-ts/runtime-rpc@2.11.1':
+    resolution: {integrity: sha512-4CqqUmNA+/uMz00+d3CYKgElXO9VrEbucjnBFEjqI4GuDrEQ32MaI3q+9qPBvIGOlL4PmHXrzM32vBPWRhQKWQ==}
+
+  '@protobuf-ts/runtime@2.11.1':
+    resolution: {integrity: sha512-KuDaT1IfHkugM2pyz+FwiY80ejWrkH1pAtOBOZFuR6SXEFTsnb/jiQWQ1rCIrcKx2BtyxnxW6BWwsVSA/Ie+WQ==}
+
   '@radix-ui/colors@3.0.0':
     resolution: {integrity: sha512-FUOsGBkHrYJwCSEtWRCIfQbZG7q1e6DgxCIOe1SUQzDe/7rXXeA47s8yCn6fuTNQAj1Zq4oTFi9Yjp3wzElcxg==}
 
@@ -551,8 +532,8 @@ packages:
   '@radix-ui/primitive@1.1.1':
     resolution: {integrity: sha512-SJ31y+Q/zAyShtXJc8x83i9TYdbAfHZ++tUZnvjJJqFjzsdUnKsxPL6IEtBlxKkU7yzer//GQtZSV4GbldL3YA==}
 
-  '@radix-ui/primitive@1.1.2':
-    resolution: {integrity: sha512-XnbHrrprsNqZKQhStrSwgRUQzoCI1glLzdw79xiZPoofhGICeZRSQ3dIxAKH1gb3OHfNf4d6f+vAv3kil2eggA==}
+  '@radix-ui/primitive@1.1.3':
+    resolution: {integrity: sha512-JTF99U/6XIjCBo0wqkU5sK10glYe27MRRsfwoiq5zzOEZLHU3A3KCMa5X/azekYRCJ0HlwI0crAXS/5dEHTzDg==}
 
   '@radix-ui/react-accessible-icon@1.1.2':
     resolution: {integrity: sha512-+rnMO0SEfzkcHr93RshkQVpOA26MtGOv4pcS9QUnLg4F8+GDmCJ8c2FEPhPz5e7arf31EzbTqJxFbzg3qen14g==}
@@ -746,8 +727,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@radix-ui/react-dialog@1.1.14':
-    resolution: {integrity: sha512-+CpweKjqpzTmwRwcYECQcNYbI8V9VSQt0SNFKeEBLgfucbsLssU6Ppq7wUdNXEGb573bMjFhVjKVll8rmV6zMw==}
+  '@radix-ui/react-dialog@1.1.15':
+    resolution: {integrity: sha512-TCglVRtzlffRNxRMEyR36DGBLJpeusFcgMVD9PZEzAKnUs1lKCgX5u9BmC2Yg+LL9MgZDugFFs1Vl+Jp4t/PGw==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -790,8 +771,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@radix-ui/react-dismissable-layer@1.1.10':
-    resolution: {integrity: sha512-IM1zzRV4W3HtVgftdQiiOmA0AdJlCtMLe00FXaHwgt3rAnNsIyDqshvkIW3hj/iu5hu8ERP7KIYki6NkqDxAwQ==}
+  '@radix-ui/react-dismissable-layer@1.1.11':
+    resolution: {integrity: sha512-Nqcp+t5cTB8BinFkZgXiMJniQH0PsUt2k51FUhbdfeKvc4ACcG2uQniY/8+h1Yv6Kza4Q7lD7PQV0z0oicE0Mg==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -816,8 +797,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@radix-ui/react-dropdown-menu@2.1.15':
-    resolution: {integrity: sha512-mIBnOjgwo9AH3FyKaSWoSu/dYj6VdhJ7frEPiGTeXCdUFHjl9h3mFh2wwhEtINOmYXWhdpf1rY2minFsmaNgVQ==}
+  '@radix-ui/react-dropdown-menu@2.1.16':
+    resolution: {integrity: sha512-1PLGQEynI/3OX/ftV54COn+3Sud/Mn8vALg2rWnBLnRaGtJDduNW/22XjlGgPdpcIbiQxjKtb7BkcjP00nqfJw==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -851,8 +832,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@radix-ui/react-focus-guards@1.1.2':
-    resolution: {integrity: sha512-fyjAACV62oPV925xFCrH8DR5xWhg9KYtJT4s3u54jxp+L/hbpTY2kIeEFFbFe+a/HCE94zGQMZLIpVTPVZDhaA==}
+  '@radix-ui/react-focus-guards@1.1.3':
+    resolution: {integrity: sha512-0rFg/Rj2Q62NCm62jZw0QX7a3sz6QCQU0LpZdNrJX8byRGaGVTqbrW9jAoIAHyMQqsNpeZ81YgSizOt5WXq0Pw==}
     peerDependencies:
       '@types/react': '*'
       react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
@@ -948,8 +929,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@radix-ui/react-menu@2.1.15':
-    resolution: {integrity: sha512-tVlmA3Vb9n8SZSd+YSbuFR66l87Wiy4du+YE+0hzKQEANA+7cWKH1WgqcEX4pXqxUFQKrWQGHdvEfw00TjFiew==}
+  '@radix-ui/react-menu@2.1.16':
+    resolution: {integrity: sha512-72F2T+PLlphrqLcAotYPp0uJMr5SjP5SL01wfEspJbru5Zs5vQaSHb4VB3ZMJPimgHHCHG7gMOeOB9H3Hdmtxg==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -1026,8 +1007,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@radix-ui/react-popper@1.2.7':
-    resolution: {integrity: sha512-IUFAccz1JyKcf/RjB552PlWwxjeCJB8/4KxT7EhBHOJM+mN7LdW+B3kacJXILm32xawcMMjb2i0cIZpo+f9kiQ==}
+  '@radix-ui/react-popper@1.2.8':
+    resolution: {integrity: sha512-0NJQ4LFFUuWkE7Oxf0htBKS6zLkkjBH+hM1uk7Ng705ReR8m/uelduy1DBo0PyBXPKVnBA6YBlU94MBGXrSBCw==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -1078,8 +1059,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@radix-ui/react-presence@1.1.4':
-    resolution: {integrity: sha512-ueDqRbdc4/bkaQT3GIpLQssRlFgWaL/U2z/S31qRwwLWoxHLgry3SIfCwhxeQNbirEUXFa+lq3RL3oBYXtcmIA==}
+  '@radix-ui/react-presence@1.1.5':
+    resolution: {integrity: sha512-/jfEwNDdQVBCNvjkGit4h6pMOzq8bHkopq458dPt2lMjx+eBQUohZNG9A7DtO/O5ukSbxuaNGXMjHicgwy6rQQ==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -1143,8 +1124,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@radix-ui/react-roving-focus@1.1.10':
-    resolution: {integrity: sha512-dT9aOXUen9JSsxnMPv/0VqySQf5eDQ6LCk5Sw28kamz8wSOW2bJdlX2Bg5VUIIcV+6XlHpWTIuTPCf/UNIyq8Q==}
+  '@radix-ui/react-roving-focus@1.1.11':
+    resolution: {integrity: sha512-7A6S9jSgm/S+7MdtNDSb+IU859vQqJ/QAtcYQcfFC6W8RS4IxIZDldLR0xqCFZ6DCyrQLjLPsxtTNch5jVA4lA==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -1232,6 +1213,15 @@ packages:
 
   '@radix-ui/react-slot@1.2.3':
     resolution: {integrity: sha512-aeNmHnBxbi2St0au6VBVC7JXFlhLlOnvIIlePNniyUNAClzmtAUEY8/pBiK3iHjufOlwA+c20/8jngo7xcrg8A==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-slot@1.2.4':
+    resolution: {integrity: sha512-Jl+bCv8HxKnlTLVrcDE8zTMJ09R9/ukw4qBs/oZClOfoQk/cOTbDn+NceXfV7j09YPVQUryJPHurafcSg6EVKA==}
     peerDependencies:
       '@types/react': '*'
       react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
@@ -1588,17 +1578,52 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@scure/base@1.2.4':
-    resolution: {integrity: sha512-5Yy9czTO47mqz+/J8GM6GIId4umdCk1wc1q8rKERQulIoc8VP9pzDcghv10Tl2E7R96ZUx/PhND3ESYUQX8NuQ==}
+  '@scure/base@2.2.0':
+    resolution: {integrity: sha512-b8XEupJibegiXV+tDUseI8oLQc8ei3d/4Jkb2RpbHh3MfE054ov3uIz2dhFkB3FI8iwYkEh0gGCApkrYggkPNg==}
 
-  '@scure/base@1.2.6':
-    resolution: {integrity: sha512-g/nm5FgUa//MCj1gV09zTJTaM6KBAHqLN907YVQqf7zC49+DcO4B1so4ZX07Ef10Twr6nuqYEH9GEggFXA4Fmg==}
+  '@scure/bip32@2.2.0':
+    resolution: {integrity: sha512-zFr7t2F+a9+5tB7QbarF2HQNYrgjCNaoLAupZdKkrFMYMozJf5zqH2WJCQibMzm1qQ0QogrxVGO3qXfQDYMaQg==}
 
-  '@scure/bip32@1.7.0':
-    resolution: {integrity: sha512-E4FFX/N3f4B80AKWp5dP6ow+flD1LQZo/w8UnLGYZO674jS6YnYeepycOOksv+vLPSpgN35wgKgy+ybfTb2SMw==}
+  '@scure/bip39@2.2.0':
+    resolution: {integrity: sha512-T/Bj/YvYMNkIPq6EENO6/rcs2e7qTNuyoUXf0KBFDmp0ZDu0H2X4Lq6yC3i0c8PcWkov5EbW+yQZZbdMmk154A==}
 
-  '@scure/bip39@1.6.0':
-    resolution: {integrity: sha512-+lF0BbLiJNwVlev4eKelw1WWLaiKXw7sSl8T6FvBlWkdX+94aGJ4o8XjUdlyhTCjd8c+B3KT3JfS8P0bLRNU6A==}
+  '@socialproof/bcs@0.0.2':
+    resolution: {integrity: sha512-ahrcri+bKrOivsn6U1v5QT/3iEqi6Il0w9bQvgGJuo0eemBq/zRXXL7iOZBGwT+81bQhxwKKCORptZOxlh1oOA==}
+
+  '@socialproof/dapp-kit@0.0.4':
+    resolution: {integrity: sha512-XF1RDtUnixz744SVxgij5ExuD7pMquJ520GS5HY1jzeW8Ed27+S72C6vGZAlrpRWWgLunZfh5KsPUb8mjw89Vw==}
+    peerDependencies:
+      '@socialproof/myso': ^0.0.4
+      '@tanstack/react-query': ^5.0.0
+      react: '*'
+
+  '@socialproof/mydata@0.0.4':
+    resolution: {integrity: sha512-MJ3Bw+l91tLIUFkLAEWvez8deHlA2QPTluNc2vMLduHglHXzejRVLd3qEa2SQgphtPeXNlCttHCM6RN0zKSOKA==}
+    peerDependencies:
+      '@socialproof/myso': ^0.0.4
+
+  '@socialproof/myso@0.0.4':
+    resolution: {integrity: sha512-3SbHrYfv9JdoFQuKAcdWXPUc7viVeMtkmm2/fnQiK7lvg0kmFKt00JEt1apDlG1T0ltPv/uMYUv3hL+cerRDyQ==}
+    engines: {node: '>=22'}
+
+  '@socialproof/mysocial-auth@0.12.0':
+    resolution: {integrity: sha512-QdiSbcHZNBSOu14JIUySLO+kdAZ/Xr2B94Bz4Hgkk5WApShADvo1EMCcNmpx3hSom42+J6K0zO9ZKgi9LDSvDA==}
+
+  '@socialproof/slush-wallet@0.0.4':
+    resolution: {integrity: sha512-yPvXqmiTl2Wc5SqjwP7LO8Qru7ACi4YpWyVzjSUIzmkBvLxH3Z3BjOTU2BYv4zBsbAYYQpsREpbeurlDf3/6fQ==}
+    peerDependencies:
+      '@socialproof/myso': ^0.0.4
+
+  '@socialproof/utils@0.0.2':
+    resolution: {integrity: sha512-J4mDPEQxUIbzNu9WDvLW21VRlh9F7W5GQtbjA+rit2+fdm+r5TszJ4DmvjkjfRBfFWyAl3nIaVzQGcasRIjOiw==}
+
+  '@socialproof/wallet-standard@0.0.2':
+    resolution: {integrity: sha512-NGqytuXIaJKJod150dG/ITCduEv7N0UtEsvY6O+CBrR74yiX4v6ldj6Ls+B/oMAL8WKYogmU8eNig3PL7tokvg==}
+    peerDependencies:
+      '@socialproof/myso': '*'
+
+  '@socialproof/window-wallet-core@0.0.2':
+    resolution: {integrity: sha512-OxmTAtRLiAUEfv2N2FxqYxzMTxKyG7xguNwuXLOksc3A6y587UHHSLHZ4SrjhQAsCa0fIxGJJ4z58EASY42m7Q==}
 
   '@swc/core-darwin-arm64@1.11.16':
     resolution: {integrity: sha512-l6uWMU+MUdfLHCl3dJgtVEdsUHPskoA4BSu0L1hh9SGBwPZ8xeOz8iLIqZM27lTuXxL4KsYH6GQR/OdQ/vhLtg==}
@@ -1759,8 +1784,8 @@ packages:
     resolution: {integrity: sha512-Sne/pVz8ryR03NFK21VpN88dZ2FdQXOlq3VIklbrTYEt8yXtRFr9tvUhqvCeKjqYk5FSim37sHbooT6vzBTZcg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@vanilla-extract/css@1.17.4':
-    resolution: {integrity: sha512-m3g9nQDWPtL+sTFdtCGRMI1Vrp86Ay4PBYq1Bo7Bnchj5ElNtAJpOqD+zg+apthVA4fB7oVpMWNjwpa6ElDWFQ==}
+  '@vanilla-extract/css@1.20.1':
+    resolution: {integrity: sha512-5I9RNo5uZW9tsBnqrWzJqELegOqTHBrZyDFnES0gR9gJJHBB9dom1N0bwITM9tKwBcfKrTX4a6DHVeQdJ2ubQA==}
 
   '@vanilla-extract/dynamic@2.1.5':
     resolution: {integrity: sha512-QGIFGb1qyXQkbzx6X6i3+3LMc/iv/ZMBttMBL+Wm/DetQd36KsKsFg5CtH3qy+1hCA/5w93mEIIAiL4fkM8ycw==}
@@ -1986,13 +2011,11 @@ packages:
     resolution: {integrity: sha512-HTUrgRJ7r4dsZKU6GjmpfRK1O76h97Z8MfS1G0FozR+oF2kG6Vfe8JE6zwrkbxigziPHinCJ+gCPjA9EaBDtRw==}
     engines: {node: '>= 6'}
 
-  cssesc@3.0.0:
-    resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
-    engines: {node: '>=4'}
-    hasBin: true
-
   csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
+
+  csstype@3.2.3:
+    resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
   data-view-buffer@1.0.2:
     resolution: {integrity: sha512-EmKO5V3OLXh1rtK2wgXRansaK1/mtVdTUEiEI0W8RkvgT05kfxaH29PliLnpLP73yYO6142Q72QNa8Wx/A5CqQ==}
@@ -2305,17 +2328,17 @@ packages:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
     engines: {node: '>= 0.4'}
 
-  gql.tada@1.8.13:
-    resolution: {integrity: sha512-fYoorairdPgxtE7Sf1X9/6bSN9Kt2+PN8KLg3hcF8972qFnawwUgs1OLVU8efZMHwL7EBHhhKBhrsGPlOs2lZQ==}
+  gql.tada@1.9.2:
+    resolution: {integrity: sha512-QxRHVpxtrOVdYXz6oavq0lBM+Zdp0swapLGJcD4SLpXDcsD337BHDFrzqqjfkbepv0sSAiO0LGabu1kI5D5Gyg==}
     hasBin: true
     peerDependencies:
-      typescript: ^5.0.0
+      typescript: ^5.0.0 || ^6.0.0
 
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
-  graphql@16.11.0:
-    resolution: {integrity: sha512-mS1lbMsxgQj6hge1XZ6p7GPhbrtFwUFYi3wRzXAC/FmYnyXMTvvI3td3rjmQ2u8ewXueaSvRPWaEcgVVOT9Jnw==}
+  graphql@16.14.0:
+    resolution: {integrity: sha512-BBvQ/406p+4CZbTpCbVPSxfzrZrbnuWSP1ELYgyS6B+hNeKzgrdB4JczCa5VZUBQrDa9hUngm0KnexY6pJRN5Q==}
     engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
 
   has-bigints@1.1.0:
@@ -2488,8 +2511,8 @@ packages:
     resolution: {integrity: sha512-H0dkQoCa3b2VEeKQBOxFph+JAbcrQdE7KC0UkqwpLmv2EC4P41QXP+rqo9wYodACiG5/WM5s9oDApTU8utwj9g==}
     engines: {node: '>= 0.4'}
 
-  jose@6.0.11:
-    resolution: {integrity: sha512-QxG7EaliDARm1O1S8BGakqncGT9s25bKL1WSf6/oa17Tkqwi8D2ZNglqCF+DsYF88/rV66Q/Q2mFAy697E1DUg==}
+  jose@6.2.3:
+    resolution: {integrity: sha512-YYVDInQKFJfR/xa3ojUTl8c2KoTwiL1R5Wg9YCydwH0x0B9grbzlg5HC7mMjCtUJjbQ/YnGEZIhI5tCgfTb4Hw==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -2587,9 +2610,6 @@ packages:
   minimatch@9.0.5:
     resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
     engines: {node: '>=16 || 14 >=14.17'}
-
-  mitt@3.0.1:
-    resolution: {integrity: sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==}
 
   modern-ahocorasick@1.1.0:
     resolution: {integrity: sha512-sEKPVl2rM+MNVkGQt3ChdmD8YsigmXdn5NifZn6jiwn9LRJpWm8F3guhaqrJT/JOat6pwpbXEk6kv+b9DMIjsQ==}
@@ -3074,8 +3094,13 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  valibot@0.36.0:
-    resolution: {integrity: sha512-CjF1XN4sUce8sBK9TixrDqFM7RwNkuXdJu174/AwmQUB62QbCQADg5lLe8ldBalFgtj1uKj+pKwDJiNo4Mn+eQ==}
+  valibot@1.4.1:
+    resolution: {integrity: sha512-klCmFTz2jeDluy9RwX+F884TCiogtdBJ/YaxSx1EOBYXa3NXNWj8kR1jjN8rzluwojJVWWaHJ4r1U5LfICnM3g==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
@@ -3164,13 +3189,14 @@ packages:
   zod@3.24.4:
     resolution: {integrity: sha512-OdqJE9UDRPwWsrHjLN2F8bPxvwJBK22EHLWtanu0LSYr5YqzsaaW3RMgmjwr8Rypg5k+meEJdSPXJZXE/yqOMg==}
 
-  zustand@4.5.7:
-    resolution: {integrity: sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==}
-    engines: {node: '>=12.7.0'}
+  zustand@5.0.14:
+    resolution: {integrity: sha512-/8tAspM5LMPr28b3fwLYrtdj77ECpfZviaP75CMTnwO8ISyaE4GDIG/9rDDYq/cH9D2Xw2A2RXglLInmVBQB/g==}
+    engines: {node: '>=12.20.0'}
     peerDependencies:
-      '@types/react': '>=16.8'
+      '@types/react': '>=18.0.0'
       immer: '>=9.0.6'
-      react: '>=16.8'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -3178,17 +3204,19 @@ packages:
         optional: true
       react:
         optional: true
+      use-sync-external-store:
+        optional: true
 
 snapshots:
 
-  '@0no-co/graphql.web@1.1.2(graphql@16.11.0)':
+  '@0no-co/graphql.web@1.1.2(graphql@16.14.0)':
     optionalDependencies:
-      graphql: 16.11.0
+      graphql: 16.14.0
 
-  '@0no-co/graphqlsp@1.12.16(graphql@16.11.0)(typescript@5.8.2)':
+  '@0no-co/graphqlsp@1.12.16(graphql@16.14.0)(typescript@5.8.2)':
     dependencies:
-      '@gql.tada/internal': 1.0.8(graphql@16.11.0)(typescript@5.8.2)
-      graphql: 16.11.0
+      '@gql.tada/internal': 1.0.9(graphql@16.14.0)(typescript@5.8.2)
+      graphql: 16.14.0
       typescript: 5.8.2
 
   '@ampproject/remapping@2.3.0':
@@ -3461,22 +3489,22 @@ snapshots:
 
   '@floating-ui/utils@0.2.9': {}
 
-  '@gql.tada/cli-utils@1.7.1(@0no-co/graphqlsp@1.12.16(graphql@16.11.0)(typescript@5.8.2))(graphql@16.11.0)(typescript@5.8.2)':
+  '@gql.tada/cli-utils@1.7.3(@0no-co/graphqlsp@1.12.16(graphql@16.14.0)(typescript@5.8.2))(graphql@16.14.0)(typescript@5.8.2)':
     dependencies:
-      '@0no-co/graphqlsp': 1.12.16(graphql@16.11.0)(typescript@5.8.2)
-      '@gql.tada/internal': 1.0.8(graphql@16.11.0)(typescript@5.8.2)
-      graphql: 16.11.0
+      '@0no-co/graphqlsp': 1.12.16(graphql@16.14.0)(typescript@5.8.2)
+      '@gql.tada/internal': 1.0.9(graphql@16.14.0)(typescript@5.8.2)
+      graphql: 16.14.0
       typescript: 5.8.2
 
-  '@gql.tada/internal@1.0.8(graphql@16.11.0)(typescript@5.8.2)':
+  '@gql.tada/internal@1.0.9(graphql@16.14.0)(typescript@5.8.2)':
     dependencies:
-      '@0no-co/graphql.web': 1.1.2(graphql@16.11.0)
-      graphql: 16.11.0
+      '@0no-co/graphql.web': 1.1.2(graphql@16.14.0)
+      graphql: 16.14.0
       typescript: 5.8.2
 
-  '@graphql-typed-document-node/core@3.2.0(graphql@16.11.0)':
+  '@graphql-typed-document-node/core@3.2.0(graphql@16.14.0)':
     dependencies:
-      graphql: 16.11.0
+      graphql: 16.14.0
 
   '@humanfs/core@0.19.1': {}
 
@@ -3523,108 +3551,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@socialproof/bcs@1.6.0':
+  '@noble/curves@2.2.0':
     dependencies:
-      '@scure/base': 1.2.4
+      '@noble/hashes': 2.2.0
 
-  '@socialproof/bcs@1.7.0':
-    dependencies:
-      '@socialproof/utils': 0.1.1
-      '@scure/base': 1.2.6
-
-  '@socialproof/dapp-kit@0.17.7(@tanstack/react-query@5.71.10(react@19.1.0))(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.2)':
-    dependencies:
-      '@socialproof/slush-wallet': 0.1.24(typescript@5.8.2)
-      '@socialproof/myso': 1.37.6(typescript@5.8.2)
-      '@socialproof/utils': 0.1.1
-      '@socialproof/wallet-standard': 0.16.14(typescript@5.8.2)
-      '@radix-ui/react-dialog': 1.1.14(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@radix-ui/react-dropdown-menu': 2.1.15(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@radix-ui/react-slot': 1.2.3(@types/react@19.1.0)(react@19.1.0)
-      '@tanstack/react-query': 5.71.10(react@19.1.0)
-      '@vanilla-extract/css': 1.17.4
-      '@vanilla-extract/dynamic': 2.1.5
-      '@vanilla-extract/recipes': 0.5.7(@vanilla-extract/css@1.17.4)
-      clsx: 2.1.1
-      react: 19.1.0
-      zustand: 4.5.7(@types/react@19.1.0)(react@19.1.0)
-    transitivePeerDependencies:
-      - '@gql.tada/svelte-support'
-      - '@gql.tada/vue-support'
-      - '@types/react'
-      - '@types/react-dom'
-      - babel-plugin-macros
-      - immer
-      - react-dom
-      - typescript
-
-  '@socialproof/mydata@0.5.2(typescript@5.8.2)':
-    dependencies:
-      '@socialproof/bcs': 1.7.0
-      '@socialproof/myso': 1.37.6(typescript@5.8.2)
-      '@noble/curves': 1.9.7
-      '@noble/hashes': 1.8.0
-    transitivePeerDependencies:
-      - '@gql.tada/svelte-support'
-      - '@gql.tada/vue-support'
-      - typescript
-
-  '@socialproof/slush-wallet@0.1.24(typescript@5.8.2)':
-    dependencies:
-      '@socialproof/myso': 1.37.6(typescript@5.8.2)
-      '@socialproof/utils': 0.1.1
-      '@socialproof/wallet-standard': 0.16.14(typescript@5.8.2)
-      '@socialproof/window-wallet-core': 0.0.6
-      mitt: 3.0.1
-      valibot: 0.36.0
-    transitivePeerDependencies:
-      - '@gql.tada/svelte-support'
-      - '@gql.tada/vue-support'
-      - typescript
-
-  '@socialproof/myso@1.37.6(typescript@5.8.2)':
-    dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@16.11.0)
-      '@socialproof/bcs': 1.7.0
-      '@socialproof/utils': 0.1.1
-      '@noble/curves': 1.9.7
-      '@noble/hashes': 1.8.0
-      '@scure/base': 1.2.6
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      gql.tada: 1.8.13(graphql@16.11.0)(typescript@5.8.2)
-      graphql: 16.11.0
-      poseidon-lite: 0.2.1
-      valibot: 0.36.0
-    transitivePeerDependencies:
-      - '@gql.tada/svelte-support'
-      - '@gql.tada/vue-support'
-      - typescript
-
-  '@socialproof/utils@0.1.1':
-    dependencies:
-      '@scure/base': 1.2.6
-
-  '@socialproof/wallet-standard@0.16.14(typescript@5.8.2)':
-    dependencies:
-      '@socialproof/myso': 1.37.6(typescript@5.8.2)
-      '@wallet-standard/core': 1.1.1
-    transitivePeerDependencies:
-      - '@gql.tada/svelte-support'
-      - '@gql.tada/vue-support'
-      - typescript
-
-  '@socialproof/window-wallet-core@0.0.6':
-    dependencies:
-      '@socialproof/utils': 0.1.1
-      jose: 6.0.11
-      valibot: 0.36.0
-
-  '@noble/curves@1.9.7':
-    dependencies:
-      '@noble/hashes': 1.8.0
-
-  '@noble/hashes@1.8.0': {}
+  '@noble/hashes@2.2.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -3638,13 +3569,24 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
+  '@protobuf-ts/grpcweb-transport@2.11.1':
+    dependencies:
+      '@protobuf-ts/runtime': 2.11.1
+      '@protobuf-ts/runtime-rpc': 2.11.1
+
+  '@protobuf-ts/runtime-rpc@2.11.1':
+    dependencies:
+      '@protobuf-ts/runtime': 2.11.1
+
+  '@protobuf-ts/runtime@2.11.1': {}
+
   '@radix-ui/colors@3.0.0': {}
 
   '@radix-ui/number@1.1.0': {}
 
   '@radix-ui/primitive@1.1.1': {}
 
-  '@radix-ui/primitive@1.1.2': {}
+  '@radix-ui/primitive@1.1.3': {}
 
   '@radix-ui/react-accessible-icon@1.1.2(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
@@ -3819,17 +3761,17 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.0
 
-  '@radix-ui/react-dialog@1.1.14(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@radix-ui/react-dialog@1.1.15(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/primitive': 1.1.3
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.0)(react@19.1.0)
       '@radix-ui/react-context': 1.1.2(@types/react@19.1.0)(react@19.1.0)
-      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@radix-ui/react-focus-guards': 1.1.2(@types/react@19.1.0)(react@19.1.0)
+      '@radix-ui/react-dismissable-layer': 1.1.11(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-focus-guards': 1.1.3(@types/react@19.1.0)(react@19.1.0)
       '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-id': 1.1.1(@types/react@19.1.0)(react@19.1.0)
       '@radix-ui/react-portal': 1.1.9(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@radix-ui/react-presence': 1.1.4(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-presence': 1.1.5(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-slot': 1.2.3(@types/react@19.1.0)(react@19.1.0)
       '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.1.0)(react@19.1.0)
@@ -3875,9 +3817,9 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.0
 
-  '@radix-ui/react-dismissable-layer@1.1.10(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@radix-ui/react-dismissable-layer@1.1.11(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/primitive': 1.1.3
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.0)(react@19.1.0)
       '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.1.0)(react@19.1.0)
@@ -3901,13 +3843,13 @@ snapshots:
       '@types/react': 19.1.0
       '@types/react-dom': 19.1.1(@types/react@19.1.0)
 
-  '@radix-ui/react-dropdown-menu@2.1.15(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@radix-ui/react-dropdown-menu@2.1.16(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/primitive': 1.1.3
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.0)(react@19.1.0)
       '@radix-ui/react-context': 1.1.2(@types/react@19.1.0)(react@19.1.0)
       '@radix-ui/react-id': 1.1.1(@types/react@19.1.0)(react@19.1.0)
-      '@radix-ui/react-menu': 2.1.15(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-menu': 2.1.16(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.1.0)(react@19.1.0)
       react: 19.1.0
@@ -3937,7 +3879,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.0
 
-  '@radix-ui/react-focus-guards@1.1.2(@types/react@19.1.0)(react@19.1.0)':
+  '@radix-ui/react-focus-guards@1.1.3(@types/react@19.1.0)(react@19.1.0)':
     dependencies:
       react: 19.1.0
     optionalDependencies:
@@ -4023,22 +3965,22 @@ snapshots:
       '@types/react': 19.1.0
       '@types/react-dom': 19.1.1(@types/react@19.1.0)
 
-  '@radix-ui/react-menu@2.1.15(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@radix-ui/react-menu@2.1.16(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/primitive': 1.1.3
       '@radix-ui/react-collection': 1.1.7(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.0)(react@19.1.0)
       '@radix-ui/react-context': 1.1.2(@types/react@19.1.0)(react@19.1.0)
       '@radix-ui/react-direction': 1.1.1(@types/react@19.1.0)(react@19.1.0)
-      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@radix-ui/react-focus-guards': 1.1.2(@types/react@19.1.0)(react@19.1.0)
+      '@radix-ui/react-dismissable-layer': 1.1.11(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-focus-guards': 1.1.3(@types/react@19.1.0)(react@19.1.0)
       '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-id': 1.1.1(@types/react@19.1.0)(react@19.1.0)
-      '@radix-ui/react-popper': 1.2.7(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-popper': 1.2.8(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-portal': 1.1.9(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@radix-ui/react-presence': 1.1.4(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-presence': 1.1.5(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@radix-ui/react-roving-focus': 1.1.10(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-roving-focus': 1.1.11(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-slot': 1.2.3(@types/react@19.1.0)(react@19.1.0)
       '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.1.0)(react@19.1.0)
       aria-hidden: 1.2.6
@@ -4156,7 +4098,7 @@ snapshots:
       '@types/react': 19.1.0
       '@types/react-dom': 19.1.1(@types/react@19.1.0)
 
-  '@radix-ui/react-popper@1.2.7(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@radix-ui/react-popper@1.2.8(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@floating-ui/react-dom': 2.1.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-arrow': 1.1.7(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -4204,7 +4146,7 @@ snapshots:
       '@types/react': 19.1.0
       '@types/react-dom': 19.1.1(@types/react@19.1.0)
 
-  '@radix-ui/react-presence@1.1.4(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@radix-ui/react-presence@1.1.5(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.0)(react@19.1.0)
       '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.1.0)(react@19.1.0)
@@ -4260,9 +4202,9 @@ snapshots:
       '@types/react': 19.1.0
       '@types/react-dom': 19.1.1(@types/react@19.1.0)
 
-  '@radix-ui/react-roving-focus@1.1.10(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@radix-ui/react-roving-focus@1.1.11(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/primitive': 1.1.3
       '@radix-ui/react-collection': 1.1.7(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.0)(react@19.1.0)
       '@radix-ui/react-context': 1.1.2(@types/react@19.1.0)(react@19.1.0)
@@ -4376,6 +4318,13 @@ snapshots:
       '@types/react': 19.1.0
 
   '@radix-ui/react-slot@1.2.3(@types/react@19.1.0)(react@19.1.0)':
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.0)(react@19.1.0)
+      react: 19.1.0
+    optionalDependencies:
+      '@types/react': 19.1.0
+
+  '@radix-ui/react-slot@1.2.4(@types/react@19.1.0)(react@19.1.0)':
     dependencies:
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.0)(react@19.1.0)
       react: 19.1.0
@@ -4673,20 +4622,108 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.39.0':
     optional: true
 
-  '@scure/base@1.2.4': {}
+  '@scure/base@2.2.0': {}
 
-  '@scure/base@1.2.6': {}
-
-  '@scure/bip32@1.7.0':
+  '@scure/bip32@2.2.0':
     dependencies:
-      '@noble/curves': 1.9.7
-      '@noble/hashes': 1.8.0
-      '@scure/base': 1.2.6
+      '@noble/curves': 2.2.0
+      '@noble/hashes': 2.2.0
+      '@scure/base': 2.2.0
 
-  '@scure/bip39@1.6.0':
+  '@scure/bip39@2.2.0':
     dependencies:
-      '@noble/hashes': 1.8.0
-      '@scure/base': 1.2.6
+      '@noble/hashes': 2.2.0
+      '@scure/base': 2.2.0
+
+  '@socialproof/bcs@0.0.2':
+    dependencies:
+      '@scure/base': 2.2.0
+      '@socialproof/utils': 0.0.2
+
+  '@socialproof/dapp-kit@0.0.4(@socialproof/myso@0.0.4(typescript@5.8.2))(@tanstack/react-query@5.71.10(react@19.1.0))(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.2)(use-sync-external-store@1.5.0(react@19.1.0))':
+    dependencies:
+      '@radix-ui/react-dialog': 1.1.15(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-dropdown-menu': 2.1.16(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-slot': 1.2.4(@types/react@19.1.0)(react@19.1.0)
+      '@socialproof/myso': 0.0.4(typescript@5.8.2)
+      '@socialproof/slush-wallet': 0.0.4(@socialproof/myso@0.0.4(typescript@5.8.2))(typescript@5.8.2)
+      '@socialproof/utils': 0.0.2
+      '@socialproof/wallet-standard': 0.0.2(@socialproof/myso@0.0.4(typescript@5.8.2))
+      '@tanstack/react-query': 5.71.10(react@19.1.0)
+      '@vanilla-extract/css': 1.20.1
+      '@vanilla-extract/dynamic': 2.1.5
+      '@vanilla-extract/recipes': 0.5.7(@vanilla-extract/css@1.20.1)
+      clsx: 2.1.1
+      react: 19.1.0
+      zustand: 5.0.14(@types/react@19.1.0)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
+    transitivePeerDependencies:
+      - '@types/react'
+      - '@types/react-dom'
+      - babel-plugin-macros
+      - immer
+      - react-dom
+      - typescript
+      - use-sync-external-store
+
+  '@socialproof/mydata@0.0.4(@socialproof/myso@0.0.4(typescript@5.8.2))':
+    dependencies:
+      '@noble/curves': 2.2.0
+      '@noble/hashes': 2.2.0
+      '@socialproof/bcs': 0.0.2
+      '@socialproof/myso': 0.0.4(typescript@5.8.2)
+
+  '@socialproof/myso@0.0.4(typescript@5.8.2)':
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@16.14.0)
+      '@noble/curves': 2.2.0
+      '@noble/hashes': 2.2.0
+      '@protobuf-ts/grpcweb-transport': 2.11.1
+      '@protobuf-ts/runtime': 2.11.1
+      '@protobuf-ts/runtime-rpc': 2.11.1
+      '@scure/base': 2.2.0
+      '@scure/bip32': 2.2.0
+      '@scure/bip39': 2.2.0
+      '@socialproof/bcs': 0.0.2
+      '@socialproof/utils': 0.0.2
+      gql.tada: 1.9.2(graphql@16.14.0)(typescript@5.8.2)
+      graphql: 16.14.0
+      poseidon-lite: 0.2.1
+      valibot: 1.4.1(typescript@5.8.2)
+    transitivePeerDependencies:
+      - '@gql.tada/svelte-support'
+      - '@gql.tada/vue-support'
+      - typescript
+
+  '@socialproof/mysocial-auth@0.12.0':
+    dependencies:
+      '@socialproof/utils': 0.0.2
+
+  '@socialproof/slush-wallet@0.0.4(@socialproof/myso@0.0.4(typescript@5.8.2))(typescript@5.8.2)':
+    dependencies:
+      '@socialproof/myso': 0.0.4(typescript@5.8.2)
+      '@socialproof/utils': 0.0.2
+      '@socialproof/wallet-standard': 0.0.2(@socialproof/myso@0.0.4(typescript@5.8.2))
+      '@socialproof/window-wallet-core': 0.0.2(typescript@5.8.2)
+      valibot: 1.4.1(typescript@5.8.2)
+    transitivePeerDependencies:
+      - typescript
+
+  '@socialproof/utils@0.0.2':
+    dependencies:
+      '@scure/base': 2.2.0
+
+  '@socialproof/wallet-standard@0.0.2(@socialproof/myso@0.0.4(typescript@5.8.2))':
+    dependencies:
+      '@socialproof/myso': 0.0.4(typescript@5.8.2)
+      '@wallet-standard/core': 1.1.1
+
+  '@socialproof/window-wallet-core@0.0.2(typescript@5.8.2)':
+    dependencies:
+      '@socialproof/utils': 0.0.2
+      jose: 6.2.3
+      valibot: 1.4.1(typescript@5.8.2)
+    transitivePeerDependencies:
+      - typescript
 
   '@swc/core-darwin-arm64@1.11.16':
     optional: true
@@ -4859,13 +4896,12 @@ snapshots:
       '@typescript-eslint/types': 8.29.0
       eslint-visitor-keys: 4.2.0
 
-  '@vanilla-extract/css@1.17.4':
+  '@vanilla-extract/css@1.20.1':
     dependencies:
       '@emotion/hash': 0.9.2
       '@vanilla-extract/private': 1.0.9
       css-what: 6.1.0
-      cssesc: 3.0.0
-      csstype: 3.1.3
+      csstype: 3.2.3
       dedent: 1.6.0
       deep-object-diff: 1.1.9
       deepmerge: 4.3.1
@@ -4882,9 +4918,9 @@ snapshots:
 
   '@vanilla-extract/private@1.0.9': {}
 
-  '@vanilla-extract/recipes@0.5.7(@vanilla-extract/css@1.17.4)':
+  '@vanilla-extract/recipes@0.5.7(@vanilla-extract/css@1.20.1)':
     dependencies:
-      '@vanilla-extract/css': 1.17.4
+      '@vanilla-extract/css': 1.20.1
 
   '@vitejs/plugin-react-swc@3.8.1(vite@6.2.5)':
     dependencies:
@@ -5131,9 +5167,9 @@ snapshots:
 
   css-what@6.1.0: {}
 
-  cssesc@3.0.0: {}
-
   csstype@3.1.3: {}
+
+  csstype@3.2.3: {}
 
   data-view-buffer@1.0.2:
     dependencies:
@@ -5592,12 +5628,12 @@ snapshots:
 
   gopd@1.2.0: {}
 
-  gql.tada@1.8.13(graphql@16.11.0)(typescript@5.8.2):
+  gql.tada@1.9.2(graphql@16.14.0)(typescript@5.8.2):
     dependencies:
-      '@0no-co/graphql.web': 1.1.2(graphql@16.11.0)
-      '@0no-co/graphqlsp': 1.12.16(graphql@16.11.0)(typescript@5.8.2)
-      '@gql.tada/cli-utils': 1.7.1(@0no-co/graphqlsp@1.12.16(graphql@16.11.0)(typescript@5.8.2))(graphql@16.11.0)(typescript@5.8.2)
-      '@gql.tada/internal': 1.0.8(graphql@16.11.0)(typescript@5.8.2)
+      '@0no-co/graphql.web': 1.1.2(graphql@16.14.0)
+      '@0no-co/graphqlsp': 1.12.16(graphql@16.14.0)(typescript@5.8.2)
+      '@gql.tada/cli-utils': 1.7.3(@0no-co/graphqlsp@1.12.16(graphql@16.14.0)(typescript@5.8.2))(graphql@16.14.0)(typescript@5.8.2)
+      '@gql.tada/internal': 1.0.9(graphql@16.14.0)(typescript@5.8.2)
       typescript: 5.8.2
     transitivePeerDependencies:
       - '@gql.tada/svelte-support'
@@ -5606,7 +5642,7 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  graphql@16.11.0: {}
+  graphql@16.14.0: {}
 
   has-bigints@1.1.0: {}
 
@@ -5783,7 +5819,7 @@ snapshots:
       has-symbols: 1.1.0
       set-function-name: 2.0.2
 
-  jose@6.0.11: {}
+  jose@6.2.3: {}
 
   js-tokens@4.0.0: {}
 
@@ -5867,8 +5903,6 @@ snapshots:
   minimatch@9.0.5:
     dependencies:
       brace-expansion: 2.0.1
-
-  mitt@3.0.1: {}
 
   modern-ahocorasick@1.1.0: {}
 
@@ -6472,8 +6506,11 @@ snapshots:
   use-sync-external-store@1.5.0(react@19.1.0):
     dependencies:
       react: 19.1.0
+    optional: true
 
-  valibot@0.36.0: {}
+  valibot@1.4.1(typescript@5.8.2):
+    optionalDependencies:
+      typescript: 5.8.2
 
   vary@1.1.2: {}
 
@@ -6544,9 +6581,8 @@ snapshots:
 
   zod@3.24.4: {}
 
-  zustand@4.5.7(@types/react@19.1.0)(react@19.1.0):
-    dependencies:
-      use-sync-external-store: 1.5.0(react@19.1.0)
+  zustand@5.0.14(@types/react@19.1.0)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0)):
     optionalDependencies:
       '@types/react': 19.1.0
       react: 19.1.0
+      use-sync-external-store: 1.5.0(react@19.1.0)

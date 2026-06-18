@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { MyDataClient, SessionKey, NoAccessError, EncryptedObject } from '@socialproof/mydata';
-import { MySoClient } from '@socialproof/myso/client';
+import { MySoJsonRpcClient } from '@socialproof/myso/jsonRpc';
 import { Transaction } from '@socialproof/myso/transactions';
 import React from 'react';
 
@@ -12,7 +12,7 @@ export type MoveCallConstructor = (tx: Transaction, id: string) => void;
 export const downloadAndDecrypt = async (
   blobIds: string[],
   sessionKey: SessionKey,
-  mysoClient: MySoClient,
+  mysoClient: MySoJsonRpcClient,
   mydataClient: MyDataClient,
   moveCallConstructor: (tx: Transaction, id: string) => void,
   setError: (error: string | null) => void,

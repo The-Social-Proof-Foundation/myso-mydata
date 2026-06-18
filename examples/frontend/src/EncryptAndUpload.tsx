@@ -4,10 +4,12 @@
 import React, { useState } from 'react';
 import { Transaction } from '@socialproof/myso/transactions';
 import { useNetworkVariable } from './networkConfig';
-import { useSignAndExecuteTransaction, useMySoClient } from '@socialproof/dapp-kit';
+import { useMySoClient } from '@socialproof/dapp-kit';
 import { Button, Card, Flex, Spinner, Text } from '@radix-ui/themes';
 import { MyDataClient } from '@socialproof/mydata';
 import { fromHex, toHex } from '@socialproof/myso/utils';
+import { useMySocialAuth } from './auth/useMySocialAuth';
+import { signAndExecuteTransaction } from './auth/signAndExecuteTransaction';
 
 export type Data = {
   status: string;
@@ -46,6 +48,7 @@ export function WalrusUpload({ policyObject, cap_id, moduleName }: WalrusUploadP
   const NUM_EPOCH = 1;
   const packageId = useNetworkVariable('packageId');
   const mysoClient = useMySoClient();
+  const { requireKeypair } = useMySocialAuth();
   const serverObjectIds = ["0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75", "0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8"];
   const client = new MyDataClient({
     mysoClient,
@@ -107,31 +110,38 @@ export function WalrusUpload({ policyObject, cap_id, moduleName }: WalrusUploadP
     return `${service?.publisherUrl}/v1/${cleanPath}`;
   }
 
-  const { mutate: signAndExecute } = useSignAndExecuteTransaction({
-    execute: async ({ bytes, signature }) =>
-      await mysoClient.executeTransactionBlock({
-        transactionBlock: bytes,
-        signature,
-        options: {
-          showRawEffects: true,
-          showEffects: true,
-        },
-      }),
-  });
+  async function handlePublish(wl_id: string, cap_id: string, moduleName: string) {
+    const tx = new Transaction();
+    tx.moveCall({
+      target: `${packageId}::${moduleName}::publish`,
+      arguments: [tx.object(wl_id), tx.object(cap_id), tx.pure.string(info!.blobId)],
+    });
 
-  const handleFileChange = (event: any) => {
-    const file = event.target.files[0];
+    tx.setGasBudget(10000000);
+    try {
+      const result = await signAndExecuteTransaction(requireKeypair(), mysoClient, tx);
+      console.log('res', result);
+      alert('Blob attached successfully, now share the link or upload more.');
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : 'Failed to publish blob to MySo.');
+    }
+  }
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
     // Max 10 MiB size
-    if (file.size > 10 * 1024 * 1024) {
+    if (selectedFile.size > 10 * 1024 * 1024) {
       alert('File size must be less than 10 MiB');
       return;
     }
     // Check if file is an image
-    if (!file.type.startsWith('image/')) {
+    if (!selectedFile.type.startsWith('image/')) {
       alert('Only image files are allowed');
       return;
     }
-    setFile(file);
+    setFile(selectedFile);
     setInfo(null);
   };
 
@@ -215,27 +225,6 @@ export function WalrusUpload({ policyObject, cap_id, moduleName }: WalrusUploadP
       }
     });
   };
-
-  async function handlePublish(wl_id: string, cap_id: string, moduleName: string) {
-    const tx = new Transaction();
-    tx.moveCall({
-      target: `${packageId}::${moduleName}::publish`,
-      arguments: [tx.object(wl_id), tx.object(cap_id), tx.pure.string(info!.blobId)],
-    });
-
-    tx.setGasBudget(10000000);
-    signAndExecute(
-      {
-        transaction: tx,
-      },
-      {
-        onSuccess: async (result) => {
-          console.log('res', result);
-          alert('Blob attached successfully, now share the link or upload more.');
-        },
-      },
-    );
-  }
 
   return (
     <Card>

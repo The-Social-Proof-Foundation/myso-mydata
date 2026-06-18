@@ -332,7 +332,7 @@ fn default_metrics_host_port() -> u16 {
 }
 
 fn default_ts_sdk_version_requirement() -> VersionReq {
-    VersionReq::parse(">=0.4.5").expect("Failed to parse default TSSDK version requirement")
+    VersionReq::parse(">=0.0.4").expect("Failed to parse default TSSDK version requirement")
 }
 
 fn default_aggregator_version_requirement() -> VersionReq {

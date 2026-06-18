@@ -2,12 +2,7 @@
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 import { useEffect, useState } from 'react';
-import {
-  useCurrentAccount,
-  useSignAndExecuteTransaction,
-  useSignPersonalMessage,
-  useMySoClient,
-} from '@socialproof/dapp-kit';
+import { useMySoClient } from '@socialproof/dapp-kit';
 import { useNetworkVariable } from './networkConfig';
 import { AlertDialog, Button, Card, Dialog, Flex } from '@radix-ui/themes';
 import { coinWithBalance, Transaction } from '@socialproof/myso/transactions';
@@ -15,7 +10,8 @@ import { fromHex, MYSO_CLOCK_OBJECT_ID } from '@socialproof/myso/utils';
 import { MyDataClient, SessionKey } from '@socialproof/mydata';
 import { useParams } from 'react-router-dom';
 import { downloadAndDecrypt, getObjectExplorerLink, MoveCallConstructor } from './utils';
-import { getFullnodeUrl, MySoClient } from '@socialproof/myso/client';
+import { useMySocialAuth } from './auth/useMySocialAuth';
+import { signAndExecuteTransaction } from './auth/signAndExecuteTransaction';
 
 const TTL_MIN = 10;
 export interface FeedData {
@@ -30,6 +26,7 @@ export interface FeedData {
 
 const FeedsToSubscribe: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) => {
   const mysoClient = useMySoClient();
+  const { keypair, requireKeypair } = useMySocialAuth();
   const { id } = useParams();
   const serverObjectIds = ["0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75", "0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8"];
 
@@ -45,54 +42,33 @@ const FeedsToSubscribe: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) =>
   const [decryptedFileUrls, setDecryptedFileUrls] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const packageId = useNetworkVariable('packageId');
-  const currentAccount = useCurrentAccount();
   const [currentSessionKey, setCurrentSessionKey] = useState<SessionKey | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { mutate: signPersonalMessage } = useSignPersonalMessage();
-
-  const { mutate: signAndExecute } = useSignAndExecuteTransaction({
-    execute: async ({ bytes, signature }) =>
-      await mysoClient.executeTransactionBlock({
-        transactionBlock: bytes,
-        signature,
-        options: {
-          showRawEffects: true,
-          showEffects: true,
-        },
-      }),
-  });
-
   useEffect(() => {
-    // Call getFeed immediately
     getFeed();
 
-    // Set up interval to call getFeed every 3 seconds
     const intervalId = setInterval(() => {
       getFeed();
     }, 3000);
 
-    // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, [id, mysoAddress, packageId, mysoClient]);
 
   async function getFeed() {
-    // get all encrypted objects for the given service id
     const encryptedObjects = await mysoClient
       .getDynamicFields({
         parentId: id!,
       })
       .then((res) => res.data.map((obj) => obj.name.value as string));
 
-    // get the current service object
     const service = await mysoClient.getObject({
       id: id!,
       options: { showContent: true },
     });
     const service_fields = (service.data?.content as { fields: any })?.fields || {};
 
-    // get all subscriptions for the given myso address
     const res = await mysoClient.getOwnedObjects({
       owner: mysoAddress,
       options: {
@@ -104,7 +80,6 @@ const FeedsToSubscribe: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) =>
       },
     });
 
-    // get the current timestamp
     const clock = await mysoClient.getObject({
       id: '0x6',
       options: { showContent: true },
@@ -112,14 +87,13 @@ const FeedsToSubscribe: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) =>
     const fields = (clock.data?.content as { fields: any })?.fields || {};
     const current_ms = fields.timestamp_ms;
 
-    // find an expired subscription for the given service if exists.
     const valid_subscription = res.data
       .map((obj) => {
-        const fields = (obj!.data!.content as { fields: any }).fields;
+        const itemFields = (obj!.data!.content as { fields: any }).fields;
         const x = {
-          id: fields?.id.id,
-          created_at: parseInt(fields?.created_at),
-          service_id: fields?.service_id,
+          id: itemFields?.id.id,
+          created_at: parseInt(itemFields?.created_at),
+          service_id: itemFields?.service_id,
         };
         return x;
       })
@@ -128,13 +102,13 @@ const FeedsToSubscribe: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) =>
         return item.created_at + parseInt(service_fields.ttl) > current_ms;
       });
 
-    const feed = {
+    const nextFeed = {
       ...service_fields,
       id: service_fields.id.id,
       blobIds: encryptedObjects,
       subscriptionId: valid_subscription?.id,
     } as FeedData;
-    setFeed(feed);
+    setFeed(nextFeed);
   }
 
   function constructMoveCall(
@@ -156,36 +130,33 @@ const FeedsToSubscribe: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) =>
   }
 
   async function handleSubscribe(serviceId: string, fee: number) {
-    const address = currentAccount?.address!;
-    const tx = new Transaction();
-    tx.setGasBudget(10000000);
-    tx.setSender(address);
-    const subscription = tx.moveCall({
-      target: `${packageId}::subscription::subscribe`,
-      arguments: [
-        coinWithBalance({
-          balance: BigInt(fee),
-        }),
-        tx.object(serviceId),
-        tx.object(MYSO_CLOCK_OBJECT_ID),
-      ],
-    });
-    tx.moveCall({
-      target: `${packageId}::subscription::transfer`,
-      arguments: [tx.object(subscription), tx.pure.address(address)],
-    });
+    try {
+      const signer = requireKeypair();
+      const tx = new Transaction();
+      tx.setGasBudget(10000000);
+      tx.setSender(mysoAddress);
+      const subscription = tx.moveCall({
+        target: `${packageId}::subscription::subscribe`,
+        arguments: [
+          coinWithBalance({
+            balance: BigInt(fee),
+          }),
+          tx.object(serviceId),
+          tx.object(MYSO_CLOCK_OBJECT_ID),
+        ],
+      });
+      tx.moveCall({
+        target: `${packageId}::subscription::transfer`,
+        arguments: [tx.object(subscription), tx.pure.address(mysoAddress)],
+      });
 
-    signAndExecute(
-      {
-        transaction: tx,
-      },
-      {
-        onSuccess: async (result) => {
-          console.log('res', result);
-          getFeed();
-        },
-      },
-    );
+      const result = await signAndExecuteTransaction(signer, mysoClient, tx);
+      console.log('res', result);
+      getFeed();
+    } catch (subscribeError) {
+      console.error(subscribeError);
+      setError(subscribeError instanceof Error ? subscribeError.message : 'Failed to subscribe.');
+    }
   }
 
   const onView = async (
@@ -198,15 +169,43 @@ const FeedsToSubscribe: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) =>
       return handleSubscribe(serviceId, fee);
     }
 
-    if (
-      currentSessionKey &&
-      !currentSessionKey.isExpired() &&
-      currentSessionKey.getAddress() === mysoAddress
-    ) {
+    try {
+      const signer = requireKeypair();
+
+      if (
+        currentSessionKey &&
+        !currentSessionKey.isExpired() &&
+        currentSessionKey.getAddress() === mysoAddress
+      ) {
+        const moveCallConstructor = constructMoveCall(packageId, serviceId, subscriptionId);
+        downloadAndDecrypt(
+          blobIds,
+          currentSessionKey,
+          mysoClient,
+          client,
+          moveCallConstructor,
+          setError,
+          setDecryptedFileUrls,
+          setIsDialogOpen,
+          setReloadKey,
+        );
+        return;
+      }
+      setCurrentSessionKey(null);
+
+      const sessionKey = await SessionKey.create({
+        address: mysoAddress,
+        packageId,
+        ttlMin: TTL_MIN,
+        mysoClient,
+        signer,
+      });
+      await sessionKey.getCertificate();
+
       const moveCallConstructor = constructMoveCall(packageId, serviceId, subscriptionId);
-      downloadAndDecrypt(
+      await downloadAndDecrypt(
         blobIds,
-        currentSessionKey,
+        sessionKey,
         mysoClient,
         client,
         moveCallConstructor,
@@ -215,47 +214,10 @@ const FeedsToSubscribe: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) =>
         setIsDialogOpen,
         setReloadKey,
       );
-      return;
-    }
-    setCurrentSessionKey(null);
-
-    const sessionKey = await SessionKey.create({
-      address: mysoAddress,
-      packageId,
-      ttlMin: TTL_MIN,
-      mysoClient,
-    });
-
-    try {
-      signPersonalMessage(
-        {
-          message: sessionKey.getPersonalMessage(),
-        },
-        {
-          onSuccess: async (result) => {
-            await sessionKey.setPersonalMessageSignature(result.signature);
-            const moveCallConstructor = await constructMoveCall(
-              packageId,
-              serviceId,
-              subscriptionId,
-            );
-            await downloadAndDecrypt(
-              blobIds,
-              sessionKey,
-              mysoClient,
-              client,
-              moveCallConstructor,
-              setError,
-              setDecryptedFileUrls,
-              setIsDialogOpen,
-              setReloadKey,
-            );
-            setCurrentSessionKey(sessionKey);
-          },
-        },
-      );
-    } catch (error: any) {
-      console.error('Error:', error);
+      setCurrentSessionKey(sessionKey);
+    } catch (viewError) {
+      console.error('Error:', viewError);
+      setError(viewError instanceof Error ? viewError.message : 'Unable to decrypt files.');
     }
   };
 
@@ -276,6 +238,7 @@ const FeedsToSubscribe: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) =>
                 <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                   <Dialog.Trigger>
                     <Button
+                      disabled={!keypair}
                       onClick={() =>
                         onView(feed!.blobIds, feed!.id, Number(feed!.fee), feed!.subscriptionId)
                       }

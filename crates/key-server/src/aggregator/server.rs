@@ -61,7 +61,7 @@ const REFRESH_INTERVAL_SECS: u64 = 30;
 
 /// Default SDK version requirement.
 fn default_ts_sdk_version_requirement() -> VersionReq {
-    VersionReq::parse(">=0.10.0").expect("Failed to parse default SDK version requirement")
+    VersionReq::parse(">=0.0.4").expect("Failed to parse default SDK version requirement")
 }
 
 /// Default key server version requirement.

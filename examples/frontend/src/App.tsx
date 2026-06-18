@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { ConnectButton, useCurrentAccount } from '@socialproof/dapp-kit';
 import { Box, Button, Card, Container, Flex, Grid } from '@radix-ui/themes';
+import { AuthButton } from './auth/AuthButton';
+import { useMySocialAuth } from './auth/useMySocialAuth';
 import { CreateAllowlist } from './CreateAllowlist';
 import { Allowlist } from './Allowlist';
 import WalrusUpload from './EncryptAndUpload';
@@ -59,7 +60,7 @@ function LandingPage() {
 }
 
 function App() {
-  const currentAccount = useCurrentAccount();
+  const { address, canSign, authError } = useMySocialAuth();
   const [recipientAllowlist, setRecipientAllowlist] = useState<string>('');
   const [capId, setCapId] = useState<string>('');
   return (
@@ -68,7 +69,7 @@ function App() {
         <h1 className="text-4xl font-bold m-4 mb-8">MyData Example Apps</h1>
         {/* <p>TODO: add mydata logo</p> */}
         <Box>
-          <ConnectButton />
+          <AuthButton />
         </Box>
       </Flex>
       <Card style={{ marginBottom: '2rem' }}>
@@ -77,8 +78,8 @@ function App() {
           <a href="https://github.com/MystenLabs/mydata/tree/main/examples">here</a>.
         </p>
         <p>
-          2. These examples are for Testnet only. Make sure you wallet is set to Testnet and has
-          some balance (can request from <a href="https://faucet.mysocial.network/">faucet.mysocial.network</a>).
+          2. These examples are for Testnet only. Sign in with MySocial and fund your address from{' '}
+          <a href="https://faucet.mysocial.network/">faucet.mysocial.network</a>.
         </p>
         <p>
           3. Blobs are only stored on Walrus Testnet for 1 epoch by default, older files cannot be
@@ -101,7 +102,7 @@ function App() {
           <a href="https://docs.wal.app/usage/web-api.html#public-services">the list</a>.
         </p>
       </Card>
-      {currentAccount ? (
+      {canSign && address ? (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
@@ -129,7 +130,7 @@ function App() {
                   <Route path="/admin/allowlists" element={<AllAllowlist />} />
                   <Route
                     path="/view/allowlist/:id"
-                    element={<Feeds mysoAddress={currentAccount.address} />}
+                    element={<Feeds mysoAddress={address} />}
                   />
                 </Routes>
               }
@@ -158,15 +159,32 @@ function App() {
                   <Route path="/admin/services" element={<AllServices />} />
                   <Route
                     path="/view/service/:id"
-                    element={<FeedsToSubscribe mysoAddress={currentAccount.address} />}
+                    element={<FeedsToSubscribe mysoAddress={address} />}
                   />
                 </Routes>
               }
             />
           </Routes>
         </BrowserRouter>
+      ) : address ? (
+        <Card style={{ marginBottom: '2rem' }}>
+          <p>
+            You are signed in as {address}, but transaction signing is not ready yet. Use the sign-in
+            button above to authenticate again with Google OAuth, or verify your MySocial Auth
+            configuration.
+          </p>
+          <p>
+            Ensure <code>VITE_MYSOCIAL_AUTH_CLIENT_ID</code> and{' '}
+            <code>VITE_MYSOCIAL_AUTH_REDIRECT_URI</code> are allowlisted for your app (for local dev:{' '}
+            <code>http://localhost:5173/auth/callback</code>).
+          </p>
+          {authError && <p style={{ color: 'var(--red-11)' }}>{authError}</p>}
+        </Card>
       ) : (
-        <p>Please connect your wallet to continue</p>
+        <>
+          <p>Please sign in with MySocial to continue.</p>
+          {authError && <p>{authError}</p>}
+        </>
       )}
     </Container>
   );

@@ -6,17 +6,16 @@ network: Testnet
 node_url: http://fullnode.testnet.mysocial.network:9000
 
 
-# Server mode. The server can either work in Open/permissionless mode that 
-# supports all packages, or in Permissioned mode that only supports
-# whitelisted packages .
-#
-# For the Open mode, set the registered key server object ID to be used, e.g.,:
-# server_mode: !Open
-#   key_server_object_id: '0x000000000000000000000000000000000000000000000000000000000000da7a'
-#
-# Example:
-server_mode: !Open
-  key_server_object_id: '0x000000000000000000000000000000000000000000000000000000000000da7a'
+# Server mode. Permissioned mode enforces on-chain mydata_approve policy on every fetch_key.
+# Testnet social_contracts package ID (see tests/README.md).
+server_mode: !Permissioned
+  client_configs:
+    - name: "social_contracts"
+      client_master_key: !Derived
+        derivation_index: 0
+      key_server_object_id: '0x000000000000000000000000000000000000000000000000000000000000da7a'
+      package_ids:
+        - '0x000000000000000000000000000000000000000000000000000000000000da7a'
 
 #### Optional advanced configurations ####
 #
@@ -24,7 +23,7 @@ server_mode: !Open
 metrics_host_port: 9184
 #
 # The minimum version of the SDK that is required to use this service.
-# sdk_version_requirement: '>=0.4.5'
+# ts_sdk_version_requirement: '>=0.0.4'
 #
 # Update intervals and timeouts for various operations. Example values are shown below.
 checkpoint_update_interval: '10s'

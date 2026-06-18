@@ -2,11 +2,12 @@
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCurrentAccount, useMySoClient } from '@socialproof/dapp-kit';
+import { useMySoClient } from '@socialproof/dapp-kit';
 import { useCallback, useEffect, useState } from 'react';
 import { useNetworkVariable } from './networkConfig';
 import { Button, Card } from '@radix-ui/themes';
 import { getObjectExplorerLink } from './utils';
+import { useMySocialAuth } from './auth/useMySocialAuth';
 
 export interface Cap {
   id: string;
@@ -22,16 +23,16 @@ export interface CardItem {
 
 export function AllAllowlist() {
   const packageId = useNetworkVariable('packageId');
-  const currentAccount = useCurrentAccount();
+  const { address } = useMySocialAuth();
   const mysoClient = useMySoClient();
 
   const [cardItems, setCardItems] = useState<CardItem[]>([]);
 
   const getCapObj = useCallback(async () => {
-    if (!currentAccount?.address) return;
+    if (!address) return;
 
     const res = await mysoClient.getOwnedObjects({
-      owner: currentAccount?.address,
+      owner: address,
       options: {
         showContent: true,
         showType: true,
@@ -65,7 +66,7 @@ export function AllAllowlist() {
       }),
     );
     setCardItems(cardItems);
-  }, [currentAccount?.address]);
+  }, [address, mysoClient, packageId]);
 
   useEffect(() => {
     getCapObj();

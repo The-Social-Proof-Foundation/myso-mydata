@@ -2,21 +2,16 @@
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 import { useEffect, useState } from 'react';
-import { useSignPersonalMessage, useMySoClient } from '@socialproof/dapp-kit';
+import { useMySoClient } from '@socialproof/dapp-kit';
 import { useNetworkVariable } from './networkConfig';
 import { AlertDialog, Button, Card, Dialog, Flex, Grid } from '@radix-ui/themes';
 import { fromHex } from '@socialproof/myso/utils';
 import { Transaction } from '@socialproof/myso/transactions';
-import {
-  KeyServerConfig,
-  MyDataClient,
-  SessionKey,
-  type ExportedSessionKey
-} from '@socialproof/mydata';
+import { MyDataClient, SessionKey, type ExportedSessionKey } from '@socialproof/mydata';
 import { useParams } from 'react-router-dom';
 import { downloadAndDecrypt, getObjectExplorerLink, MoveCallConstructor } from './utils';
 import { set, get } from 'idb-keyval';
-import { getFullnodeUrl, MySoClient } from '@socialproof/myso/client';
+import { useMySocialAuth } from './auth/useMySocialAuth';
 
 const TTL_MIN = 10;
 export interface FeedData {
@@ -36,6 +31,7 @@ function constructMoveCall(packageId: string, allowlistId: string): MoveCallCons
 
 const Feeds: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) => {
   const mysoClient = useMySoClient();
+  const { keypair, requireKeypair } = useMySocialAuth();
   const serverObjectIds = ["0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75", "0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8"];
   const client = new MyDataClient({
     mysoClient,
@@ -55,20 +51,15 @@ const Feeds: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
 
-  const { mutate: signPersonalMessage } = useSignPersonalMessage();
-
   useEffect(() => {
-    // Call getFeed immediately
     getFeed();
 
-    // Set up interval to call getFeed every 3 seconds
     const intervalId = setInterval(() => {
       getFeed();
     }, 3000);
 
-    // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, [id, mysoClient, packageId]); // Add all dependencies that getFeed uses
+  }, [id, mysoClient, packageId]);
 
   async function getFeed() {
     const allowlist = await mysoClient.getObject({
@@ -90,61 +81,22 @@ const Feeds: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) => {
   }
 
   const onView = async (blobIds: string[], allowlistId: string) => {
-    const imported: ExportedSessionKey = await get('sessionKey');
-
-    if (imported) {
-      try {
-        const currentSessionKey = await SessionKey.import(
-          imported,
-          new MySoClient({ url: getFullnodeUrl('testnet') }),
-        );
-        console.log('loaded currentSessionKey', currentSessionKey);
-        if (
-          currentSessionKey &&
-          !currentSessionKey.isExpired() &&
-          currentSessionKey.getAddress() === mysoAddress
-        ) {
-          const moveCallConstructor = constructMoveCall(packageId, allowlistId);
-          downloadAndDecrypt(
-            blobIds,
-            currentSessionKey,
-            mysoClient,
-            client,
-            moveCallConstructor,
-            setError,
-            setDecryptedFileUrls,
-            setIsDialogOpen,
-            setReloadKey,
-          );
-          return;
-        }
-      } catch (error) {
-        console.log('Imported session key is expired', error);
-      }
-    }
-
-    set('sessionKey', null);
-
-    const sessionKey = await SessionKey.create({
-      address: mysoAddress,
-      packageId,
-      ttlMin: TTL_MIN,
-      mysoClient,
-      mvrName,
-    });
-
     try {
-      signPersonalMessage(
-        {
-          message: sessionKey.getPersonalMessage(),
-        },
-        {
-          onSuccess: async (result: { signature: string }) => {
-            await sessionKey.setPersonalMessageSignature(result.signature);
-            const moveCallConstructor = await constructMoveCall(packageId, allowlistId);
-            await downloadAndDecrypt(
+      const signer = requireKeypair();
+      const imported: ExportedSessionKey | null = await get('sessionKey');
+
+      if (imported) {
+        try {
+          const currentSessionKey = SessionKey.import(imported, mysoClient, signer);
+          if (
+            currentSessionKey &&
+            !currentSessionKey.isExpired() &&
+            currentSessionKey.getAddress() === mysoAddress
+          ) {
+            const moveCallConstructor = constructMoveCall(packageId, allowlistId);
+            downloadAndDecrypt(
               blobIds,
-              sessionKey,
+              currentSessionKey,
               mysoClient,
               client,
               moveCallConstructor,
@@ -153,12 +105,41 @@ const Feeds: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) => {
               setIsDialogOpen,
               setReloadKey,
             );
-            set('sessionKey', sessionKey.export());
-          },
-        },
+            return;
+          }
+        } catch (importError) {
+          console.log('Imported session key is expired', importError);
+        }
+      }
+
+      set('sessionKey', null);
+
+      const sessionKey = await SessionKey.create({
+        address: mysoAddress,
+        packageId,
+        ttlMin: TTL_MIN,
+        mysoClient,
+        mvrName,
+        signer,
+      });
+      await sessionKey.getCertificate();
+
+      const moveCallConstructor = constructMoveCall(packageId, allowlistId);
+      await downloadAndDecrypt(
+        blobIds,
+        sessionKey,
+        mysoClient,
+        client,
+        moveCallConstructor,
+        setError,
+        setDecryptedFileUrls,
+        setIsDialogOpen,
+        setReloadKey,
       );
-    } catch (error: any) {
-      console.error('Error:', error);
+      set('sessionKey', sessionKey.export());
+    } catch (viewError) {
+      console.error('Error:', viewError);
+      setError(viewError instanceof Error ? viewError.message : 'Unable to decrypt files.');
     }
   };
 
@@ -179,7 +160,7 @@ const Feeds: React.FC<{ mysoAddress: string }> = ({ mysoAddress }) => {
               ) : (
                 <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                   <Dialog.Trigger>
-                    <Button onClick={() => onView(feed!.blobIds, feed!.allowlistId)}>
+                    <Button onClick={() => onView(feed!.blobIds, feed!.allowlistId)} disabled={!keypair}>
                       Download And Decrypt All Files
                     </Button>
                   </Dialog.Trigger>

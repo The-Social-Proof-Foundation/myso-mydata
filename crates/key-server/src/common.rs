@@ -24,7 +24,7 @@ pub enum Network {
 impl Network {
     pub fn default_node_url(&self) -> &str {
         match self {
-            Network::Devnet { .. } => "http://fullnode.devnet.mysocial.network:9000",
+            Network::Devnet { .. } => "http://127.0.0.1:9000",
             Network::Testnet => "http://fullnode.testnet.mysocial.network:9000",
             Network::Mainnet => "http://fullnode.mainnet.mysocial.network:9000",
             #[cfg(test)]

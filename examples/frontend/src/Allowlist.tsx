@@ -1,7 +1,7 @@
 // Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
-import { useCurrentAccount, useSignAndExecuteTransaction, useMySoClient } from '@socialproof/dapp-kit';
+import { useMySoClient } from '@socialproof/dapp-kit';
 import { Transaction } from '@socialproof/myso/transactions';
 import { Button, Card, Flex } from '@radix-ui/themes';
 import { useNetworkVariable } from './networkConfig';
@@ -10,6 +10,8 @@ import { X } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { isValidMySoAddress } from '@socialproof/myso/utils';
 import { getObjectExplorerLink } from './utils';
+import { useMySocialAuth } from './auth/useMySocialAuth';
+import { signAndExecuteTransaction } from './auth/signAndExecuteTransaction';
 
 export interface Allowlist {
   id: string;
@@ -25,7 +27,7 @@ interface AllowlistProps {
 export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
   const packageId = useNetworkVariable('packageId');
   const mysoClient = useMySoClient();
-  const currentAccount = useCurrentAccount();
+  const { address, requireKeypair } = useMySocialAuth();
   const [allowlist, setAllowlist] = useState<Allowlist>();
   const { id } = useParams();
   const [capId, setInnerCapId] = useState<string>();
@@ -34,7 +36,7 @@ export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
     async function getAllowlist() {
       // load all caps
       const res = await mysoClient.getOwnedObjects({
-        owner: currentAccount?.address!,
+        owner: address!,
         options: {
           showContent: true,
           showType: true,
@@ -82,21 +84,9 @@ export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, [id, currentAccount?.address]); // Only depend on id
+  }, [id, address, packageId, mysoClient, setCapId, setRecipientAllowlist]);
 
-  const { mutate: signAndExecute } = useSignAndExecuteTransaction({
-    execute: async ({ bytes, signature }) =>
-      await mysoClient.executeTransactionBlock({
-        transactionBlock: bytes,
-        signature,
-        options: {
-          showRawEffects: true,
-          showEffects: true,
-        },
-      }),
-  });
-
-  const addItem = (newAddressToAdd: string, wl_id: string, cap_id: string) => {
+  const addItem = async (newAddressToAdd: string, wl_id: string, cap_id: string) => {
     if (newAddressToAdd.trim() !== '') {
       if (!isValidMySoAddress(newAddressToAdd.trim())) {
         alert('Invalid address');
@@ -109,20 +99,17 @@ export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
       });
       tx.setGasBudget(10000000);
 
-      signAndExecute(
-        {
-          transaction: tx,
-        },
-        {
-          onSuccess: async (result) => {
-            console.log('res', result);
-          },
-        },
-      );
+      try {
+        const result = await signAndExecuteTransaction(requireKeypair(), mysoClient, tx);
+        console.log('res', result);
+      } catch (error) {
+        console.error(error);
+        alert(error instanceof Error ? error.message : 'Failed to add address.');
+      }
     }
   };
 
-  const removeItem = (addressToRemove: string, wl_id: string, cap_id: string) => {
+  const removeItem = async (addressToRemove: string, wl_id: string, cap_id: string) => {
     if (addressToRemove.trim() !== '') {
       const tx = new Transaction();
       tx.moveCall({
@@ -131,16 +118,13 @@ export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
       });
       tx.setGasBudget(10000000);
 
-      signAndExecute(
-        {
-          transaction: tx,
-        },
-        {
-          onSuccess: async (result) => {
-            console.log('res', result);
-          },
-        },
-      );
+      try {
+        const result = await signAndExecuteTransaction(requireKeypair(), mysoClient, tx);
+        console.log('res', result);
+      } catch (error) {
+        console.error(error);
+        alert(error instanceof Error ? error.message : 'Failed to remove address.');
+      }
     }
   };
 

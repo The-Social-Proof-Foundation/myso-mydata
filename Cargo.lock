@@ -1006,7 +1006,7 @@ checksum = "230c5f1ca6a325a32553f8640d31ac9b49f2411e901e427570154868b46da4f7"
 [[package]]
 name = "bin-version"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "const-str 0.5.7",
  "git-version",
@@ -1720,7 +1720,7 @@ dependencies = [
 [[package]]
 name = "consensus-config"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "fastcrypto",
  "mysten-network",
@@ -1732,7 +1732,7 @@ dependencies = [
 [[package]]
 name = "consensus-core"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -1787,7 +1787,7 @@ dependencies = [
 [[package]]
 name = "consensus-types"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "base64 0.21.7",
  "consensus-config",
@@ -2766,7 +2766,7 @@ checksum = "c34f04666d835ff5d62e058c3995147c06f42fe86ff053337632bca83e42702d"
 [[package]]
 name = "enum-compat-util"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "serde_yaml 0.8.26",
 ]
@@ -4373,7 +4373,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "serde",
  "serde_json",
@@ -5152,12 +5152,12 @@ dependencies = [
 [[package]]
 name = "move-abstract-interpreter"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 
 [[package]]
 name = "move-abstract-interpreter-v2"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-binary-format",
 ]
@@ -5165,12 +5165,12 @@ dependencies = [
 [[package]]
 name = "move-abstract-stack"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 
 [[package]]
 name = "move-binary-format"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "enum-compat-util",
@@ -5186,12 +5186,12 @@ dependencies = [
 [[package]]
 name = "move-borrow-graph"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 
 [[package]]
 name = "move-bytecode-source-map"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -5207,7 +5207,7 @@ dependencies = [
 [[package]]
 name = "move-bytecode-utils"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "indexmap 2.13.0",
@@ -5220,7 +5220,7 @@ dependencies = [
 [[package]]
 name = "move-bytecode-verifier"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-abstract-interpreter",
  "move-abstract-stack",
@@ -5237,7 +5237,7 @@ dependencies = [
 [[package]]
 name = "move-bytecode-verifier-meter"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-binary-format",
  "move-core-types",
@@ -5247,7 +5247,7 @@ dependencies = [
 [[package]]
 name = "move-bytecode-verifier-v0"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-abstract-interpreter-v2",
  "move-abstract-stack",
@@ -5262,7 +5262,7 @@ dependencies = [
 [[package]]
 name = "move-bytecode-verifier-v1"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-abstract-interpreter-v2",
  "move-abstract-stack",
@@ -5277,7 +5277,7 @@ dependencies = [
 [[package]]
 name = "move-bytecode-verifier-v2"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-abstract-interpreter-v2",
  "move-abstract-stack",
@@ -5292,7 +5292,7 @@ dependencies = [
 [[package]]
 name = "move-command-line-common"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -5313,7 +5313,7 @@ dependencies = [
 [[package]]
 name = "move-compiler"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -5348,7 +5348,7 @@ dependencies = [
 [[package]]
 name = "move-core-types"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -5372,7 +5372,7 @@ dependencies = [
 [[package]]
 name = "move-coverage"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -5397,7 +5397,7 @@ dependencies = [
 [[package]]
 name = "move-disassembler"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -5418,7 +5418,7 @@ dependencies = [
 [[package]]
 name = "move-docgen"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "clap",
@@ -5440,7 +5440,7 @@ dependencies = [
 [[package]]
 name = "move-ir-to-bytecode"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "codespan-reporting",
@@ -5458,7 +5458,7 @@ dependencies = [
 [[package]]
 name = "move-ir-to-bytecode-syntax"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "hex",
@@ -5471,7 +5471,7 @@ dependencies = [
 [[package]]
 name = "move-ir-types"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "hex",
  "move-command-line-common",
@@ -5483,7 +5483,7 @@ dependencies = [
 [[package]]
 name = "move-model-2"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -5507,7 +5507,7 @@ dependencies = [
 [[package]]
 name = "move-package-alt"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "append-only-vec",
@@ -5550,7 +5550,7 @@ dependencies = [
 [[package]]
 name = "move-package-alt-compilation"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "clap",
@@ -5578,7 +5578,7 @@ dependencies = [
 [[package]]
 name = "move-proc-macros"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "enum-compat-util",
  "quote",
@@ -5588,7 +5588,7 @@ dependencies = [
 [[package]]
 name = "move-regex-borrow-graph"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "insta",
  "itertools 0.10.5",
@@ -5602,7 +5602,7 @@ dependencies = [
 [[package]]
 name = "move-stdlib-natives"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "hex",
  "move-binary-format",
@@ -5617,7 +5617,7 @@ dependencies = [
 [[package]]
 name = "move-stdlib-natives-v0"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "hex",
  "move-binary-format",
@@ -5632,7 +5632,7 @@ dependencies = [
 [[package]]
 name = "move-stdlib-natives-v1"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "hex",
  "move-binary-format",
@@ -5647,7 +5647,7 @@ dependencies = [
 [[package]]
 name = "move-stdlib-natives-v2"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "hex",
  "move-binary-format",
@@ -5662,7 +5662,7 @@ dependencies = [
 [[package]]
 name = "move-symbol-pool"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "phf",
  "serde",
@@ -5671,7 +5671,7 @@ dependencies = [
 [[package]]
 name = "move-trace-format"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-binary-format",
  "move-core-types",
@@ -5683,7 +5683,7 @@ dependencies = [
 [[package]]
 name = "move-vm-config"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-binary-format",
 ]
@@ -5691,7 +5691,7 @@ dependencies = [
 [[package]]
 name = "move-vm-profiler"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-trace-format",
  "move-vm-config",
@@ -5703,7 +5703,7 @@ dependencies = [
 [[package]]
 name = "move-vm-runtime"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "better_any",
  "fail",
@@ -5721,7 +5721,7 @@ dependencies = [
 [[package]]
 name = "move-vm-runtime-v0"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "better_any",
  "fail",
@@ -5739,7 +5739,7 @@ dependencies = [
 [[package]]
 name = "move-vm-runtime-v1"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "better_any",
  "fail",
@@ -5757,7 +5757,7 @@ dependencies = [
 [[package]]
 name = "move-vm-runtime-v2"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "better_any",
  "fail",
@@ -5775,7 +5775,7 @@ dependencies = [
 [[package]]
 name = "move-vm-test-utils"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "move-binary-format",
@@ -5788,7 +5788,7 @@ dependencies = [
 [[package]]
 name = "move-vm-types"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "bcs",
  "move-binary-format",
@@ -5801,7 +5801,7 @@ dependencies = [
 [[package]]
 name = "move-vm-types-v0"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "bcs",
  "move-binary-format",
@@ -5813,7 +5813,7 @@ dependencies = [
 [[package]]
 name = "move-vm-types-v1"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "bcs",
  "move-binary-format",
@@ -5825,7 +5825,7 @@ dependencies = [
 [[package]]
 name = "move-vm-types-v2"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "bcs",
  "move-binary-format",
@@ -6060,7 +6060,7 @@ dependencies = [
 [[package]]
 name = "myso-adapter-latest"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -6095,7 +6095,7 @@ dependencies = [
 [[package]]
 name = "myso-adapter-v0"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -6123,7 +6123,7 @@ dependencies = [
 [[package]]
 name = "myso-adapter-v1"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -6150,7 +6150,7 @@ dependencies = [
 [[package]]
 name = "myso-adapter-v2"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -6177,7 +6177,7 @@ dependencies = [
 [[package]]
 name = "myso-authority-aggregation"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "futures",
  "myso-types",
@@ -6189,7 +6189,7 @@ dependencies = [
 [[package]]
 name = "myso-config"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anemo",
  "anyhow",
@@ -6222,7 +6222,7 @@ dependencies = [
 [[package]]
 name = "myso-core"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anemo",
  "antithesis_sdk",
@@ -6340,7 +6340,7 @@ dependencies = [
 [[package]]
 name = "myso-data-ingestion-core"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -6372,7 +6372,7 @@ dependencies = [
 [[package]]
 name = "myso-display"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -6393,7 +6393,7 @@ dependencies = [
 [[package]]
 name = "myso-enum-compat-util"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "serde_yaml 0.8.26",
 ]
@@ -6401,7 +6401,7 @@ dependencies = [
 [[package]]
 name = "myso-execution"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-abstract-interpreter",
  "move-abstract-interpreter-v2",
@@ -6440,7 +6440,7 @@ dependencies = [
 [[package]]
 name = "myso-framework"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "bcs",
  "move-binary-format",
@@ -6454,7 +6454,7 @@ dependencies = [
 [[package]]
 name = "myso-framework-snapshot"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -6469,7 +6469,7 @@ dependencies = [
 [[package]]
 name = "myso-futures"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "futures",
@@ -6482,7 +6482,7 @@ dependencies = [
 [[package]]
 name = "myso-genesis-builder"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -6510,7 +6510,7 @@ dependencies = [
 [[package]]
 name = "myso-http"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "bytes",
  "http 1.4.0",
@@ -6530,7 +6530,7 @@ dependencies = [
 [[package]]
 name = "myso-json"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -6547,7 +6547,7 @@ dependencies = [
 [[package]]
 name = "myso-json-rpc"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -6604,7 +6604,7 @@ dependencies = [
 [[package]]
 name = "myso-json-rpc-api"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "fastcrypto",
@@ -6624,7 +6624,7 @@ dependencies = [
 [[package]]
 name = "myso-json-rpc-types"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -6658,7 +6658,7 @@ dependencies = [
 [[package]]
 name = "myso-keys"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -6684,7 +6684,7 @@ dependencies = [
 [[package]]
 name = "myso-macros"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "futures",
  "myso-proc-macros",
@@ -6695,7 +6695,7 @@ dependencies = [
 [[package]]
 name = "myso-metrics-push-client"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "fastcrypto",
@@ -6713,7 +6713,7 @@ dependencies = [
 [[package]]
 name = "myso-move-build"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "fastcrypto",
@@ -6742,7 +6742,7 @@ dependencies = [
 [[package]]
 name = "myso-move-natives-latest"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "bcs",
  "better_any",
@@ -6765,7 +6765,7 @@ dependencies = [
 [[package]]
 name = "myso-move-natives-v0"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "bcs",
  "better_any",
@@ -6786,7 +6786,7 @@ dependencies = [
 [[package]]
 name = "myso-move-natives-v1"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "bcs",
  "better_any",
@@ -6807,7 +6807,7 @@ dependencies = [
 [[package]]
 name = "myso-move-natives-v2"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "bcs",
  "better_any",
@@ -6828,7 +6828,7 @@ dependencies = [
 [[package]]
 name = "myso-network"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anemo",
  "anemo-build",
@@ -6876,7 +6876,7 @@ dependencies = [
 [[package]]
 name = "myso-node"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anemo",
  "anemo-tower",
@@ -6933,7 +6933,7 @@ dependencies = [
 [[package]]
 name = "myso-open-rpc"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "bcs",
  "schemars 0.8.22",
@@ -6945,7 +6945,7 @@ dependencies = [
 [[package]]
 name = "myso-open-rpc-macros"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "derive-syn-parse",
  "itertools 0.13.0",
@@ -6958,7 +6958,7 @@ dependencies = [
 [[package]]
 name = "myso-package-alt"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bin-version",
@@ -6983,7 +6983,7 @@ dependencies = [
 [[package]]
 name = "myso-package-management"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "move-core-types",
@@ -7000,7 +7000,7 @@ dependencies = [
 [[package]]
 name = "myso-package-resolver"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "async-trait",
  "bcs",
@@ -7018,7 +7018,7 @@ dependencies = [
 [[package]]
 name = "myso-proc-macros"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "msim-macros",
  "myso-enum-compat-util",
@@ -7030,7 +7030,7 @@ dependencies = [
 [[package]]
 name = "myso-protocol-config"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "clap",
  "fastcrypto",
@@ -7049,7 +7049,7 @@ dependencies = [
 [[package]]
 name = "myso-protocol-config-macros"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -7101,7 +7101,7 @@ dependencies = [
 [[package]]
 name = "myso-rpc-api"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -7155,7 +7155,7 @@ dependencies = [
 [[package]]
 name = "myso-sdk"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -7235,7 +7235,7 @@ dependencies = [
 [[package]]
 name = "myso-simulator"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anemo",
  "anemo-tower",
@@ -7260,7 +7260,7 @@ dependencies = [
 [[package]]
 name = "myso-snapshot"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -7289,7 +7289,7 @@ dependencies = [
 [[package]]
 name = "myso-storage"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -7339,7 +7339,7 @@ dependencies = [
 [[package]]
 name = "myso-swarm"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "futures",
@@ -7366,7 +7366,7 @@ dependencies = [
 [[package]]
 name = "myso-swarm-config"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anemo",
  "anyhow",
@@ -7393,7 +7393,7 @@ dependencies = [
 [[package]]
 name = "myso-telemetry"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "myso-core",
  "reqwest",
@@ -7404,7 +7404,7 @@ dependencies = [
 [[package]]
 name = "myso-test-transaction-builder"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "bcs",
  "move-core-types",
@@ -7419,7 +7419,7 @@ dependencies = [
 [[package]]
 name = "myso-tls"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -7441,7 +7441,7 @@ dependencies = [
 [[package]]
 name = "myso-transaction-builder"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -7458,7 +7458,7 @@ dependencies = [
 [[package]]
 name = "myso-transaction-checks"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "fastcrypto-zkp",
  "myso-config",
@@ -7473,7 +7473,7 @@ dependencies = [
 [[package]]
 name = "myso-types"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anemo",
  "anyhow",
@@ -7549,7 +7549,7 @@ dependencies = [
 [[package]]
 name = "myso-verifier-latest"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-abstract-stack",
  "move-binary-format",
@@ -7565,7 +7565,7 @@ dependencies = [
 [[package]]
 name = "myso-verifier-v0"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-abstract-stack",
  "move-binary-format",
@@ -7581,7 +7581,7 @@ dependencies = [
 [[package]]
 name = "myso-verifier-v1"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-abstract-stack",
  "move-binary-format",
@@ -7596,7 +7596,7 @@ dependencies = [
 [[package]]
 name = "myso-verifier-v2"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "move-abstract-stack",
  "move-binary-format",
@@ -7612,7 +7612,7 @@ dependencies = [
 [[package]]
 name = "mysten-common"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "antithesis_sdk",
  "anyhow",
@@ -7635,7 +7635,7 @@ dependencies = [
 [[package]]
 name = "mysten-metrics"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "async-trait",
  "axum 0.8.8",
@@ -7656,7 +7656,7 @@ dependencies = [
 [[package]]
 name = "mysten-network"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anemo",
  "anemo-tower",
@@ -7696,7 +7696,7 @@ dependencies = [
 [[package]]
 name = "mysten-service"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "axum 0.8.8",
@@ -8863,7 +8863,7 @@ dependencies = [
 [[package]]
 name = "prometheus-closure-metric"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "prometheus",
@@ -10357,7 +10357,7 @@ dependencies = [
 [[package]]
 name = "shared-crypto"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "bcs",
  "eyre",
@@ -10909,7 +10909,7 @@ checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
 [[package]]
 name = "telemetry-subscribers"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "atomic_float",
  "bytes",
@@ -10995,7 +10995,7 @@ checksum = "8f50febec83f5ee1df3015341d8bd429f2d1cc62bcba7ea2076759d315084683"
 [[package]]
 name = "test-cluster"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "bcs",
@@ -11862,7 +11862,7 @@ dependencies = [
 [[package]]
 name = "typed-store"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -11896,7 +11896,7 @@ dependencies = [
 [[package]]
 name = "typed-store-derive"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "itertools 0.13.0",
  "proc-macro2",
@@ -11907,7 +11907,7 @@ dependencies = [
 [[package]]
 name = "typed-store-error"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "serde",
  "thiserror 1.0.69",
@@ -11916,7 +11916,7 @@ dependencies = [
 [[package]]
 name = "typed-store-workspace-hack"
 version = "0.0.1"
-source = "git+https://github.com/the-social-proof-foundation/myso-core.git?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
+source = "git+https://github.com/the-social-proof-foundation/myso-core?branch=main#bad0ad573f00d1c96e7fcdda39b164446073def1"
 dependencies = [
  "cc",
  "lazy_static",

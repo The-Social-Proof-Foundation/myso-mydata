@@ -1,12 +1,13 @@
 // Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
-import { useCurrentAccount, useMySoClient } from '@socialproof/dapp-kit';
+import { useMySoClient } from '@socialproof/dapp-kit';
 import { Card, Flex } from '@radix-ui/themes';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useNetworkVariable } from './networkConfig';
 import { getObjectExplorerLink } from './utils';
+import { useMySocialAuth } from './auth/useMySocialAuth';
 
 export interface Service {
   id: string;
@@ -24,7 +25,7 @@ interface AllowlistProps {
 export function Service({ setRecipientAllowlist, setCapId }: AllowlistProps) {
   const mysoClient = useMySoClient();
   const packageId = useNetworkVariable('packageId');
-  const currentAccount = useCurrentAccount();
+  const { address } = useMySocialAuth();
   const [service, setService] = useState<Service>();
   const { id } = useParams();
 
@@ -43,11 +44,12 @@ export function Service({ setRecipientAllowlist, setCapId }: AllowlistProps) {
         owner: fields.owner,
         name: fields.name,
       });
+      if (!address) return;
+
       setRecipientAllowlist(id!);
 
-      // load all caps
       const res = await mysoClient.getOwnedObjects({
-        owner: currentAccount?.address!,
+        owner: address,
         options: {
           showContent: true,
           showType: true,
@@ -81,7 +83,7 @@ export function Service({ setRecipientAllowlist, setCapId }: AllowlistProps) {
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, [id]); // Only depend on id since it's needed for the API calls
+  }, [address, id, mysoClient, packageId, setCapId, setRecipientAllowlist]);
 
   return (
     <Flex direction="column" gap="2" justify="start">
