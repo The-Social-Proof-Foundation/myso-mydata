@@ -6,7 +6,9 @@ use crate::return_err;
 use crate::KeyId;
 use crypto::create_full_id;
 use fastcrypto::encoding::{Base64, Encoding};
-use myso_sdk::types::transaction::{Argument, CallArg, Command, ProgrammableTransaction};
+use myso_sdk::types::transaction::{
+    Argument, CallArg, Command, ObjectArg, ProgrammableTransaction,
+};
 use myso_types::base_types::ObjectID;
 use myso_types::transaction::ProgrammableMoveCall;
 use tracing::debug;
@@ -18,6 +20,81 @@ pub struct ValidPtb(ProgrammableTransaction);
 
 // Should only increase this with time.
 const MAX_COMMANDS: usize = 100;
+
+/// The deployed memory policy ABI predates the mydata_approve naming convention
+/// and takes MemoryConfig before the key id. Only these two read gates qualify.
+fn memory_policy_layout(cmd: &ProgrammableMoveCall) -> bool {
+    cmd.module.as_str() == "memory"
+        && cmd.type_arguments.is_empty()
+        && match cmd.function.as_str() {
+            "approve_key_policy" => cmd.arguments.len() == 4,
+            "approve_org_key_policy" => cmd.arguments.len() == 6,
+            _ => false,
+        }
+}
+
+pub struct MemoryPolicyBinding {
+    pub package: ObjectID,
+    pub account: ObjectID,
+    pub organization: Option<ObjectID>,
+    id: KeyId,
+}
+
+impl MemoryPolicyBinding {
+    /// Memory encryption ids have a random prefix followed by the owner/org
+    /// address. Bind the requested key to that namespace before running Move.
+    pub fn validate_namespace(&self, namespace: &[u8]) -> Result<(), InternalError> {
+        if namespace.len() != 32 || !self.id.ends_with(namespace) {
+            return Err(InternalError::InvalidPTB(
+                "Memory key id does not match the account or organization namespace".into(),
+            ));
+        }
+        Ok(())
+    }
+}
+
+fn object_argument(
+    ptb: &ProgrammableTransaction,
+    arg: &Argument,
+) -> Result<ObjectID, InternalError> {
+    let Argument::Input(index) = arg else {
+        return Err(InternalError::InvalidPTB(
+            "Memory policy requires object inputs".into(),
+        ));
+    };
+    match ptb.inputs.get(*index as usize) {
+        Some(CallArg::Object(ObjectArg::SharedObject { id, .. })) => Ok(*id),
+        Some(CallArg::Object(ObjectArg::ImmOrOwnedObject((id, ..)))) => Ok(*id),
+        _ => Err(InternalError::InvalidPTB(
+            "Memory policy requires object inputs".into(),
+        )),
+    }
+}
+
+fn memory_policy_binding(
+    ptb: &ProgrammableTransaction,
+    cmd: &ProgrammableMoveCall,
+) -> Result<Option<MemoryPolicyBinding>, InternalError> {
+    if !memory_policy_layout(cmd) {
+        return Ok(None);
+    }
+    // Ensure the alternate layout is an actual config/account approval call,
+    // rather than an arbitrary pure input masquerading as an object.
+    object_argument(ptb, &cmd.arguments[0])?;
+    let account = object_argument(ptb, &cmd.arguments[2])?;
+    let organization = if cmd.function.as_str() == "approve_org_key_policy" {
+        object_argument(ptb, &cmd.arguments[4])?;
+        Some(object_argument(ptb, &cmd.arguments[3])?)
+    } else {
+        None
+    };
+    Ok(Some(MemoryPolicyBinding {
+        package: cmd.package,
+        account,
+        organization,
+        id: get_key_id(ptb, cmd)?,
+    }))
+}
 
 impl TryFrom<ProgrammableTransaction> for ValidPtb {
     type Error = InternalError;
@@ -66,12 +143,16 @@ impl TryFrom<ProgrammableTransaction> for ValidPtb {
                 );
             };
 
-            // Restriction: The first argument to the move call must be a non-empty id.
+            // Standard policies put the id first; deployed memory read gates
+            // use the explicitly validated config-first layout.
             let _ = get_key_id(&ptb, cmd)?;
+            memory_policy_binding(&ptb, cmd)?;
 
-            // Restriction: The called function must start with the prefix mydata_approve.
+            // Restriction: mydata_approve* or the two exact deployed memory read hooks.
             // Restriction: All commands in the PTB must use the same package id.
-            if !cmd.function.starts_with("mydata_approve") || cmd.package != pkg_id {
+            if (!cmd.function.starts_with("mydata_approve") && !memory_policy_layout(cmd))
+                || cmd.package != pkg_id
+            {
                 return_err!(
                     InternalError::InvalidPTB("Invalid function or package id".to_string()),
                     "Invalid function or package id {:?}",
@@ -95,7 +176,8 @@ fn get_key_id(
             cmd
         );
     }
-    let Argument::Input(arg_idx) = cmd.arguments[0] else {
+    let id_arg = if memory_policy_layout(cmd) { 1 } else { 0 };
+    let Argument::Input(arg_idx) = cmd.arguments[id_arg] else {
         return_err!(
             InternalError::InvalidPTB("Invalid index for first argument".to_string()),
             "Invalid PTB command {:?}",
@@ -115,6 +197,18 @@ fn get_key_id(
 }
 
 impl ValidPtb {
+    pub fn memory_policy_bindings(&self) -> Vec<MemoryPolicyBinding> {
+        self.0
+            .commands
+            .iter()
+            .filter_map(|cmd| {
+                let Command::MoveCall(cmd) = cmd else {
+                    unreachable!()
+                };
+                memory_policy_binding(&self.0, cmd).expect("validated above")
+            })
+            .collect()
+    }
     pub fn try_from_base64(s: &str) -> Result<Self, InternalError> {
         Base64::decode(s)
             .map_err(|_| InternalError::InvalidPTB("Invalid Base64".to_string()))
@@ -191,6 +285,111 @@ mod tests {
 
         assert_eq!(valid_ptb.inner_ids(), vec![id.clone(), id]);
         assert_eq!(valid_ptb.pkg_id(), pkgid);
+    }
+
+    fn memory_ptb(function: &str, module: &str, namespace: ObjectID) -> ProgrammableTransaction {
+        use myso_types::transaction::SharedObjectMutability;
+        let mut builder = ProgrammableTransactionBuilder::new();
+        let mut args = Vec::new();
+        let config = builder
+            .obj(ObjectArg::SharedObject {
+                id: ObjectID::random(),
+                initial_shared_version: 1.into(),
+                mutability: SharedObjectMutability::Immutable,
+            })
+            .unwrap();
+        let mut id = vec![7u8; 16];
+        id.extend_from_slice(&namespace.into_bytes());
+        let id = builder.pure(id).unwrap();
+        let account = builder
+            .obj(ObjectArg::SharedObject {
+                id: ObjectID::random(),
+                initial_shared_version: 1.into(),
+                mutability: SharedObjectMutability::Immutable,
+            })
+            .unwrap();
+        args.extend([config, id, account]);
+        if function == "approve_org_key_policy" {
+            args.push(
+                builder
+                    .obj(ObjectArg::SharedObject {
+                        id: namespace,
+                        initial_shared_version: 1.into(),
+                        mutability: SharedObjectMutability::Immutable,
+                    })
+                    .unwrap(),
+            );
+            args.push(
+                builder
+                    .obj(ObjectArg::SharedObject {
+                        id: ObjectID::random(),
+                        initial_shared_version: 1.into(),
+                        mutability: SharedObjectMutability::Immutable,
+                    })
+                    .unwrap(),
+            );
+        }
+        args.push(
+            builder
+                .obj(ObjectArg::SharedObject {
+                    id: ObjectID::random(),
+                    initial_shared_version: 1.into(),
+                    mutability: SharedObjectMutability::Immutable,
+                })
+                .unwrap(),
+        );
+        builder.programmable_move_call(
+            ObjectID::random(),
+            Identifier::new(module).unwrap(),
+            Identifier::new(function).unwrap(),
+            vec![],
+            args,
+        );
+        builder.finish()
+    }
+
+    #[test]
+    fn memory_read_hooks_extract_the_second_argument_and_bind_namespace() {
+        for function in ["approve_key_policy", "approve_org_key_policy"] {
+            let namespace = ObjectID::random();
+            let valid = ValidPtb::try_from(memory_ptb(function, "memory", namespace)).unwrap();
+            assert_eq!(valid.inner_ids()[0].len(), 48);
+            let bindings = valid.memory_policy_bindings();
+            assert_eq!(bindings.len(), 1);
+            assert!(bindings[0]
+                .validate_namespace(&namespace.into_bytes())
+                .is_ok());
+            assert!(bindings[0]
+                .validate_namespace(&ObjectID::random().into_bytes())
+                .is_err());
+            assert_eq!(
+                bindings[0].organization,
+                (function == "approve_org_key_policy").then_some(namespace)
+            );
+        }
+    }
+
+    #[test]
+    fn memory_compatibility_does_not_admit_other_modules_or_write_hooks() {
+        assert!(ValidPtb::try_from(memory_ptb(
+            "approve_key_policy",
+            "other_module",
+            ObjectID::random()
+        ))
+        .is_err());
+        assert!(ValidPtb::try_from(memory_ptb(
+            "approve_key_write_policy",
+            "memory",
+            ObjectID::random()
+        ))
+        .is_err());
+    }
+
+    #[test]
+    fn memory_hook_rejects_config_disguised_as_a_pure_input() {
+        let mut ptb = memory_ptb("approve_key_policy", "memory", ObjectID::random());
+        ptb.inputs[0] = CallArg::Pure(vec![1]);
+        assert!(ValidPtb::try_from(ptb).is_err());
     }
 
     #[test]

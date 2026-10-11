@@ -59,7 +59,7 @@ use std::sync::{Arc, RwLock};
 use myso_rpc::client::Client as MySoGrpcClient;
 use myso_rpc_client::MySoRpcClient;
 use myso_sdk::error::Error;
-use myso_sdk::rpc_types::{MySoExecutionStatus, MySoTransactionBlockEffectsAPI};
+use myso_sdk::rpc_types::{MySoExecutionStatus, MySoTransactionBlockEffectsAPI, MySoObjectDataOptions, MySoParsedData, MySoMoveValue};
 use myso_sdk::types::base_types::{ObjectID, MySoAddress};
 use myso_sdk::types::signature::GenericSignature;
 use myso_sdk::types::transaction::{ProgrammableTransaction, TransactionData, TransactionKind};
@@ -443,6 +443,33 @@ impl Server {
             vptb.ptb(),
             req_id
         );
+
+        // The deployed memory hooks don't themselves bind an agent's id to
+        // its account namespace. Enforce that binding here; otherwise an agent
+        // could approve another owner's ciphertext using its own account.
+        for binding in vptb.memory_policy_bindings() {
+            if let Some(organization) = binding.organization {
+                binding.validate_namespace(&organization.into_bytes())?;
+            } else {
+                let response = self.myso_rpc_client.get_object_with_options(
+                    binding.account, MySoObjectDataOptions::new().with_content(),
+                ).await.map_err(|error| InternalError::Failure(format!("Memory account lookup failed: {error:?}")))?;
+                let content = response.data.and_then(|data| data.content);
+                let Some(MySoParsedData::MoveObject(account)) = content else {
+                    return Err(InternalError::InvalidPTB("Memory account is unavailable".into()));
+                };
+                if account.type_.address != binding.package.into()
+                    || account.type_.module.as_str() != "memory"
+                    || account.type_.name.as_str() != "MemoryAccount"
+                {
+                    return Err(InternalError::InvalidPTB("Memory policy requires a MemoryAccount from its package".into()));
+                }
+                let Some(MySoMoveValue::Address(owner)) = account.fields.field_value("owner") else {
+                    return Err(InternalError::InvalidPTB("Memory account owner is unavailable".into()));
+                };
+                binding.validate_namespace(owner.as_ref())?;
+            }
+        }
 
         // Add a staleness check as the first command in the PTB
         let ptb = self

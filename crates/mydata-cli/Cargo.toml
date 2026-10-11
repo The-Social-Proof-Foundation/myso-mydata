@@ -24,4 +24,7 @@ tokio.workspace = true
 
 myso_sdk.workspace = true
 myso-sdk-types.workspace = true
+myso_keys.workspace = true
+shared_crypto.workspace = true
+dirs = "5.0"
 myso_types.workspace = true

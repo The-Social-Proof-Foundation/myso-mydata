@@ -22,9 +22,13 @@ use mydata_sdk::IBEPublicKey;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
+use std::path::PathBuf;
+
+mod profile_subscription_fetch;
 use myso_sdk::rpc_types::MySoParsedData;
 use myso_sdk::MySoClientBuilder;
 use myso_sdk_types::Address as NewObjectID;
+use myso_types::base_types::MySoAddress;
 use myso_types::dynamic_field::DynamicFieldName;
 use myso_types::TypeTag;
 
@@ -362,6 +366,41 @@ enum Command {
         #[arg(short = 'n', long, default_value = "testnet")]
         network: String,
     },
+    /// Fetch decryption keys via profile-subscription policy PTB and decrypt an encrypted object.
+    FetchKeyProfileSubscription {
+        #[arg(long)]
+        key_server_url: String,
+        #[arg(long)]
+        key_server_object_id: ObjectID,
+        #[arg(long)]
+        server_public_key_hex: String,
+        #[arg(short = 'p', long)]
+        package_id: ObjectID,
+        #[arg(long)]
+        encrypted_object_hex: String,
+        #[arg(long)]
+        encryption_id_hex: String,
+        #[arg(long)]
+        sender: String,
+        #[arg(long, default_value = "http://127.0.0.1:9000")]
+        rpc_url: String,
+        #[arg(long)]
+        client_config: Option<PathBuf>,
+        #[arg(long)]
+        memory_config_id: ObjectID,
+        #[arg(long)]
+        mydata_id: ObjectID,
+        #[arg(long)]
+        memory_account_id: ObjectID,
+        #[arg(long)]
+        service_id: ObjectID,
+        #[arg(long)]
+        subscription_id: ObjectID,
+        #[arg(long)]
+        block_list_registry_id: ObjectID,
+        #[arg(long, default_value = "0x0000000000000000000000000000000000000000000000000000000000000006")]
+        clock_id: ObjectID,
+    },
 }
 
 struct GenkeyOutput((Scalar, G2Element));
@@ -624,6 +663,52 @@ async fn main() -> FastCryptoResult<()> {
                 mydata_responses.len(),
                 Hex::encode(bcs::to_bytes(&mydata_responses).expect("should not fail"))
             )
+        }
+        Command::FetchKeyProfileSubscription {
+            key_server_url,
+            key_server_object_id,
+            server_public_key_hex,
+            package_id,
+            encrypted_object_hex,
+            encryption_id_hex,
+            sender,
+            rpc_url,
+            client_config,
+            memory_config_id,
+            mydata_id,
+            memory_account_id,
+            service_id,
+            subscription_id,
+            block_list_registry_id,
+            clock_id,
+        } => {
+            let sender_addr = MySoAddress::from_str(&sender).map_err(|e| {
+                FastCryptoError::GeneralError(format!("Invalid sender address: {e}"))
+            })?;
+            let plaintext = profile_subscription_fetch::fetch_and_decrypt_profile_subscription(
+                profile_subscription_fetch::FetchProfileSubscriptionParams {
+                    rpc_url,
+                    key_server_url,
+                    key_server_object_id,
+                    server_public_key_hex,
+                    package_id,
+                    encrypted_object_hex,
+                    encryption_id_hex,
+                    sender: sender_addr,
+                    client_config,
+                    memory_config_id,
+                    mydata_id,
+                    memory_account_id,
+                    service_id,
+                    subscription_id,
+                    clock_id,
+                    block_list_registry_id,
+                },
+            )
+            .await?;
+            String::from_utf8(plaintext).map_err(|e| {
+                FastCryptoError::GeneralError(format!("decrypted plaintext is not UTF-8: {e}"))
+            })?
         }
     };
     println!("{output}");
