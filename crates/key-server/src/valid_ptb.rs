@@ -21,8 +21,10 @@ pub struct ValidPtb(ProgrammableTransaction);
 // Should only increase this with time.
 const MAX_COMMANDS: usize = 100;
 
-/// The deployed memory policy ABI predates the mydata_approve naming convention
-/// and takes MemoryConfig before the key id. Only these two read gates qualify.
+/// The memory read gates keep their historical names (not `mydata_approve*`) but follow the
+/// key-server convention: the key id is the FIRST argument, then `MemoryConfig`, the
+/// `MemoryAccount` and, for the org gate, the organization and its share group. Only these two
+/// read gates qualify.
 fn memory_policy_layout(cmd: &ProgrammableMoveCall) -> bool {
     cmd.module.as_str() == "memory"
         && cmd.type_arguments.is_empty()
@@ -80,7 +82,7 @@ fn memory_policy_binding(
     }
     // Ensure the alternate layout is an actual config/account approval call,
     // rather than an arbitrary pure input masquerading as an object.
-    object_argument(ptb, &cmd.arguments[0])?;
+    object_argument(ptb, &cmd.arguments[1])?;
     let account = object_argument(ptb, &cmd.arguments[2])?;
     let organization = if cmd.function.as_str() == "approve_org_key_policy" {
         object_argument(ptb, &cmd.arguments[4])?;
@@ -143,8 +145,8 @@ impl TryFrom<ProgrammableTransaction> for ValidPtb {
                 );
             };
 
-            // Standard policies put the id first; deployed memory read gates
-            // use the explicitly validated config-first layout.
+            // Every policy puts the id first; the memory read gates additionally get their
+            // config/account/organization inputs validated as objects.
             let _ = get_key_id(&ptb, cmd)?;
             memory_policy_binding(&ptb, cmd)?;
 
@@ -176,8 +178,7 @@ fn get_key_id(
             cmd
         );
     }
-    let id_arg = if memory_policy_layout(cmd) { 1 } else { 0 };
-    let Argument::Input(arg_idx) = cmd.arguments[id_arg] else {
+    let Argument::Input(arg_idx) = cmd.arguments[0] else {
         return_err!(
             InternalError::InvalidPTB("Invalid index for first argument".to_string()),
             "Invalid PTB command {:?}",
@@ -308,7 +309,7 @@ mod tests {
                 mutability: SharedObjectMutability::Immutable,
             })
             .unwrap();
-        args.extend([config, id, account]);
+        args.extend([id, config, account]);
         if function == "approve_org_key_policy" {
             args.push(
                 builder
@@ -349,7 +350,7 @@ mod tests {
     }
 
     #[test]
-    fn memory_read_hooks_extract_the_second_argument_and_bind_namespace() {
+    fn memory_read_hooks_extract_the_first_argument_and_bind_namespace() {
         for function in ["approve_key_policy", "approve_org_key_policy"] {
             let namespace = ObjectID::random();
             let valid = ValidPtb::try_from(memory_ptb(function, "memory", namespace)).unwrap();
