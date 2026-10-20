@@ -5956,8 +5956,10 @@ dependencies = [
  "bcs",
  "clap",
  "crypto",
+ "dirs 5.0.1",
  "fastcrypto",
  "mydata-sdk",
+ "myso-keys",
  "myso-sdk",
  "myso-sdk-types 0.2.2 (git+https://github.com/the-social-proof-foundation/myso-rust-sdk?branch=main)",
  "myso-types",
@@ -5965,6 +5967,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "shared-crypto",
  "tokio",
 ]
 

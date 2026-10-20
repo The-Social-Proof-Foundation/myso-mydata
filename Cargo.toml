@@ -52,6 +52,7 @@ move-package-alt-compilation = { git = "https://github.com/the-social-proof-foun
 myso-package-alt = { git = "https://github.com/the-social-proof-foundation/myso-core", branch = "main", package = "myso-package-alt" }
 
 myso-sdk-types = { git = "https://github.com/the-social-proof-foundation/myso-rust-sdk", branch = "main", features = ["serde"] }
+myso_keys = { git = "https://github.com/the-social-proof-foundation/myso-core", branch = "main", package = "myso-keys" }
 myso-rpc = { git = "https://github.com/the-social-proof-foundation/myso-rust-sdk", branch = "main" }
 myso-rpc-api = { git = "https://github.com/the-social-proof-foundation/myso-core", branch = "main", package = "myso-rpc-api" }
 
