@@ -3,7 +3,7 @@ FROM rust:1.90-bullseye  AS builder
 
 ARG PROFILE=release
 
-WORKDIR work
+WORKDIR /work
 
 COPY ./crates ./crates
 COPY ./Cargo.toml ./
@@ -12,11 +12,20 @@ ARG GIT_REVISION
 ENV GIT_REVISION=$GIT_REVISION
 
 RUN cargo build --bin key-server --profile $PROFILE --config net.git-fetch-with-cli=true
-FROM debian:bullseye-slim AS runtime
+FROM debian:bookworm-slim AS runtime
 
 EXPOSE 2024 8080
 
-RUN apt-get update && apt-get install -y cmake clang libpq5 ca-certificates libpq-dev postgresql
+# bullseye-security 404s these packages. bookworm-slim has no bash; the entrypoint shebang needs it.
+RUN apt-get update && apt-get install -y \
+    bash \
+    cmake \
+    clang \
+    libpq5 \
+    ca-certificates \
+    libpq-dev \
+    postgresql \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /work/target/release/key-server /opt/key-server/bin/
 
