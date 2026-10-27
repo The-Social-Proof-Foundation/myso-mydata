@@ -9,7 +9,7 @@ COPY .git/ .git/
 COPY Cargo.toml Cargo.lock ./
 COPY crates/mydata-proxy crates/mydata-proxy
 
-RUN cargo build --profile ${PROFILE} --bin mydata-proxy
+RUN cargo build --locked --profile ${PROFILE} --bin mydata-proxy
 
 FROM debian:bookworm-slim as prod
 RUN apt-get update && apt install -y openssl ca-certificates && update-ca-certificates

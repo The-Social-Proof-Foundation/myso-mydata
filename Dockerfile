@@ -6,12 +6,14 @@ ARG PROFILE=release
 WORKDIR /work
 
 COPY ./crates ./crates
-COPY ./Cargo.toml ./
+COPY ./Cargo.toml ./Cargo.lock ./
 
 ARG GIT_REVISION
 ENV GIT_REVISION=$GIT_REVISION
 
-RUN cargo build --bin key-server --profile $PROFILE --config net.git-fetch-with-cli=true
+# --locked keeps allocative 0.3.4 with hashbrown 0.14. starlark_map 0.13.0
+# does not compile against allocative 0.3.6's hashbrown 0.16 HashTable.
+RUN cargo build --locked --bin key-server --profile $PROFILE --config net.git-fetch-with-cli=true
 FROM debian:bookworm-slim AS runtime
 
 EXPOSE 2024 8080
