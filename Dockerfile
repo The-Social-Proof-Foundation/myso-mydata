@@ -1,5 +1,6 @@
-# Start with a Rust base image
-FROM rust:1.90-bullseye  AS builder
+# Bookworm, same as the runtime image. Bullseye links OpenSSL 1.1 (libssl.so.1.1);
+# bookworm only ships libssl.so.3, so a bullseye binary cannot start there.
+FROM rust:1.90-bookworm AS builder
 
 ARG PROFILE=release
 
@@ -23,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     bash \
     cmake \
     clang \
+    libssl3 \
     libpq5 \
     ca-certificates \
     libpq-dev \
