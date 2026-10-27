@@ -1094,10 +1094,15 @@ pub(crate) async fn app() -> Result<(JoinHandle<Result<()>>, Router)> {
                 .ok()
                 .and_then(|n| n.parse().ok())
                 .unwrap_or(Network::Testnet);
-            KeyServerOptions::new_open_server_with_default_values(
+            let mut options = KeyServerOptions::new_open_server_with_default_values(
                 network,
                 utils::decode_object_id("KEY_SERVER_OBJECT_ID")?,
-            )
+            );
+            if let Some(url) = env::var("NODE_URL").ok().filter(|url| !url.is_empty()) {
+                info!("Using NODE_URL from environment variable: {}", url);
+                options.node_url = Some(url);
+            }
+            options
         }
     };
 
