@@ -256,6 +256,31 @@ impl MySoRpcClient {
         .await
     }
 
+    /// Returns the fullnode's current epoch.
+    pub async fn get_current_epoch(&self) -> RpcResult<u64> {
+        myso_rpc_with_retries(
+            &self.rpc_retry_config,
+            "get_current_epoch",
+            self.metrics.clone(),
+            || {
+                let mut grpc_client = self.myso_grpc_client.clone();
+                async move {
+                    let mut client = grpc_client.ledger_client();
+                    let mut request = myso_rpc::proto::myso::rpc::v2::GetEpochRequest::default();
+                    request.read_mask = Some(prost_types::FieldMask {
+                        paths: vec!["epoch".to_string()],
+                    });
+                    client
+                        .get_epoch(request)
+                        .await
+                        .map(|r| r.into_inner().epoch().epoch())
+                        .map_err(RpcError::from_grpc)
+                }
+            },
+        )
+        .await
+    }
+
     /// Returns an object with the given dynamic field name.
     pub async fn get_dynamic_field_object(
         &self,

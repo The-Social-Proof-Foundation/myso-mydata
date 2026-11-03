@@ -82,6 +82,7 @@ pub(crate) async fn create_test_server(
         master_keys,
         key_server_oid_to_pop: Arc::new(RwLock::new(HashMap::new())),
         options,
+        zklogin: Arc::new(crate::zklogin::ZkLoginCertVerifier::new()),
     }
 }
 

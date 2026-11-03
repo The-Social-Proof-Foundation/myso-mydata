@@ -83,6 +83,7 @@ mod myso_rpc_client;
 mod types;
 mod utils;
 mod valid_ptb;
+mod zklogin;
 
 use common::NetworkConfig;
 
@@ -140,6 +141,7 @@ struct Server {
     master_keys: MasterKeys,
     key_server_oid_to_pop: Arc<RwLock<HashMap<ObjectID, MasterKeyPOP>>>,
     options: KeyServerOptions,
+    zklogin: Arc<zklogin::ZkLoginCertVerifier>,
 }
 
 impl Server {
@@ -219,6 +221,7 @@ impl Server {
             master_keys,
             key_server_oid_to_pop: Arc::new(RwLock::new(key_server_oid_to_pop)),
             options,
+            zklogin: Arc::new(zklogin::ZkLoginCertVerifier::new()),
         }
     }
 
@@ -402,20 +405,33 @@ impl Server {
             "Checking signature on message: {:?} (req_id: {:?})",
             msg, req_id
         );
-        verify_personal_message_signature(
-            cert.signature.clone(),
-            msg.as_bytes(),
-            cert.user,
-            None, // zkLogin verification would require myso_rpc_api::Client; regular signatures work without
-        )
-        .await
-        .tap_err(|e| {
-            debug!(
-                "Signature verification failed: {:?} (req_id: {:?})",
-                e, req_id
-            );
-        })
-        .map_err(|_| InternalError::InvalidSignature)?;
+        let verified = if matches!(cert.signature, GenericSignature::ZkLoginAuthenticator(_)) {
+            // zkLogin accounts sign with their full zkLogin signature; checked in-process with
+            // MySo's Groth16 key (see `zklogin.rs`).
+            let rpc = self.myso_rpc_client.clone();
+            self.zklogin
+                .verify(&cert.signature, msg.as_bytes(), cert.user, || async move {
+                    rpc.get_current_epoch().await.map_err(|e| format!("{e:?}"))
+                })
+                .await
+        } else {
+            verify_personal_message_signature(
+                cert.signature.clone(),
+                msg.as_bytes(),
+                cert.user,
+                None,
+            )
+            .await
+            .map_err(|e| format!("{e:?}"))
+        };
+        verified
+            .tap_err(|e| {
+                debug!(
+                    "Signature verification failed: {:?} (req_id: {:?})",
+                    e, req_id
+                );
+            })
+            .map_err(|_| InternalError::InvalidSignature)?;
 
         // Check session signature
         let signed_msg = signed_request(ptb, enc_key, enc_verification_key);
