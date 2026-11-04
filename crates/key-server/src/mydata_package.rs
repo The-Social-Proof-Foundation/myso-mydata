@@ -13,10 +13,14 @@ use myso_types::transaction::Argument::Input;
 use myso_types::transaction::{CallArg, Command, ObjectArg, ProgrammableTransaction};
 use myso_types::MYSO_CLOCK_OBJECT_ID;
 
+/// MySocial ships MyData as the framework package `0xda7a` (`myso_types::MYDATA_PACKAGE_ID`), so
+/// it has the same address on every MySocial network. The previous values were upstream's
+/// published package IDs, which don't exist on MySocial and made every `fetch_key` fail with
+/// "Dependent package not found on-chain".
 const TESTNET_PACKAGE_ID: &str =
-    "0x4016869413374eaa71df2a043d1660ed7bc927ab7962831f8b07efbc7efdb2c3";
+    "0x000000000000000000000000000000000000000000000000000000000000da7a";
 const MAINNET_PACKAGE_ID: &str =
-    "0xcb83a248bda5f7a0a431e6bf9e96d184e604130ec5218696e3f1211113b447b7";
+    "0x000000000000000000000000000000000000000000000000000000000000da7a";
 
 /// This should be equal to the corresponding error code from the staleness MyData Move package.
 pub const STALENESS_ERROR_CODE: u64 = 93492;
