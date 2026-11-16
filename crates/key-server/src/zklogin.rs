@@ -47,8 +47,9 @@ const JWK_REFETCH_INTERVAL: Duration = Duration::from_secs(60);
 /// Current epoch is re-read from the fullnode at most this often.
 const EPOCH_TTL: Duration = Duration::from_secs(30);
 
-/// Protocol config `zklogin_max_epoch_upper_bound_delta`.
-const MAX_EPOCH_UPPER_BOUND_DELTA: u64 = 30;
+/// Protocol config `zklogin_max_epoch_upper_bound_delta`: 365 since protocol v113 (was 30). Must
+/// match the chain, or year-long proofs the chain accepts get every key request rejected here.
+const MAX_EPOCH_UPPER_BOUND_DELTA: u64 = 365;
 
 /// The certificate signature as an SDK zkLogin signature, if it is one.
 fn as_zklogin(signature: &GenericSignature) -> Option<UserSignature> {
